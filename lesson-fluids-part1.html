@@ -448,6 +448,53 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Solved Example: Multi-Layers -->
+            <div class="mt-8 glass-panel p-6 border-t-4 border-blue-500 bg-slate-900/50">
+                <h3 class="text-xl font-bold text-white mb-4">🧩 مسألة محلولة: "تورتة السوائل" 🍰</h3>
+                <div class="grid md:grid-cols-2 gap-8 items-center">
+                    <div>
+                        <p class="text-slate-300 text-sm mb-4 leading-loose">
+                            إناء يحتوي على 3 طبقات:
+                            <br>1. زئبق (ارتفاع 2 سم)
+                            <br>2. ماء (ارتفاع 5 سم)
+                            <br>3. زيت (ارتفاع 10 سم)
+                            <br><span class="text-white font-bold">المطلوب: الضغط الكلي عند القاع؟</span>
+                            <br><span class="text-xs text-slate-500">(مع إهمال الضغط الجوي للتبسيط)</span>
+                        </p>
+
+                        <div
+                            class="bg-black/30 p-3 rounded-lg border border-slate-700 font-mono text-xs dir-ltr text-right space-y-2">
+                            <p class="text-green-400 font-bold mb-2">Total Pressure = P1 + P2 + P3</p>
+                            <p class="text-slate-300">P_total = g (ρ₁h₁ + ρ₂h₂ + ρ₃h₃)</p>
+                            <p class="text-slate-400 border-l-2 border-slate-600 pl-2">
+                                ρ_Hg=13600, ρ_w=1000, ρ_oil=800
+                            </p>
+                            <p class="text-yellow-400 font-bold mt-2 border-t border-slate-700 pt-2">
+                                Result = 4020 Pa ✅
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Layers Diagram -->
+                    <div class="flex justify-center">
+                        <svg viewBox="0 0 100 150" class="w-24 h-40 border-2 border-slate-500 rounded-b-lg bg-white/5">
+                            <!-- Mercury (Bottom) -->
+                            <rect x="0" y="130" width="100" height="20" fill="#94a3b8" />
+                            <text x="50" y="145" font-size="8" fill="white" text-anchor="middle">Merucry (2cm)</text>
+
+                            <!-- Water (Middle) -->
+                            <rect x="0" y="80" width="100" height="50" fill="#3b82f6" opacity="0.8" />
+                            <text x="50" y="105" font-size="8" fill="white" text-anchor="middle">Water (5cm)</text>
+
+                            <!-- Oil (Top) -->
+                            <rect x="0" y="0" width="100" height="80" fill="#eab308" opacity="0.8" />
+                            <text x="50" y="40" font-size="8" fill="white" text-anchor="middle">Oil (10cm)</text>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+            </div>
         </section>
 
         <!-- U-Tube Theory -->
@@ -772,49 +819,166 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Deep Dive: Torricelli Vacuum Mysteries -->
+            <div class="mt-8 grid md:grid-cols-2 gap-6">
+                <div class="trick-box bg-purple-900/10 border-purple-500">
+                    <h5>🔮 ماذا لو... (سيناريوهات الرعب)</h5>
+                    <ul class="list-disc list-inside text-xs text-slate-300 space-y-2 mt-2">
+                        <li>
+                            <strong class="text-white">الأنبوبة مالت؟</strong>
+                            <span class="text-purple-300">طول الزئبق يزيد</span>، بس <span
+                                class="text-green-400">الارتفاع الرأسي ثابت</span>.
+                        </li>
+                        <li>
+                            <strong class="text-white">الأنبوبة قصيرة (< 76cm)؟</strong>
+                                    <span class="text-red-400">الزئبق هيملى الأنبوبة للآخر</span> ومش هينزل (مفيش فراغ
+                                    هيتكون أساساً).
+                        </li>
+                        <li>
+                            <strong class="text-white">الأنبوبة اتكسرت من فوق؟</strong>
+                            <span class="text-red-500 font-bold">كارثة!</span> الهواء هيدخل، والزئبق هينزل كله في الحوض
+                            (الضغط تساوى).
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="glass-panel p-4 flex items-center justify-center border border-slate-600">
+                    <div class="text-center">
+                        <p class="text-sm font-bold text-white mb-2">تأثير فقاعة الهواء 🫧</p>
+                        <p class="text-xs text-slate-400 mb-2">لو دخلت فقاعة في الفراغ، بتضغط على الزئبق لتحت.</p>
+                        <div class="text-2xl font-mono text-red-500 dir-ltr">h < 76 cm</div>
+                                <p class="text-[10px] text-slate-500 mt-1">القراءة هتكون "غلط" وأقل من الحقيقة.</p>
+                        </div>
+                    </div>
+                </div>
         </section>
 
         <!-- Manometer & Advanced Problems -->
         <section id="manometer" class="mb-16 scroll-mt-24">
             <h2 class="text-3xl font-bold mb-6 border-r-4 border-red-500 pr-4">⏲️ المانومتر ومسائل المتفوقين</h2>
 
-            <!-- Problem 1: Building Height -->
-            <div class="glass-panel p-6 mb-8 relative overflow-hidden">
-                <div class="absolute top-0 right-0 w-2 h-full bg-red-500"></div>
-                <h3 class="text-xl font-bold text-white mb-3">1. مسألة "ناطحة السحاب" 🏢</h3>
-                <p class="text-slate-300 text-sm mb-4">
-                    إزاي نحسب ارتفاع مبنى باستخدام البارومتر؟<br>
-                    الفكرة: فرق الضغط الجوي (تحت - فوق) = ضغط عمود الهواء بتاع المبنى.
-                </p>
+            <!-- Problem 1: Building Height (Solved Example) -->
+            <div class="glass-panel p-6 mb-8 relative overflow-hidden border-t-4 border-yellow-500">
+                <div class="absolute top-0 right-0 w-2 h-full bg-yellow-500"></div>
+                <h3 class="text-xl font-bold text-white mb-3">🧩 مسألة محلولة: ناطحة السحاب</h3>
 
-                <div class="bg-black/40 p-4 rounded-xl text-center mb-4">
-                    <div class="text-lg font-mono text-yellow-300 dir-ltr mb-2">
-                        ρ_air × g × h_bldg = ρ_Hg × g × Δh_Hg
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div>
+                        <p class="text-slate-300 text-sm mb-4 leading-loose">
+                            قراءة البارومتر أسفل مبنى <span class="text-purple-400 font-mono">76 cmHg</span>
+                            وأعلاه <span class="text-purple-400 font-mono">74 cmHg</span>.
+                            فإذا كان متوسط كثافة الهواء <span class="text-blue-400 font-mono">1.25 kg/m³</span>
+                            وكثافة الزئبق <span class="text-gray-400 font-mono">13600 kg/m³</span>.
+                            <br>
+                            <span class="text-white font-bold">المطلوب: ارتفاع المبنى؟</span>
+                        </p>
+
+                        <div class="bg-black/30 p-3 rounded-lg border border-slate-700">
+                            <h5 class="text-xs text-green-400 font-bold mb-2">💡 الحل خطوة بخطوة:</h5>
+                            <ol
+                                class="list-decimal list-inside text-xs text-slate-300 space-y-2 font-mono dir-ltr text-right">
+                                <li>ΔP_air = ΔP_Hg</li>
+                                <li>ρ_air × g × h_bldg = ρ_Hg × g × Δh_Hg</li>
+                                <li>1.25 × h = 13600 × (0.76 - 0.74)</li>
+                                <li>h = (13600 × 0.02) / 1.25</li>
+                                <li class="text-yellow-400 font-bold">h = 217.6 m ✅</li>
+                            </ol>
+                        </div>
+                    </div>
+
+                    <!-- Diagram for Building -->
+                    <div class="flex items-center justify-center bg-slate-900/50 rounded-xl p-4">
+                        <svg viewBox="0 0 200 150" class="w-full h-32">
+                            <!-- Building -->
+                            <rect x="140" y="50" width="40" height="100" fill="#475569" />
+                            <rect x="145" y="60" width="10" height="10" fill="#facc15" opacity="0.5" />
+                            <rect x="165" y="60" width="10" height="10" fill="#facc15" opacity="0.5" />
+                            <rect x="145" y="80" width="10" height="10" fill="#facc15" opacity="0.5" />
+                            <rect x="165" y="80" width="10" height="10" fill="#facc15" opacity="0.5" />
+
+                            <!-- Barometers -->
+                            <g transform="translate(100, 130)">
+                                <rect x="0" y="-30" width="6" height="30" fill="#9ca3af" />
+                                <text x="10" y="-10" fill="#fff" font-size="8">76</text>
+                            </g>
+                            <g transform="translate(100, 50)">
+                                <rect x="0" y="-20" width="6" height="20" fill="#9ca3af" />
+                                <text x="10" y="-10" fill="#fff" font-size="8">74</text>
+                            </g>
+
+                            <!-- Height Arrow -->
+                            <line x1="130" y1="50" x2="130" y2="150" stroke="#facc15" stroke-dasharray="4" />
+                            <text x="110" y="100" fill="#facc15" font-size="10">h_bldg</text>
+                        </svg>
                     </div>
                 </div>
             </div>
 
-            <!-- Problem 2: Manometer -->
+            <!-- Problem 2: Manometer Visuals -->
             <div class="glass-panel p-6 relative overflow-hidden">
-                <h3 class="text-xl font-bold text-white mb-3">2. المانومتر (قياس ضغط غاز محبوس) 🎈</h3>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
-                    <div class="bg-slate-800 p-3 rounded-lg border border-slate-600">
-                        <div class="text-green-400 font-bold mb-1">P_gas > P_a</div>
-                        <div class="text-xs text-slate-400">السائل طلع في الفرع الخالص</div>
-                        <div class="text-xs font-mono mt-1 text-white dir-ltr">P_gas = P_a + h</div>
-                    </div>
-                    <div class="bg-slate-800 p-3 rounded-lg border border-slate-600">
-                        <div class="text-yellow-400 font-bold mb-1">P_gas < P_a</div>
-                                <div class="text-xs text-slate-400">السائل طلع ناحية الغاز</div>
-                                <div class="text-xs font-mono mt-1 text-white dir-ltr">P_gas = P_a - h</div>
+                <h3 class="text-xl font-bold text-white mb-6">2. المانومتر (حالات الضغط الثلاثة) 🎈</h3>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+                    <!-- Case 1 -->
+                    <div class="bg-slate-800 p-4 rounded-xl border border-slate-600 flex flex-col items-center">
+                        <h4 class="text-green-400 font-bold mb-2">ضغط عالي (P > Pa)</h4>
+                        <svg viewBox="0 0 100 120" class="w-24 h-32 mb-2">
+                            <!-- U Tube -->
+                            <path d="M20 20 V80 Q20 100 50 100 Q80 100 80 80 V10" fill="none" stroke="#64748b"
+                                stroke-width="6" />
+                            <!-- Balloon -->
+                            <circle cx="20" cy="20" r="15" fill="#ef4444" opacity="0.8" />
+                            <!-- Liquid -->
+                            <path d="M20 50 V80 Q20 100 50 100 Q80 100 80 80 V30" fill="none" stroke="#9ca3af"
+                                stroke-width="4" />
+                            <!-- Mark -->
+                            <line x1="50" y1="50" x2="90" y2="50" stroke="#fff" stroke-dasharray="2" opacity="0.5" />
+                        </svg>
+                        <div class="text-xs font-mono text-white dir-ltr bg-black/40 px-2 py-1 rounded">P_gas = P_a + h
                         </div>
-                        <div class="bg-slate-800 p-3 rounded-lg border border-slate-600">
-                            <div class="text-blue-400 font-bold mb-1">P_gas = P_a</div>
-                            <div class="text-xs text-slate-400">السائل في مستوى واحد</div>
-                            <div class="text-xs font-mono mt-1 text-white dir-ltr">diff = 0</div>
+                    </div>
+
+                    <!-- Case 2 -->
+                    <div class="bg-slate-800 p-4 rounded-xl border border-slate-600 flex flex-col items-center">
+                        <h4 class="text-blue-400 font-bold mb-2">متزن (P = Pa)</h4>
+                        <svg viewBox="0 0 100 120" class="w-24 h-32 mb-2">
+                            <!-- U Tube -->
+                            <path d="M20 20 V80 Q20 100 50 100 Q80 100 80 80 V10" fill="none" stroke="#64748b"
+                                stroke-width="6" />
+                            <!-- Balloon -->
+                            <circle cx="20" cy="20" r="15" fill="#3b82f6" opacity="0.8" />
+                            <!-- Liquid -->
+                            <path d="M20 40 V80 Q20 100 50 100 Q80 100 80 80 V40" fill="none" stroke="#9ca3af"
+                                stroke-width="4" />
+                        </svg>
+                        <div class="text-xs font-mono text-white dir-ltr bg-black/40 px-2 py-1 rounded">P_gas = P_a
                         </div>
                     </div>
+
+                    <!-- Case 3 -->
+                    <div class="bg-slate-800 p-4 rounded-xl border border-slate-600 flex flex-col items-center">
+                        <h4 class="text-yellow-400 font-bold mb-2">شفط (P < Pa)</h4>
+                                <svg viewBox="0 0 100 120" class="w-24 h-32 mb-2">
+                                    <!-- U Tube -->
+                                    <path d="M20 20 V80 Q20 100 50 100 Q80 100 80 80 V10" fill="none" stroke="#64748b"
+                                        stroke-width="6" />
+                                    <!-- Balloon -->
+                                    <circle cx="20" cy="20" r="15" fill="#eab308" opacity="0.8" />
+                                    <!-- Liquid -->
+                                    <path d="M20 30 V80 Q20 100 50 100 Q80 100 80 80 V50" fill="none" stroke="#9ca3af"
+                                        stroke-width="4" />
+                                    <!-- Mark -->
+                                    <line x1="10" y1="50" x2="50" y2="50" stroke="#fff" stroke-dasharray="2"
+                                        opacity="0.5" />
+                                </svg>
+                                <div class="text-xs font-mono text-white dir-ltr bg-black/40 px-2 py-1 rounded">P_gas =
+                                    P_a - h</div>
+                    </div>
+
                 </div>
+            </div>
         </section>
 
 
@@ -911,7 +1075,7 @@
         </section>
 
         <!-- Hydraulic Press Simulation -->
-        <section class="mb-16">
+        <section id="press" class="mb-16 scroll-mt-24">
             <h3 class="text-xl font-bold text-white mb-4 pr-4 border-r-4 border-green-500">🎮 ورشة الميكانيكا (ارفع
                 العربية)</h3>
             <div class="glass-panel p-4 md:p-6 border border-green-500/30">
