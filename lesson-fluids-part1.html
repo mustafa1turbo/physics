@@ -544,6 +544,26 @@
                     <!-- Controls -->
                     <div class="lg:col-span-4 space-y-6">
                         <div class="control-panel">
+                            <!-- Shape Selector -->
+                            <div class="mb-4 bg-slate-800 p-2 rounded-lg border border-slate-700 flex gap-2">
+                                <label class="flex-1 cursor-pointer">
+                                    <input type="radio" name="tubeShape" value="uniform" checked class="peer sr-only"
+                                        onchange="initUtube()">
+                                    <div
+                                        class="text-center py-2 rounded text-xs text-slate-400 peer-checked:bg-blue-600 peer-checked:text-white transition">
+                                        منتظمة المقطع (A)
+                                    </div>
+                                </label>
+                                <label class="flex-1 cursor-pointer">
+                                    <input type="radio" name="tubeShape" value="irreg" class="peer sr-only"
+                                        onchange="initUtube()">
+                                    <div
+                                        class="text-center py-2 rounded text-xs text-slate-400 peer-checked:bg-purple-600 peer-checked:text-white transition">
+                                        غير منتظمة (2A)
+                                    </div>
+                                </label>
+                            </div>
+
                             <label class="block text-sm font-bold text-yellow-400 mb-4 flex justify-between">
                                 <span>كمية الزيت (صب في الفرع الأيسر)</span>
                                 <span class="bg-slate-900 px-2 py-1 rounded text-white font-mono" id="oilVal">0
@@ -1411,17 +1431,88 @@
             }
         }
 
-        // --- U-Tube Simulation (Revised Physics) ---
+        // --- U-Tube Simulation (Fixed & Enhanced) ---
         const uCanvas = document.getElementById('utubeCanvas');
         const uCtx = uCanvas.getContext('2d');
-        const slider = document.getElementById('oilSlider');
-        let oilH = 0; // cm input
+
+        // Physics State
+        let u_oilH = 0; // cm input
+        let u_targetDisp = 0; // Target displacement (pixels)
+        let u_currentDisp = 0; // Current animation state
+        let u_velocity = 0;
+        let u_running = false;
+        let u_isUniform = true;
 
         function initUtube() {
+            if (!uCanvas) return;
             const container = uCanvas.parentElement;
             uCanvas.width = container.clientWidth;
             uCanvas.height = container.clientHeight;
+
+            // Bind Slider
+            const slider = document.getElementById('oilSlider');
+            if (slider) {
+                slider.oninput = function () {
+                    u_oilH = parseFloat(this.value);
+                    recalcPhysics();
+                };
+            }
+
+            // Check Shape
+            const shapeOpt = document.querySelector('input[name="tubeShape"]:checked');
+            u_isUniform = (shapeOpt && shapeOpt.value === 'uniform');
+
+            // Force recalculate (e.g. if switching shape while oil exists)
+            recalcPhysics();
+        }
+
+        function recalcPhysics() {
+            const rho_oil = 800;
+            const rho_water = 1000;
+            const pxPerCm = 10;
+
+            // Physics Logic:
+            // Case 1: Uniform (A_left = A_right)
+            // Water falls y on left, rises y on right. Total height = 2y.
+            // rho_o * h_o = rho_w * 2y  =>  y = (rho_o * h_o) / (2 * rho_w)
+
+            // Case 2: Irregular (A_right = 2 * A_left)
+            // Water falls y on left (Area A). Volume = A*y
+            // Water rises z on right (Area 2A). Volume = 2A*z
+            // A*y = 2A*z => z = y/2
+            // Total height = y + z = 1.5 y
+            // rho_o * h_o = rho_w * 1.5y => y = (rho_o * h_o) / (1.5 * rho_w)
+
+            const factor = u_isUniform ? 2.0 : 1.5;
+            const y_cm = (rho_oil * u_oilH) / (rho_water * factor);
+
+            u_targetDisp = y_cm * pxPerCm;
+
+            if (!u_running) {
+                u_running = true;
+                animateUtube();
+            }
+        }
+
+        function animateUtube() {
+            // Spring Physics for smooth transition
+            const k = 0.08;
+            const damping = 0.92;
+            const diff = u_targetDisp - u_currentDisp;
+
+            u_velocity += diff * k;
+            u_velocity *= damping;
+            u_currentDisp += u_velocity;
+
+            if (Math.abs(diff) < 0.1 && Math.abs(u_velocity) < 0.01) {
+                u_currentDisp = u_targetDisp; // Snap to target
+                u_running = false; // Stop loop
+                drawUtube();
+                return;
+            }
+
             drawUtube();
+            requestAnimationFrame(animateUtube);
         }
 
         function drawUtube() {
@@ -1430,169 +1521,131 @@
             uCtx.clearRect(0, 0, w, h);
 
             const cx = w / 2;
-            const tubeW = 60;
+            const leftW = 60; // Left branch width (Oil)
+            const rightW = u_isUniform ? 60 : 100; // Right branch (Water) - Wider if irregular
+
             const leftX = cx - 80;
-            const rightX = cx + 80;
+            const rightX = cx + 80 + (u_isUniform ? 0 : 20); // Shift right slightly if wider
             const bottomY = h - 60;
 
-            // 1. Define U-Shape Path
+            // 1. Draw Glass Path
             uCtx.beginPath();
-            // Outer
-            uCtx.moveTo(leftX - 30, 50);
-            uCtx.lineTo(leftX - 30, bottomY);
-            uCtx.arc(cx, bottomY, 110, Math.PI, 0, true);
-            uCtx.lineTo(rightX + 30, 50);
-            // Inner
-            uCtx.lineTo(rightX - 30, 50);
-            uCtx.lineTo(rightX - 30, bottomY);
-            uCtx.arc(cx, bottomY, 50, 0, Math.PI, false);
-            uCtx.lineTo(leftX + 30, 50);
+            // Left Branch Outer
+            uCtx.moveTo(leftX - leftW / 2, 50);
+            uCtx.lineTo(leftX - leftW / 2, bottomY);
+            // Bottom Curve logic needs to adapt to widths
+            // Simple approach: Bezier or Arc connecting the two vertical pipes
+            const curveControlY = bottomY + 100;
+
+            // Outer Path
+            uCtx.beginPath();
+            uCtx.moveTo(leftX - leftW / 2, 50); // Top Left Outer
+            uCtx.lineTo(leftX - leftW / 2, bottomY);
+            uCtx.quadraticCurveTo(cx, curveControlY, rightX + rightW / 2, bottomY);
+            uCtx.lineTo(rightX + rightW / 2, 50); // Top Right Outer
+
+            // Inner Path (Reverse)
+            uCtx.lineTo(rightX - rightW / 2, 50); // Top Right Inner
+            uCtx.lineTo(rightX - rightW / 2, bottomY);
+            uCtx.quadraticCurveTo(cx, curveControlY - (leftW), leftX + leftW / 2, bottomY); // Inner curve approx
+            uCtx.lineTo(leftX + leftW / 2, 50); // Top Left Inner
             uCtx.closePath();
 
-            // 2. Clip for Fluid
+            // 2. Clip Content
             uCtx.save();
             uCtx.clip();
 
-            // 3. Physics Math
-            const eqLevel = h - 200; // Base water level
+            // 3. Draw Liquids
+            const eqLevel = h - 200; // Base equilibrium level
             const pxPerCm = 10;
 
-            // Displacement logic:
-            // Oil pushes down left side by distance d
-            // Water rises right side by distance d
-            // h_water_column_above_interface = 2 * d
-            // rho_oil * h_oil = rho_water * (2d)
-            // d = (rho_oil * h_oil) / (2 * rho_water)
+            // Calculate levels based on current displacement (y)
+            // Left level (Water-Oil interface) moves DOWN by y
+            const leftInterfaceY = eqLevel + u_currentDisp;
 
-            const rho_oil = 800;
-            const rho_water = 1000;
-            // UPGRADE: Use dynamic physics value
-            const displacement = u_currentDisp; // Used mainly for drawing water levels
+            // Right level (Water top) moves UP by z
+            // If uniform: z = y. If irreg: z = y/2.
+            const ratio = u_isUniform ? 1.0 : 0.5;
+            const rightSurfaceY = eqLevel - (u_currentDisp * ratio);
 
-            const leftInterfaceY = eqLevel + displacement;
-            const rightSurfaceY = eqLevel - displacement;
-            const oilTopY = leftInterfaceY - (oilH * pxPerCm);
+            const oilTopY = leftInterfaceY - (u_oilH * pxPerCm);
 
-            // Draw Water (Blue)
-            const wGrad = uCtx.createLinearGradient(0, 0, w, 0);
-            wGrad.addColorStop(0, '#1d4ed8');
-            wGrad.addColorStop(1, '#3b82f6');
-            uCtx.fillStyle = wGrad;
-
+            // A. Water (Blue)
             // Fill everything up to rightSurfaceY
-            // We use a big rect and the clip takes care of the shape
+            uCtx.fillStyle = '#3b82f6';
             uCtx.fillRect(0, rightSurfaceY, w, h);
 
-            // Clear the space above oil on left (since we filled everything)
-            // Actually, better to fill Oil on top of Water on left
-
-            // Draw Oil (Yellow) on Left
-            const oGrad = uCtx.createLinearGradient(leftX - 30, 0, leftX + 30, 0);
+            // B. Oil (Yellow) - Only on Left Branch
+            // We draw a rect covering the left branch area purely
+            const oGrad = uCtx.createLinearGradient(leftX - leftW / 2, 0, leftX + leftW / 2, 0);
             oGrad.addColorStop(0, '#b45309');
             oGrad.addColorStop(0.5, '#fbbf24');
             oGrad.addColorStop(1, '#b45309');
             uCtx.fillStyle = oGrad;
 
-            // Oil is from oilTopY to leftInterfaceY
-            // But we already filled water there. It's okay, paint over.
-            uCtx.fillRect(leftX - 30, oilTopY, 60, leftInterfaceY - oilTopY);
+            // Draw oil from top to interface
+            // IMPORTANT: Only draw in the left vertical strip to avoid messy overlaps
+            uCtx.fillRect(leftX - leftW / 2, oilTopY, leftW, leftInterfaceY - oilTopY);
 
-            // Clear space above oil (Left) and above water (Right) inside the tube
+            // Clean up: Clear above water on right and above oil on left
             uCtx.globalCompositeOperation = 'destination-out';
-            uCtx.fillRect(0, 0, cx, oilTopY); // Clear left top
-            uCtx.fillRect(cx, 0, w, rightSurfaceY); // Clear right top
+            uCtx.fillRect(0, 0, w, Math.min(oilTopY, rightSurfaceY)); // Rough clear top
+            // Precise clear for each branch
+            uCtx.fillRect(leftX - leftW / 2, 0, leftW, oilTopY); // Clear left
+            uCtx.fillRect(rightX - rightW / 2, 0, rightW, rightSurfaceY); // Clear right
             uCtx.globalCompositeOperation = 'source-over';
 
             uCtx.restore(); // End Clip
 
-            // 4. Glass Overlay (Stroke)
+            // 4. Stroke Glass
             uCtx.strokeStyle = 'rgba(255,255,255,0.4)';
             uCtx.lineWidth = 4;
-            uCtx.stroke(); // Strokes the path defined at start (saved in context? no, need to redefine or use Path2D)
-
-            // Redraw path for stroke
-            uCtx.beginPath();
-            uCtx.moveTo(leftX - 30, 50);
-            uCtx.lineTo(leftX - 30, bottomY);
-            uCtx.arc(cx, bottomY, 110, Math.PI, 0, true);
-            uCtx.lineTo(rightX + 30, 50);
-            uCtx.lineTo(rightX - 30, 50);
-            uCtx.lineTo(rightX - 30, bottomY);
-            uCtx.arc(cx, bottomY, 50, 0, Math.PI, false);
-            uCtx.lineTo(leftX + 30, 50);
             uCtx.stroke();
 
-            // 5. Interface Line & Separation Surface
-            if (oilH > 0.5) {
-                // Dashed line at interface level
-                uCtx.strokeStyle = '#4ade80'; // Green
+            // 5. Interface & Markers
+            if (u_oilH > 0.5) {
+                // Dashed Line at Separation
+                uCtx.strokeStyle = '#4ade80';
                 uCtx.setLineDash([5, 5]);
-                uCtx.lineWidth = 2;
                 uCtx.beginPath();
-                uCtx.moveTo(leftX - 60, leftInterfaceY);
-                uCtx.lineTo(rightX + 60, leftInterfaceY);
+                uCtx.moveTo(leftX - 50, leftInterfaceY);
+                uCtx.lineTo(rightX + 80, leftInterfaceY);
                 uCtx.stroke();
                 uCtx.setLineDash([]);
 
                 uCtx.fillStyle = '#4ade80';
-                uCtx.font = '12px Cairo';
-                uCtx.fillText('السطح الفاصل', leftX - 100, leftInterfaceY + 5);
+                uCtx.font = '10px Cairo';
+                uCtx.fillText('السطح الفاصل', cx - 20, leftInterfaceY - 5);
 
-                // Height Markers
-                // Oil Height
-                drawArrow(uCtx, leftX - 40, leftInterfaceY, leftX - 40, oilTopY, '#fbbf24');
-
-                // Water Height (above interface)
-                drawArrow(uCtx, rightX + 40, leftInterfaceY, rightX + 40, rightSurfaceY, '#60a5fa');
+                // Arrows
+                // Oil Height Arrow
+                drawArrow(uCtx, leftX - 50, leftInterfaceY, leftX - 50, oilTopY, '#fbbf24');
+                // Water Height Arrow (Above Interface)
+                drawArrow(uCtx, rightX + (u_isUniform ? 50 : 70), leftInterfaceY, rightX + (u_isUniform ? 50 : 70), rightSurfaceY, '#60a5fa');
             }
 
-            // Update DOM
-            document.getElementById('oilVal').innerText = oilH.toFixed(1) + " cm";
-            const hWater = (oilH * 0.8).toFixed(1);
-            document.getElementById('oilCalc').innerText = `800 × ${oilH}`;
-            document.getElementById('waterCalc').innerText = `1000 × ${hWater}`;
-            if (oilH > 1) document.getElementById('eqResult').classList.remove('hidden');
-        }
+            // Update Text Values
+            document.getElementById('oilVal').innerText = u_oilH.toFixed(1) + " cm";
 
-        function drawArrow(ctx, x1, y1, x2, y2, color) {
-            ctx.strokeStyle = color;
-            ctx.beginPath();
-            ctx.moveTo(x1, y1);
-            ctx.lineTo(x2, y2);
-            ctx.stroke();
-            // Ends
-            ctx.fillStyle = color;
-            ctx.beginPath(); ctx.arc(x1, y1, 3, 0, Math.PI * 2); ctx.fill();
-            ctx.beginPath(); ctx.arc(x2, y2, 3, 0, Math.PI * 2); ctx.fill();
-        }
+            // Verify Logic text
+            const hWater = ((eqLevel - rightSurfaceY + u_currentDisp) / pxPerCm).toFixed(2); // Total Water height above separation
+            // Actually simpler: h_water = h_oil * rho_oil / rho_water
+            // But let's show the measured height
 
-        // UPGRADE: Damped Harmonic Motion Scope
-        let u_targetDisp = 0;
-        let u_currentDisp = 0;
-        let u_velocity = 0;
-        let u_running = false;
+            // Wait, h_water above separation = leftInterfaceY - rightSurfaceY
+            // = (eq + y) - (eq - z) = y + z
+            const pixelHeight = leftInterfaceY - rightSurfaceY;
+            const cmHeight = (pixelHeight / 10).toFixed(1);
 
-        function updateUtubePhysics() {
-            const k = 0.08; // Spring stiffness
-            const damping = 0.92; // Friction
+            document.getElementById('oilCalc').innerText = `800 × ${u_oilH.toFixed(1)}`;
+            document.getElementById('waterCalc').innerText = `1000 × ${cmHeight}`;
 
-            const diff = u_targetDisp - u_currentDisp;
-
-            // If close enough and slow enough, stop
-            if (Math.abs(diff) < 0.1 && Math.abs(u_velocity) < 0.01) {
-                u_currentDisp = u_targetDisp;
-                u_velocity = 0;
-                u_running = false;
-                drawUtube(); // Final draw
-                return;
+            const isBalanced = Math.abs((800 * u_oilH) - (1000 * cmHeight)) < 50; // Tolerance
+            if (u_oilH > 0 && isBalanced) {
+                document.getElementById('eqResult').classList.remove('hidden');
+            } else {
+                document.getElementById('eqResult').classList.add('hidden');
             }
-
-            u_velocity += diff * k;
-            u_velocity *= damping;
-            u_currentDisp += u_velocity;
-
-            drawUtube();
-            requestAnimationFrame(updateUtubePhysics);
         }
 
 
@@ -1622,56 +1675,75 @@
             const h = bCanvas.height;
             bCtx.clearRect(0, 0, w, h);
 
-            // Physics Calc
-            // P = P0 * e^(-Mgh/RT) simplified approximation
-            // Every 10m up -> ~1 torr down approx linear for small h
+            // Physics Calc (Corrected)
+            // P = 76 cmHg at sea level.
+            // Drops approx 1cmHg per 120m.
             const hSeaLevel = 76; // cm
-            const pressureDrop = (altitude / 10.5); // very rough approx drop in mm
-            const currentH_vertical = hSeaLevel - (pressureDrop / 10); // cm
+            const dropCm = altitude / 120;
+            const currentH_vertical = Math.max(0, hSeaLevel - dropCm);
 
-            // Pa calc
             const P_pa = (currentH_vertical / 76) * 101325;
 
             // Tube Angle
-            // L = h / cos(theta)
             const rad = angle * (Math.PI / 180);
             const tubeLen = currentH_vertical / Math.cos(rad);
 
             // Draw
-            // 1. Reservoir
-            bCtx.fillStyle = '#64748b'; // Bowl
-            bCtx.fillRect(w / 2 - 60, h - 80, 120, 60);
+            // 1. Reservoir (Wider and Clearer)
+            const resY = h - 60;
+            bCtx.fillStyle = '#475569'; // Bowl Darker
+            bCtx.beginPath(); bCtx.roundRect(w / 2 - 80, resY, 160, 50, 10); bCtx.fill();
+            bCtx.strokeStyle = '#94a3b8'; bCtx.stroke();
+
+            // Mercury in Reservoir
             bCtx.fillStyle = '#9ca3af'; // Mercury
-            bCtx.fillRect(w / 2 - 50, h - 70, 100, 40);
+            bCtx.beginPath(); bCtx.roundRect(w / 2 - 70, resY + 10, 140, 30, [0, 0, 8, 8]); bCtx.fill();
 
             // 2. Tube
             bCtx.save();
-            bCtx.translate(w / 2, h - 50);
+            bCtx.translate(w / 2, resY + 20); // Pivot at surface
             bCtx.rotate(rad);
 
-            // Tube Glass
-            bCtx.fillStyle = 'rgba(255,255,255,0.2)';
-            bCtx.strokeStyle = '#fff';
-            bCtx.lineWidth = 2;
-            bCtx.fillRect(-10, -350, 20, 360);
-            bCtx.strokeRect(-10, -350, 20, 360);
+            // Draw Vacuum Space (Ghostly)
+            bCtx.fillStyle = 'rgba(255, 255, 255, 0.05)';
+            bCtx.fillRect(-6, -380, 12, 380);
 
             // Mercury Column
-            // Scale: let's say 300px = 100cm approx
-            const pxPerCm = 3.5;
+            const pxPerCm = 4.0; // Scale
             const colHeightPx = tubeLen * pxPerCm;
+            const tubeTopPx = 380;
 
-            bCtx.fillStyle = '#9ca3af'; // Mecury Grey
-            bCtx.fillRect(-8, -colHeightPx, 16, colHeightPx);
+            // Clip to tube to prevent overflow
+            bCtx.beginPath();
+            bCtx.rect(-6, -tubeTopPx, 12, tubeTopPx + 20);
+            bCtx.clip();
 
-            // Marks
-            bCtx.fillStyle = '#fff';
-            bCtx.font = '10px monospace';
-            for (let i = 10; i <= 100; i += 10) {
+            // Fill Mercury
+            bCtx.fillStyle = '#9ca3af';
+            bCtx.fillRect(-5, -colHeightPx, 10, colHeightPx + 50);
+
+            // Vacuum Label
+            if (colHeightPx < tubeTopPx - 20) {
+                bCtx.fillStyle = '#f87171'; // Red
+                bCtx.font = '10px Cairo';
+                bCtx.textAlign = 'center';
+                bCtx.fillText('Vacuum', 0, -colHeightPx - 10);
+            }
+
+            // Marks scale
+            bCtx.fillStyle = 'rgba(255,255,255,0.8)';
+            bCtx.font = '9px monospace';
+            bCtx.textAlign = 'left';
+            for (let i = 10; i <= 90; i += 10) {
                 const y = -i * pxPerCm;
-                bCtx.fillRect(-10, y, 5, 1);
+                bCtx.fillRect(6, y, 4, 1);
                 if (i % 20 === 0) bCtx.fillText(i, 12, y + 3);
             }
+
+            // Glass Shell
+            bCtx.strokeStyle = 'rgba(255,255,255,0.6)';
+            bCtx.lineWidth = 2;
+            bCtx.strokeRect(-6, -tubeTopPx, 12, tubeTopPx + 20);
 
             bCtx.restore();
 
@@ -1756,50 +1828,133 @@
             const h = pCanvas.height;
             pCtx.clearRect(0, 0, w, h);
 
-            const pipeY = h - 80;
-            const p1X = w * 0.2;
-            const p2X = w * 0.7;
-            const p1W = 40;
-            const p2W = 120;
+            const groundY = h - 50;
+            const p1X = w * 0.25;
+            const p2X = w * 0.75;
+            const p1W = 40;  // Area 1 roughly ~ width squared
+            const p2W = 120; // Area 2
 
-            // Force slider
+            // Input Force
             const fSlider = document.getElementById('forceSlider');
             if (fSlider) inputForce = parseInt(fSlider.value);
 
-            // Calculation
-            const maxStroke = 100;
-            const stroke1 = (inputForce / 100) * maxStroke;
-            const stroke2 = stroke1 / 10; // Area ratio 10 assumed
+            // Physics: F2 = F1 * (A2/A1). Let's assume A2/A1 = 10.
+            // Stroke: d2 = d1 / 10.
 
-            const p1Y = (pipeY - 50) + stroke1;
-            const p2Y = (pipeY - 50) - stroke2;
+            const maxDown1 = 120; // Max pixels p1 can go down
+            const stroke1 = (inputForce / 100) * maxDown1; // 0 to 120
+            const stroke2 = stroke1 / 10; // 0 to 12. Correct Physics.
 
-            // Draw Oil
-            pCtx.fillStyle = '#b45309';
-            pCtx.fillRect(p1X - p1W / 2, p1Y, p1W, pipeY - p1Y + 20);
-            pCtx.fillRect(p2X - p2W / 2, pipeY - 20, p2W, p2Y - (pipeY - 20) + 120);
-            pCtx.fillRect(p1X, pipeY, p2X - p1X, 20);
+            // Base positions (Rest)
+            const p1RestY = groundY - 150;
+            const p2RestY = groundY - 50; // Car platform starts lower
 
-            // Pistons
-            pCtx.fillStyle = '#cbd5e1';
-            pCtx.fillRect(p1X - p1W / 2, p1Y - 10, p1W, 10); // Small
-            pCtx.fillRect(p2X - p2W / 2, p2Y, p2W, 15); // Large
+            const p1Y = p1RestY + stroke1;
+            const p2Y = p2RestY - stroke2; // Goes UP
 
-            // Car
-            drawCar(pCtx, p2X, p2Y - 45);
+            // 1. Pipes (Connecting U-shape)
+            pCtx.beginPath();
+            pCtx.strokeStyle = '#475569';
+            pCtx.lineWidth = 20;
+            pCtx.lineJoin = 'round';
+            pCtx.moveTo(p1X, p1RestY);
+            pCtx.lineTo(p1X, groundY);
+            pCtx.lineTo(p2X, groundY);
+            pCtx.lineTo(p2X, p2RestY - 50); // Cylinder 2 housing
+            pCtx.stroke();
 
-            // Force Text
+            // 2. Fluid (Hydraulic Oil)
+            pCtx.beginPath();
+            pCtx.strokeStyle = '#b45309'; // Oil color
+            pCtx.lineWidth = 14; // Inside pipe
+            pCtx.moveTo(p1X, p1Y);
+            pCtx.lineTo(p1X, groundY);
+            pCtx.lineTo(p2X, groundY);
+            pCtx.lineTo(p2X, p2Y);
+            pCtx.stroke();
+
+            // 3. Pistons
+            pCtx.fillStyle = '#cbd5e1'; // Silver
+            // Small Piston
+            pCtx.fillRect(p1X - p1W / 2, p1Y - 20, p1W, 20);
+            drawForceArrow(pCtx, p1X, p1Y - 30, inputForce, true);
+
+            // Large Piston (Platform)
+            pCtx.fillRect(p2X - p2W / 2, p2Y, p2W, 15);
+
+            // 4. Car (The New "Cool" Car)
+            drawCar(pCtx, p2X, p2Y);
+
+            // Text
             const f2 = inputForce * 10;
             const f2El = document.getElementById('f2Val');
-            if (f2El) f2El.innerText = f2 + " N";
+            if (f2El) f2El.innerText = (f2).toLocaleString() + " N";
         }
 
-        function drawCar(ctx, x, y) {
+        function drawForceArrow(ctx, x, y, mag, isDown) {
+            if (mag < 5) return;
             ctx.fillStyle = '#ef4444';
-            ctx.fillRect(x - 50, y, 100, 40); // Body
-            ctx.fillStyle = '#333';
-            ctx.beginPath(); ctx.arc(x - 30, y + 40, 15, 0, Math.PI * 2); ctx.fill(); // Wheel 1
-            ctx.beginPath(); ctx.arc(x + 30, y + 40, 15, 0, Math.PI * 2); ctx.fill(); // Wheel 2
+            const len = 20 + (mag / 100) * 40;
+            const dir = isDown ? 1 : -1;
+
+            ctx.beginPath();
+            ctx.moveTo(x - 5, y - (len * dir));
+            ctx.lineTo(x + 5, y - (len * dir));
+            ctx.lineTo(x + 5, y - (10 * dir));
+            ctx.lineTo(x + 10, y - (10 * dir));
+            ctx.lineTo(x, y);
+            ctx.lineTo(x - 10, y - (10 * dir));
+            ctx.lineTo(x - 5, y - (10 * dir));
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        function drawCar(ctx, x, platformY) {
+            // Draw a better car shape centered at x, sitting on platformY
+            const carW = 100;
+            const carH = 35;
+            const y = platformY - 40; // sit on top
+
+            ctx.save();
+            ctx.translate(x - carW / 2, y);
+
+            // Car Body (Sports shape path)
+            ctx.beginPath();
+            ctx.moveTo(0, 35); // Bottom Left
+            ctx.lineTo(10, 15); // Rear Bumper
+            ctx.quadraticCurveTo(25, 0, 50, 0); // Roof
+            ctx.quadraticCurveTo(80, 0, 100, 20); // Hood
+            ctx.lineTo(100, 35); // Front
+            ctx.closePath();
+
+            // Gradient Paint
+            const grad = ctx.createLinearGradient(0, 0, 100, 0);
+            grad.addColorStop(0, '#be123c'); // Dark Red
+            grad.addColorStop(0.5, '#f43f5e'); // Red
+            grad.addColorStop(1, '#be123c');
+            ctx.fillStyle = grad;
+            ctx.fill();
+
+            // Windows
+            ctx.fillStyle = '#334155';
+            ctx.beginPath();
+            ctx.moveTo(30, 5);
+            ctx.lineTo(60, 5);
+            ctx.lineTo(70, 15);
+            ctx.lineTo(25, 15);
+            ctx.fill();
+
+            // Wheels
+            ctx.fillStyle = '#1e293b'; // Tires
+            ctx.beginPath(); ctx.arc(20, 35, 12, 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath(); ctx.arc(80, 35, 12, 0, Math.PI * 2); ctx.fill();
+
+            // Rims
+            ctx.fillStyle = '#fff';
+            ctx.beginPath(); ctx.arc(20, 35, 5, 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath(); ctx.arc(80, 35, 5, 0, Math.PI * 2); ctx.fill();
+
+            ctx.restore();
         }
 
         if (document.getElementById('forceSlider')) {
