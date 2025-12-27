@@ -1,0 +1,1704 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تطبيقات الضغط (1) | منصة الفيزياء</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <style>
+        * {
+            font-family: 'Cairo', sans-serif;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: white;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #3b82f6;
+            border-radius: 4px;
+        }
+
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+
+        .nav-sidebar {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            width: 260px;
+            height: calc(100vh - 100px);
+            overflow-y: auto;
+            z-index: 40;
+            transition: transform 0.3s ease;
+        }
+
+        @media (max-width: 1024px) {
+            .nav-sidebar {
+                transform: translateX(110%);
+                background: #1e293b;
+                right: 0;
+                top: 0;
+                height: 100vh;
+                width: 280px;
+                padding-top: 80px;
+            }
+
+            .nav-sidebar.active {
+                transform: translateX(0);
+            }
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            margin-bottom: 8px;
+            border-radius: 12px;
+            color: #94a3b8;
+            transition: all 0.2s;
+            cursor: pointer;
+            border-right: 3px solid transparent;
+            font-weight: 600;
+        }
+
+        .nav-item:hover,
+        .nav-item.active {
+            background: rgba(59, 130, 246, 0.1);
+            color: #fff;
+            border-right-color: #3b82f6;
+        }
+
+        .canvas-wrapper {
+            position: relative;
+            background: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%);
+            border-radius: 16px;
+            border: 4px solid #475569;
+            box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+        }
+
+        .control-panel {
+            background: #1e293b;
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid #334155;
+        }
+
+        .range-slider {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            background: #475569;
+            outline: none;
+        }
+
+        .range-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #fbbf24;
+            cursor: pointer;
+            border: 2px solid #fff;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+            transition: transform 0.1s;
+        }
+
+        .range-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.1);
+        }
+
+        /* Pedagogical Badges */
+        .badge-understand {
+            background: linear-gradient(135deg, #4c1d95, #6d28d9);
+            color: #e9d5ff;
+            border: 1px solid #8b5cf6;
+            padding: 4px 12px;
+            border-radius: 99px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 4px 12px rgba(109, 40, 217, 0.3);
+            margin-bottom: 8px;
+        }
+
+        .badge-memo {
+            background: linear-gradient(135deg, #1e40af, #2563eb);
+            color: #dbeafe;
+            border: 1px solid #60a5fa;
+            padding: 4px 12px;
+            border-radius: 99px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+            margin-bottom: 8px;
+        }
+
+        .trick-box {
+            background: rgba(245, 158, 11, 0.1);
+            border-right: 4px solid #f59e0b;
+            padding: 16px;
+            border-radius: 8px;
+            margin-top: 16px;
+            position: relative;
+        }
+
+        .trick-box h5 {
+            color: #fbbf24;
+            font-weight: bold;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Chat Styling */
+        .chat-row {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+            align-items: flex-start;
+        }
+
+        .chat-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            flex-shrink: 0;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .chat-bubble {
+            padding: 14px 18px;
+            border-radius: 18px;
+            max-width: 85%;
+            line-height: 1.7;
+        }
+
+        /* Teacher */
+        .teacher-row .chat-avatar {
+            background: linear-gradient(135deg, #7c3aed, #4c1d95);
+        }
+
+        .teacher-row .chat-bubble {
+            background: #2e1065;
+            color: #e9d5ff;
+            border-top-right-radius: 4px;
+        }
+
+        /* Smart Student */
+        .student-row .chat-avatar {
+            background: linear-gradient(135deg, #2563eb, #1e3a8a);
+        }
+
+        .student-row .chat-bubble {
+            background: #172554;
+            color: #bfdbfe;
+            border-top-left-radius: 4px;
+        }
+
+        /* Confused Student (Funny) */
+        .confused-row .chat-avatar {
+            background: linear-gradient(135deg, #dc2626, #7f1d1d);
+        }
+
+        .confused-row .chat-bubble {
+            background: #450a0a;
+            color: #fecaca;
+            border-top-left-radius: 4px;
+            border: 1px dashed #f87171;
+        }
+    </style>
+</head>
+
+<body class="pb-20">
+
+    <!-- Mobile Nav Toggle -->
+    <button onclick="toggleNav()"
+        class="fixed top-4 left-4 z-50 lg:hidden bg-slate-800 p-3 rounded-xl border border-slate-700 shadow-lg text-white">
+        ☰ الفهرس
+    </button>
+
+    <!-- Header -->
+    <header
+        class="fixed top-0 w-full z-30 bg-slate-900/95 backdrop-blur border-b border-slate-800 h-16 flex items-center px-6 justify-between shadow-lg">
+        <div class="flex items-center gap-4">
+            <a href="index.html" class="flex items-center gap-2 text-slate-400 hover:text-white transition">
+                <span>⬅️</span> <span class="hidden md:inline font-bold">الرئيسية</span>
+            </a>
+            <div class="h-6 w-[1px] bg-slate-700 mx-2"></div>
+            <h1 class="font-bold text-lg md:text-xl text-white">الفصل 5: خواص الموائع الساكنة (شامل) 🌊</h1>
+        </div>
+        <div class="flex items-center gap-3">
+            <div class="hidden md:block text-xs font-bold text-slate-500">إعداد: م/ مصطفى هاني</div>
+            <div class="text-sm font-mono text-blue-400 bg-blue-900/20 px-3 py-1 rounded border border-blue-500/30">
+                2 ث
+            </div>
+        </div>
+    </header>
+
+    <!-- Sidebar -->
+    <nav class="nav-sidebar glass-panel" id="sidebar">
+        <div class="p-4 border-b border-slate-700 mb-2">
+            <h3 class="font-bold text-white">محتويات الدرس (الكامل)</h3>
+        </div>
+        <div onclick="scrollToSection('intro')" class="nav-item active">🌊 مقدمة وضغط السائل</div>
+        <div onclick="scrollToSection('vessels')" class="nav-item">🏺 الأواني المستطرقة</div>
+        <div onclick="scrollToSection('utube')" class="nav-item">🧪 الأنبوبة ذات الشعبتين</div>
+        <div onclick="scrollToSection('barometer')" class="nav-item">🌡️ البارومتر الجوي</div>
+        <div onclick="scrollToSection('manometer')" class="nav-item">⏲️ المانومتر</div>
+        <div onclick="scrollToSection('pascal')" class="nav-item">💡 قاعدة باسكال</div>
+        <div onclick="scrollToSection('press')" class="nav-item">🏋️ المكبس الهيدروليكي</div>
+        <div onclick="scrollToSection('summary')" class="nav-item">🍋 الزتونة والمراجعة</div>
+        <div onclick="scrollToSection('quiz')" class="nav-item">📝 التحدي النهائي</div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="lg:mr-[280px] pt-24 px-4 md:px-8 max-w-5xl mx-auto">
+
+        <!-- Intro Section -->
+        <section id="intro" class="mb-16 scroll-mt-24">
+            <div class="glass-panel p-8 text-center relative overflow-hidden">
+                <div class="absolute -top-10 -right-10 w-40 h-40 bg-blue-500/10 rounded-full blur-3xl"></div>
+
+                <h2
+                    class="text-3xl md:text-5xl font-black mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-cyan-300">
+                    الضغط عند نقطة في باطن سائل
+                </h2>
+                <p class="text-xl text-slate-300 mb-8 max-w-2xl mx-auto leading-relaxed">
+                    القاعدة الذهبية: "جميع النقاط التي تقع في مستوى أفقي واحد في سائل ساكن متجانس يكون لها نفس الضغط".
+                </p>
+
+                <div class="flex justify-center gap-4 mb-6">
+                    <span class="badge-understand">🧠 فهم عميق</span>
+                    <span class="badge-memo">🦜 بصمجة (نص القانون)</span>
+                </div>
+
+                <div
+                    class="inline-block bg-slate-800 p-6 rounded-2xl border border-blue-500/30 shadow-lg transform hover:scale-105 transition">
+                    <div class="text-4xl font-mono text-cyan-400 font-bold mb-2 dir-ltr">P = ρ g h</div>
+                    <div class="text-sm text-slate-400">حيث (h) هو العمق من السطح</div>
+                </div>
+
+                <!-- NEW: Student Q&A Dialogue -->
+                <div class="mt-8 max-w-2xl mx-auto text-right">
+                    <div class="student-row chat-row">
+                        <div class="chat-avatar">🧑‍🎓</div>
+                        <div class="chat-bubble">
+                            <p class="text-sm">يا مستر، طب ليه الضغط بيزيد كل ما ننزل تحت في الميه؟ 🤔</p>
+                        </div>
+                    </div>
+                    <div class="teacher-row chat-row">
+                        <div class="chat-avatar">👨‍🏫</div>
+                        <div class="chat-bubble">
+                            <p class="text-sm">سؤال ممتاز! 🌟 تخيل إنك بتغطس في حمام سباحة. كل ما تنزل، بيكون فوقك "عمود
+                                ميه" أطول. العمود ده ليه وزن، والوزن بيضغط عليك!</p>
+                            <p class="text-xs text-purple-300 mt-1">عشان كده الغواصين بيحسوا بضغط على ودانهم كل ما
+                                ينزلوا أعمق. ⤵️</p>
+                        </div>
+                    </div>
+                    <div class="student-row chat-row">
+                        <div class="chat-avatar">🧑‍🎓</div>
+                        <div class="chat-bubble">
+                            <p class="text-sm">أهااا! يعني الضغط = وزن عمود الميه فوقي؟ 💡</p>
+                        </div>
+                    </div>
+                    <div class="teacher-row chat-row">
+                        <div class="chat-avatar">👨‍🏫</div>
+                        <div class="chat-bubble">
+                            <p class="text-sm">بالظبط! 👏 ولو السائل أثقل (زي الزئبق)، الضغط هيبقى أكبر عند نفس العمق.
+                                عشان كده (ρ) الكثافة موجودة في القانون!</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Confused Student (Funny) -->
+                <div class="mt-6 p-4 bg-red-900/20 rounded-xl border border-red-500/30">
+                    <div class="student-row chat-row">
+                        <div class="chat-avatar">😵</div>
+                        <div class="chat-bubble">
+                            <p class="text-sm">يا مستر أنا فهمت! الضغط = الميه × الجاذبية × الكثافة! 🎉</p>
+                        </div>
+                    </div>
+                    <div class="teacher-row chat-row">
+                        <div class="chat-avatar">👨‍🏫</div>
+                        <div class="chat-bubble">
+                            <p class="text-sm">قريب يا بطل بس بالعكس! 😅 الكثافة الأول: <span
+                                    class="font-mono text-yellow-300">P = ρgh</span></p>
+                        </div>
+                    </div>
+                    <div class="student-row chat-row">
+                        <div class="chat-avatar">😵</div>
+                        <div class="chat-bubble">
+                            <p class="text-sm">آه فهمت! رو = 10! 🎲</p>
+                        </div>
+                    </div>
+                    <div class="teacher-row chat-row">
+                        <div class="chat-avatar">👨‍🏫</div>
+                        <div class="chat-bubble">
+                            <p class="text-sm">لا يا حبيبي! 😂 رو (ρ) = الكثافة مش رقم! g = 10.. ركززز!</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+        </section>
+
+        <!-- Communicating Vessels -->
+        <section id="vessels" class="mb-16 scroll-mt-24">
+            <h2 class="text-3xl font-bold mb-6 border-r-4 border-blue-500 pr-4">🏺 الأواني المستطرقة</h2>
+
+            <div class="glass-panel p-6">
+                <div class="grid lg:grid-cols-3 gap-8">
+                    <div class="lg:col-span-2">
+                        <div
+                            class="canvas-wrapper h-[400px] flex items-center justify-center relative bg-slate-900 border-4 border-slate-700">
+                            <canvas id="vesselsCanvas"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="space-y-6">
+                        <div class="bg-slate-800 p-6 rounded-xl border-l-4 border-yellow-500">
+                            <h4 class="font-bold text-yellow-400 mb-2">💡 الفكرة العلمية</h4>
+                            <p class="text-sm text-slate-300 leading-relaxed">
+                                مهما كان شكل الإناء (رفيع، تخين، حلزوني).. المية هتوصل لنفس المنسوب فيهم كلهم!
+                                <br>
+                                <span class="text-green-400 font-bold">السبب:</span> الضغط يعتمد على الارتفاع الرأسي (h)
+                                فقط.
+                            </p>
+                            فقط.
+                            </p>
+                            <div class="trick-box">
+                                <h5>💡 تريكة امتحان</h5>
+                                <p class="text-xs text-slate-300">
+                                    لو جالك إناء شكله "غريب" (حلزوني أو متعرج).. متخفش!
+                                    طالما القاعدة واحدة والسائل متصل.. الارتفاع واحد.
+                                    <br><span class="text-red-400 font-bold">إوعى تنخدع بالشكل!</span>
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="p-4 bg-blue-900/20 rounded-xl border border-blue-500/30">
+                            <h5 class="text-xs font-bold text-blue-300 mb-2">سؤال للمتفوقين:</h5>
+                            <p class="text-sm text-white">هل ضغط الماء عند قاعدة الإناء الواسع أكبر من الضيق؟</p>
+                            <p class="text-xs text-slate-400 mt-2">الإجابة: <span class="text-red-400 font-bold">لأ!
+                                    متساويين</span> لأن المساحة مش في القانون P=ρgh.</p>
+                        </div>
+
+                        <button onclick="toggleVessels()" id="vesselBtn"
+                            class="w-full py-4 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white rounded-xl font-bold shadow-lg shadow-blue-500/20 transition flex items-center justify-center gap-2 group cursor-pointer">
+                            <span class="text-2xl">🚰</span>
+                            <span id="vesselBtnText">افتح الحنفية</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- NEW: Student Question Section -->
+                <div
+                    class="mt-8 p-6 bg-gradient-to-r from-purple-900/30 to-blue-900/30 rounded-xl border border-purple-500/30">
+                    <h4 class="text-lg font-bold text-purple-300 mb-4">🤔 سؤال مفيد (الطالب الشاطر)</h4>
+                    <div class="student-row chat-row mb-4">
+                        <div class="chat-avatar">🧑‍🎓</div>
+                        <div class="chat-bubble">
+                            <p class="text-sm">طب لو أنا عايز أكسر القاعدة دي.. وخليت فرع فيه مايه والتاني فيه زيت؟ 🧐
+                            </p>
+                        </div>
+                    </div>
+                    <div class="teacher-row chat-row">
+                        <div class="chat-avatar">👨‍🏫</div>
+                        <div class="chat-bubble">
+                            <p class="text-sm">سؤال ذكي جداً! 🧠 هنا القاعدة "هتتعدل" مش هتتكسر. الزيت أخف من الميه،
+                                فالزيت <strong class="text-yellow-400">هيرتفع أكتر</strong> عشان يعوض الفرق في الكثافة!
+                            </p>
+                            <p class="text-xs text-green-300 mt-1">هنا بنستخدم قانون الأنبوبة ذات الشعبتين: <span
+                                    class="font-mono">ρ₁ h₁ = ρ₂ h₂</span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- U-Tube Theory -->
+        <section id="utube" class="mb-16 scroll-mt-24">
+            <h2 class="text-3xl font-bold mb-6 border-r-4 border-purple-500 pr-4">🧪 الأنبوبة ذات الشعبتين</h2>
+
+            <div class="grid md:grid-cols-2 gap-6 mb-8">
+                <div class="glass-panel p-6">
+                    <h3 class="text-xl font-bold text-purple-300 mb-4">فكرة العمل</h3>
+                    <ul class="space-y-3 text-slate-300 list-disc list-inside">
+                        <li>نستخدمها لتعيين كثافة سائل مجهول.</li>
+                        <li>نعتمد على فكرة <b>الاتزان</b> عند السطح الفاصل.</li>
+                        <li>الضغط عند النقطة (1) = الضغط عند النقطة (2).</li>
+                    </ul>
+                    <li>الضغط عند النقطة (1) = الضغط عند النقطة (2).</li>
+                    </ul>
+                    <div class="mt-4">
+                        <span class="badge-memo">🦜 بصمجة (الاستخدام)</span>
+                        <p class="text-xs text-slate-400 mt-1">احفظ دي: "تعيين كثافة مادة بمعلومية مادة أخرى".</p>
+                    </div>
+                </div>
+
+                <div class="glass-panel p-6 flex flex-col justify-center items-center text-center">
+                    <h3 class="text-xl font-bold text-green-400 mb-4">القانون</h3>
+                    <div class="bg-slate-900 px-6 py-3 rounded-lg border border-slate-700 mb-2">
+                        <span class="text-2xl font-mono dir-ltr">ρ₁ h₁ = ρ₂ h₂</span>
+                    </div>
+                    <p class="text-sm text-slate-400">علاقة عكسية بين الكثافة والارتفاع</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- U-Tube Simulation -->
+        <section id="utube-sim" class="mb-16 scroll-mt-24">
+            <h2 class="text-3xl font-bold mb-6 border-r-4 border-green-500 pr-4">🎮 المعمل الافتراضي (Physics Lab)</h2>
+
+            <div class="glass-panel p-4 md:p-6 border border-green-500/30">
+                <div class="grid lg:grid-cols-12 gap-8">
+
+                    <!-- Simulation Area -->
+                    <div class="lg:col-span-8">
+                        <div class="canvas-wrapper h-[500px] relative bg-slate-900">
+                            <canvas id="utubeCanvas"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Controls -->
+                    <div class="lg:col-span-4 space-y-6">
+                        <div class="control-panel">
+                            <label class="block text-sm font-bold text-yellow-400 mb-4 flex justify-between">
+                                <span>كمية الزيت (صب في الفرع الأيسر)</span>
+                                <span class="bg-slate-900 px-2 py-1 rounded text-white font-mono" id="oilVal">0
+                                    cm</span>
+                            </label>
+
+                            <div class="relative h-10 w-full flex items-center">
+                                <span class="absolute left-0 text-xs">0</span>
+                                <input type="range" id="oilSlider" min="0" max="20" step="0.1" value="0"
+                                    class="range-slider z-10">
+                                <span class="absolute right-0 text-xs">Max</span>
+                            </div>
+
+                            <div class="mt-6 space-y-2 border-t border-slate-700 pt-4">
+                                <div class="flex justify-between text-xs text-slate-400">
+                                    <span>كثافة الزيت (ρ_oil)</span>
+                                    <span class="text-yellow-400 font-mono">800 kg/m³</span>
+                                </div>
+                                <div class="flex justify-between text-xs text-slate-400">
+                                    <span>كثافة الماء (ρ_water)</span>
+                                    <span class="text-blue-400 font-mono">1000 kg/m³</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Real-time Calculations -->
+                        <div class="bg-black/40 p-4 rounded-xl border border-slate-600 font-mono text-sm">
+                            <div class="text-center text-slate-400 mb-2 border-b border-slate-700 pb-2">تحقق من الاتزان
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-2 text-center">
+                                <div>
+                                    <div class="text-yellow-500 text-xs mb-1">ضغط الزيت</div>
+                                    <div id="oilCalc" class="text-xs">800 × 0</div>
+                                </div>
+                                <div class="border-r border-slate-700">
+                                    <div class="text-blue-500 text-xs mb-1">ضغط الماء</div>
+                                    <div id="waterCalc" class="text-xs">1000 × 0</div>
+                                </div>
+                            </div>
+
+                            <div id="eqResult" class="text-center mt-3 text-green-400 font-bold hidden animate-pulse">
+                                متزنان! ✅
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Advanced Tricks -->
+        <section id="advanced" class="mb-16 scroll-mt-24">
+            <h2 class="text-3xl font-bold mb-6 border-r-4 border-red-500 pr-4">🚀 مسائل المتفوقين</h2>
+
+            <div class="grid md:grid-cols-2 gap-6">
+                <!-- Trick 1 -->
+                <div class="glass-panel p-6 border-t-4 border-red-500">
+                    <h3 class="font-bold text-white mb-3 text-lg">1. مسألة "صب السائل" (x و 2x)</h3>
+                    <div class="flex flex-col gap-4">
+                        <p class="text-slate-300 text-sm leading-relaxed">
+                            لو صبينا زيت في فرع، فنزل السطح الفاصل مسافة <span
+                                class="text-yellow-400 font-bold">x</span>...
+                            <br>
+                            الماء هيطلع الناحية التانية مسافة <span class="text-blue-400 font-bold">x</span> (لو الفرعين
+                            قد بعض).
+                            <br>
+                            يبقى فرق الارتفاع الكلي (من السطح الفاصل الجديد) هو:
+                        </p>
+                        <div class="bg-black/40 text-center py-3 rounded-lg font-mono text-green-400 font-bold dir-ltr">
+                            h = x (نزول) + x (طلوع) = 2x
+                        </div>
+                        <div class="trick-box mt-2">
+                            <h5>☠️ فخ الموت</h5>
+                            <p class="text-xs text-slate-300">
+                                ده لو الفرعين قد بعض! لو واحد أد التاني مرتين؟
+                                <br>
+                                السائل ينزل x ويطلع x/2.
+                                <br> <span class="text-yellow-400">خليك ناصح!</span> المساحة بتفرق في الارتفاع بس مش في
+                                الضغط!
+                            </p>
+                        </div>
+
+                        <!-- Simple SVG Diagram -->
+                        <svg viewBox="0 0 200 100" class="w-full h-24 bg-slate-800 rounded-lg">
+                            <!-- Tube -->
+                            <path d="M50 20 V80 Q50 90 60 90 H140 Q150 90 150 80 V20" fill="none" stroke="#555"
+                                stroke-width="2" />
+                            <!-- Old Level -->
+                            <line x1="50" y1="50" x2="150" y2="50" stroke="#fff" stroke-dasharray="4" opacity="0.5" />
+                            <text x="100" y="45" fill="#fff" font-size="8" text-anchor="middle">المستوى الأصلي</text>
+                            <!-- New Level Left (Down) -->
+                            <line x1="50" y1="70" x2="150" y2="70" stroke="#22c55e" stroke-dasharray="2" />
+                            <text x="30" y="65" fill="#fbbf24" font-size="10">x↓</text>
+                            <!-- New Level Right (Up) -->
+                            <rect x="140" y="30" width="10" height="40" fill="#3b82f6" opacity="0.5" />
+                            <text x="170" y="45" fill="#3b82f6" font-size="10">x↑</text>
+                            <text x="170" y="60" fill="#fff" font-size="10">Total = 2x</text>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- Trick 2 -->
+                <div class="glass-panel p-6 border-t-4 border-yellow-500">
+                    <h3 class="font-bold text-white mb-3 text-lg">2. فخ "مساحة المقطع"</h3>
+                    <p class="text-slate-300 text-sm leading-relaxed mb-4">
+                        لو الأنبوبة فرعها اليمين تخين (3A) واليسار رفيع (A).. هل الارتفاع (h) هيختلف؟
+                    </p>
+                    <div class="bg-red-900/30 p-4 rounded-lg border border-red-500/30 text-center">
+                        <span class="text-red-400 font-bold text-xl block mb-2">الإجابة: لأ! 🚫</span>
+                        <p class="text-xs text-slate-200">
+                            الارتفاع الرأسي للسائل لا يعتمد على مساحة الأنبوبة.
+                            <br>
+                            <span class="font-mono dir-ltr text-yellow-300">P = ρgh</span> (مفيش A في القانون!)
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ============================================== -->
+        <!-- PART 2: BAROMETER & MANOMETER MERGED CONTENT -->
+        <!-- ============================================== -->
+
+        <!-- Warning -->
+        <section class="mb-16">
+            <div class="mb-8 p-1 rounded-2xl bg-gradient-to-r from-red-600 to-orange-600 animate-pulse">
+                <div class="bg-slate-900 rounded-xl p-6 text-center">
+                    <h3 class="text-2xl font-bold text-white mb-2">🚨 تنبيه هام جداً 🚨</h3>
+                    <p class="text-lg text-slate-300">
+                        الدرس ده فيه "كوكتيل وحدات" رهيب! (atm, bar, Pa, cmHg). <br>
+                        لو حفظت التحويلات غلط، المسألة طارت. ركز في قسم الوحدات كويس!
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Barometer Theory -->
+        <section id="barometer" class="mb-16 scroll-mt-24">
+            <h2 class="text-3xl font-bold mb-6 border-r-4 border-purple-500 pr-4">🌡️ البارومتر الزئبقي (تجربة تورشيللي)
+            </h2>
+
+            <!-- Intro Chat -->
+            <div class="bg-slate-800/50 p-4 rounded-xl border border-slate-700 mb-6 text-right">
+                <div class="flex items-center gap-2 mb-2">
+                    <span class="text-2xl">👨‍🏫</span> <span class="font-bold text-purple-400">أبو حجاج:</span>
+                </div>
+                <p class="text-slate-300">
+                    تورشيللي جاب أنبوبة متر مليانة زئبق وقلبها في حوض. الزئبق نزل ووقف عند 76 سم. ليه؟ 🤔 <br>
+                    لأن <strong class="text-yellow-400">ضغط الهواء الجوي</strong> بيعادل ضغط عمود الزئبق ده!
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-8">
+                <div class="glass-panel p-6">
+                    <h3 class="text-xl font-bold text-yellow-400 mb-4">فكرة العمل</h3>
+                    <div class="bg-slate-900 p-4 rounded-xl border border-slate-700 text-center">
+                        <p class="font-bold text-green-400 mb-2">عند الاتزان:</p>
+                        <p class="text-white">ضغط عمود الزئبق = الضغط الجوي</p>
+                        <div class="mt-2 text-2xl font-mono text-purple-400 dir-ltr">Pₐ = ρ g h</div>
+                    </div>
+                </div>
+
+                <div class="glass-panel p-6">
+                    <h3 class="text-xl font-bold text-red-400 mb-4">ليه زئبق مش مية؟</h3>
+                    <ul class="space-y-3 text-slate-300 list-disc list-inside">
+                        <li>كثافة الزئبق عالية جداً (13600).</li>
+                        <li>فالارتفاع المطلوب هو <b>0.76 متر</b> (ممكن في المعمل).</li>
+                        <li>لو مية، هنحتاج أنبوبة <b>10 متر</b>! (عمارة 3 أدوار). 😂</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Student Q&A -->
+            <div class="mt-8 max-w-2xl mx-auto text-right">
+                <div class="student-row chat-row">
+                    <div class="chat-avatar">🧑‍🎓</div>
+                    <div class="chat-bubble">
+                        <p class="text-sm">يا مستر، طب لو أنا ميلت الأنبوبة البارومترية، الرقم هيتغير؟</p>
+                    </div>
+                </div>
+                <div class="teacher-row chat-row">
+                    <div class="chat-avatar">👨‍🏫</div>
+                    <div class="chat-bubble">
+                        <p class="text-sm">ده "فخ الامتحان"! ☠️ الارتفاع الرأسي (h) <strong
+                                class="text-green-400">ثابت</strong> لأن الضغط الجوي متغيرش! اللي بيزيد هو <strong
+                                class="text-yellow-400">طول عمود الزئبق المايل</strong>.</p>
+                    </div>
+                </div>
+            </div>
+            <!-- Barometer Simulation -->
+            <div class="mt-8 glass-panel p-4 md:p-6 border border-purple-500/30 relative">
+                <h3 class="text-xl font-bold text-white mb-4">🎮 محاكاة البارومتر</h3>
+
+                <div class="grid lg:grid-cols-12 gap-8">
+                    <!-- Sim Canvas -->
+                    <div class="lg:col-span-8 relative">
+                        <div
+                            class="canvas-wrapper h-[400px] relative bg-slate-900 border-4 border-slate-700 cursor-crosshair group">
+                            <canvas id="barometerCanvas"></canvas>
+                            <div
+                                class="absolute top-2 left-2 text-xs text-slate-500 opacity-50 group-hover:opacity-100 transition">
+                                🔍 مرر الماوس للتكبير</div>
+                        </div>
+                        <!-- Magnifier -->
+                        <div id="magnifier"
+                            class="hidden absolute w-[120px] h-[120px] rounded-full border-4 border-white shadow-2xl overflow-hidden pointer-events-none z-50"
+                            style="background: #fff;">
+                            <canvas id="magCanvas" width="120" height="120"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Controls -->
+                    <div class="lg:col-span-4 space-y-6">
+                        <div class="control-panel">
+                            <!-- Altitude Control -->
+                            <div class="mb-6">
+                                <label class="block text-sm font-bold text-slate-400 mb-2 flex justify-between">
+                                    <span>الارتفاع عن سطح البحر</span>
+                                    <span class="text-yellow-400 font-mono" id="hVal">0 m</span>
+                                </label>
+                                <input type="range" id="altitudeSlider" min="0" max="2000" step="10" value="0"
+                                    class="range-slider">
+                                <div class="flex justify-between text-xs mt-1 text-slate-500">
+                                    <span>Sea Level</span>
+                                    <span>Mountain</span>
+                                </div>
+                            </div>
+
+                            <!-- Angle Control -->
+                            <div class="mb-4">
+                                <label class="block text-sm font-bold text-slate-400 mb-2 flex justify-between">
+                                    <span>زاوية الأنبوبة</span>
+                                    <span class="text-purple-400 font-mono" id="angleVal">0°</span>
+                                </label>
+                                <input type="range" id="angleSlider" min="0" max="60" step="1" value="0"
+                                    class="range-slider">
+                            </div>
+
+                            <!-- Readings -->
+                            <div class="bg-black/40 p-4 rounded-xl border border-slate-600 space-y-2 font-mono text-sm">
+                                <div class="flex justify-between">
+                                    <span class="text-slate-400">الضغط (Pa):</span>
+                                    <span class="text-green-400" id="paVal">101,325</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-slate-400">الارتفاع (h):</span>
+                                    <span class="text-yellow-400" id="hCmVal">76.0 cm</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Unit Converter -->
+                        <div class="bg-slate-800 p-4 rounded-xl border border-slate-600">
+                            <h5 class="text-xs font-bold text-blue-300 mb-3">🔄 محول الوحدات السريع</h5>
+                            <div class="flex gap-2 mb-2">
+                                <input type="number" id="convInput" placeholder="القيمة"
+                                    class="w-full bg-slate-700 border border-slate-600 rounded px-2 py-1 text-white text-sm">
+                                <select id="convFrom"
+                                    class="bg-slate-700 border border-slate-600 rounded px-2 py-1 text-white text-xs">
+                                    <option value="atm">atm</option>
+                                    <option value="cmHg">cmHg</option>
+                                    <option value="pa">Pascal</option>
+                                    <option value="bar">Bar</option>
+                                    <option value="torr">Torr</option>
+                                </select>
+                            </div>
+                            <div id="convResult"
+                                class="text-xs font-mono text-slate-300 bg-black/20 p-2 rounded h-16 overflow-y-auto">
+                                أدخل قيمة للتحويل...
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Manometer & Advanced Problems -->
+        <section id="manometer" class="mb-16 scroll-mt-24">
+            <h2 class="text-3xl font-bold mb-6 border-r-4 border-red-500 pr-4">⏲️ المانومتر ومسائل المتفوقين</h2>
+
+            <!-- Problem 1: Building Height -->
+            <div class="glass-panel p-6 mb-8 relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-2 h-full bg-red-500"></div>
+                <h3 class="text-xl font-bold text-white mb-3">1. مسألة "ناطحة السحاب" 🏢</h3>
+                <p class="text-slate-300 text-sm mb-4">
+                    إزاي نحسب ارتفاع مبنى باستخدام البارومتر؟<br>
+                    الفكرة: فرق الضغط الجوي (تحت - فوق) = ضغط عمود الهواء بتاع المبنى.
+                </p>
+
+                <div class="bg-black/40 p-4 rounded-xl text-center mb-4">
+                    <div class="text-lg font-mono text-yellow-300 dir-ltr mb-2">
+                        ρ_air × g × h_bldg = ρ_Hg × g × Δh_Hg
+                    </div>
+                </div>
+            </div>
+
+            <!-- Problem 2: Manometer -->
+            <div class="glass-panel p-6 relative overflow-hidden">
+                <h3 class="text-xl font-bold text-white mb-3">2. المانومتر (قياس ضغط غاز محبوس) 🎈</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+                    <div class="bg-slate-800 p-3 rounded-lg border border-slate-600">
+                        <div class="text-green-400 font-bold mb-1">P_gas > P_a</div>
+                        <div class="text-xs text-slate-400">السائل طلع في الفرع الخالص</div>
+                        <div class="text-xs font-mono mt-1 text-white dir-ltr">P_gas = P_a + h</div>
+                    </div>
+                    <div class="bg-slate-800 p-3 rounded-lg border border-slate-600">
+                        <div class="text-yellow-400 font-bold mb-1">P_gas < P_a</div>
+                                <div class="text-xs text-slate-400">السائل طلع ناحية الغاز</div>
+                                <div class="text-xs font-mono mt-1 text-white dir-ltr">P_gas = P_a - h</div>
+                        </div>
+                        <div class="bg-slate-800 p-3 rounded-lg border border-slate-600">
+                            <div class="text-blue-400 font-bold mb-1">P_gas = P_a</div>
+                            <div class="text-xs text-slate-400">السائل في مستوى واحد</div>
+                            <div class="text-xs font-mono mt-1 text-white dir-ltr">diff = 0</div>
+                        </div>
+                    </div>
+                </div>
+        </section>
+
+
+        <!-- ============================================== -->
+        <!-- PART 3: PASCAL & HYDRAULIC PRESS MERGED CONTENT -->
+        <!-- ============================================== -->
+
+        <!-- Pascal Principle -->
+        <section id="pascal" class="mb-16 scroll-mt-24">
+            <h2 class="text-3xl font-bold mb-6 border-r-4 border-yellow-500 pr-4">💡 قاعدة باسكال (Pascal's Principle)
+            </h2>
+            <div class="glass-panel p-8 text-center relative overflow-hidden">
+                <div class="absolute -top-10 -left-10 w-40 h-40 bg-red-500/10 rounded-full blur-3xl"></div>
+
+                <div class="bg-slate-800 p-6 rounded-2xl border-r-4 border-red-500 text-right max-w-3xl mx-auto">
+                    <p class="text-xl leading-relaxed text-slate-200">
+                        "عند التأثير بضغط على سائل محبوس في إناء، فإن الضغط ينتقل <span
+                            class="text-yellow-400 font-bold">بتمامه</span> إلى جميع أجزاء السائل وجدران الإناء."
+                    </p>
+                    <div class="mt-4 flex justify-center">
+                        <span class="badge-understand">🧠 فهم عميق: (الضغط ينتقل بتمامه)</span>
+                    </div>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-4 mt-8">
+                    <div class="bg-blue-900/20 p-4 rounded-xl border border-blue-500/30">
+                        <h4 class="font-bold text-blue-300 mb-2">✅ ينطبق على السوائل</h4>
+                        <p class="text-sm">لأنها غير قابلة للانضغاط.</p>
+                    </div>
+                    <div class="bg-red-900/20 p-4 rounded-xl border border-red-500/30">
+                        <h4 class="font-bold text-red-300 mb-2">❌ لا ينطبق على الغازات</h4>
+                        <p class="text-sm">لأنها تنضغط وتستهلك جزء من الشغل.</p>
+                    </div>
+                </div>
+
+                <!-- NEW: Student Dialogue -->
+                <div class="mt-8 max-w-2xl mx-auto text-right">
+                    <h4 class="text-lg font-bold text-purple-300 mb-4 text-center">🤔 سؤال الطالب الشاطر</h4>
+                    <div class="student-row chat-row">
+                        <div class="chat-avatar">🧑‍🎓</div>
+                        <div class="chat-bubble">
+                            <p class="text-sm">يا مستر، طب ليه الضغط "بينتقل بتمامه"؟ مش المفروض السائل ياكل حاجة من
+                                الضغط؟ 🤔</p>
+                        </div>
+                    </div>
+                    <div class="teacher-row chat-row">
+                        <div class="chat-avatar">👨‍🏫</div>
+                        <div class="chat-bubble">
+                            <p class="text-sm">سؤال عبقري! 🧠 السائل <strong class="text-yellow-400">"مش
+                                    بينضغط"</strong>. تخيل إنك بتضغط على كرة حديد، القوة هتتنقل زي ما هي!</p>
+                            <p class="text-xs text-purple-300 mt-1">لكن الغاز بينضغط، فبيمتص جزء من الضغط.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Hydraulic Press Theory -->
+        <section id="press" class="mb-16 scroll-mt-24">
+            <h2 class="text-3xl font-bold mb-6 border-r-4 border-green-500 pr-4">🏋️ المكبس الهيدروليكي</h2>
+
+            <div class="glass-panel p-6">
+                <div class="flex flex-col md:flex-row items-center gap-8">
+                    <div class="flex-1">
+                        <h3 class="text-2xl font-bold text-white mb-4">فكرة العمل (تكبير القوة)</h3>
+                        <p class="text-slate-300 mb-4 leading-relaxed">
+                            زي "العتلة" بالظبط! بتأثر بقوة صغيرة ($F_1$) على مكبس صغير ($A_1$)، فالضغط ينتقل للمكبس
+                            الكبير ($A_2$) ويتحول لقوة جبارة ($F_2$) تقدر ترفع عربية!
+                        </p>
+                        <div
+                            class="bg-slate-900 p-4 rounded-xl border border-slate-700 font-mono text-center text-xl dir-ltr">
+                            P = F₁/A₁ = F₂/A₂
+                        </div>
+                    </div>
+                    <div class="w-full md:w-1/3 bg-white/5 p-4 rounded-xl text-center">
+                        <div class="text-4xl mb-2">🐜 ➡️ 🐘</div>
+                        <p class="text-sm text-slate-400">نملة ترفع فيل!</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Warning Box -->
+            <div class="mt-6 bg-red-900/20 p-6 rounded-2xl border border-red-500/50">
+                <h4 class="text-red-400 font-bold mb-2 flex items-center gap-2">
+                    <span>⚡</span> تحذير هام: قانون بقاء الطاقة
+                </h4>
+                <p class="text-slate-300 text-sm leading-loose">
+                    المكبس مش بيخلق طاقة من العدم! 🚫<br>
+                    الشغل المبذول عند المكبس الصغير = الشغل الناتج عند المكبس الكبير.<br>
+                    <span class="font-mono text-white bg-black/30 px-2 rounded">Work₁ = Work₂</span><br>
+                    يعني إحنا بنكسب قوة، بس بنخسر مسافة. (لازم تحرك دراعك كتير عشان العربية تطلع حتة صغيرة).
+                </p>
+            </div>
+        </section>
+
+        <!-- Hydraulic Press Simulation -->
+        <section class="mb-16">
+            <h3 class="text-xl font-bold text-white mb-4 pr-4 border-r-4 border-green-500">🎮 ورشة الميكانيكا (ارفع
+                العربية)</h3>
+            <div class="glass-panel p-4 md:p-6 border border-green-500/30">
+                <div class="grid lg:grid-cols-12 gap-8">
+                    <!-- Sim Canvas -->
+                    <div class="lg:col-span-8">
+                        <div class="canvas-wrapper h-[450px] relative">
+                            <canvas id="pressCanvas"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Controls -->
+                    <div class="lg:col-span-4 space-y-6">
+                        <div class="control-panel">
+                            <h4 class="font-bold text-white mb-4">لوحة التحكم:</h4>
+
+                            <div class="mb-6">
+                                <label class="block text-sm font-bold text-slate-400 mb-2">اضغط على المكبس الصغير
+                                    (F1)</label>
+                                <input type="range" id="forceSlider" min="0" max="100" step="1" value="0"
+                                    class="range-slider">
+                                <div class="flex justify-between text-xs mt-2 font-mono">
+                                    <span class="text-slate-400">بدون قوة</span>
+                                    <span class="text-red-400 font-bold">Max Force</span>
+                                </div>
+                            </div>
+
+                            <div class="bg-black/40 p-4 rounded-xl border border-slate-600 space-y-3">
+                                <h5 class="text-xs text-slate-500 font-bold mb-2">العدادات:</h5>
+                                <div class="flex justify-between items-center border-b border-slate-700 pb-2">
+                                    <span class="text-xs text-slate-300">القوة الناتجة (F2)</span>
+                                    <span class="text-lg font-mono text-green-400 dir-ltr" id="f2Val">0 N</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-xs text-slate-300">الفائدة الآلية (η)</span>
+                                    <span class="text-lg font-mono text-yellow-400 dir-ltr">10x</span>
+                                </div>
+                            </div>
+
+                            <div class="trick-box">
+                                <h5>⚡ إوعى تتلخبط!</h5>
+                                <p class="text-xs text-slate-300">
+                                    القوة بتزيد؟ <strong class="text-green-400">آه</strong>.<br>
+                                    الشغل (الطاقة) بيزيد؟ <strong class="text-red-400">لأ، مستحيل!</strong> (قانون بقاء
+                                    الطاقة).
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Summary Section (The Zaytouna) -->
+        <section id="summary" class="mb-20 scroll-mt-24">
+            <h2 class="text-3xl font-bold mb-6 border-r-4 border-indigo-500 pr-4">خلاصة القوانين (الزتونة) 🍋</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+
+                <!-- Pressure -->
+                <div class="glass-panel p-4 border-t-4 border-blue-500">
+                    <h4 class="text-blue-400 font-bold mb-2">ضغط سائل</h4>
+                    <div class="bg-slate-900 rounded p-2 text-center font-mono text-sm ltr">P = ρgh</div>
+                    <p class="text-center text-xs mt-1 text-slate-400">عند نقطة في باطنه</p>
+                </div>
+
+                <!-- Pascal -->
+                <div class="glass-panel p-4 border-t-4 border-green-500">
+                    <h4 class="text-green-400 font-bold mb-2">المكبس الهيدروليكي</h4>
+                    <div class="bg-slate-900 rounded p-2 text-center font-mono text-sm ltr">F₂/F₁ = A₂/A₁ = η</div>
+                    <p class="text-center text-xs mt-1 text-slate-400">الفائدة الآلية η</p>
+                </div>
+
+                <!-- Manometer -->
+                <div class="glass-panel p-4 border-t-4 border-red-500">
+                    <h4 class="text-red-400 font-bold mb-2">المانومتر</h4>
+                    <div class="bg-slate-900 rounded p-2 text-center font-mono text-sm ltr">P_gas = Pₐ ± h</div>
+                    <p class="text-center text-xs mt-1 text-slate-400">+ لو أكبر، - لو أقل</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quiz -->
+        <section id="quiz" class="mb-16 scroll-mt-24">
+            <div class="glass-panel p-8">
+                <h2 class="text-2xl font-bold mb-6 text-center">🧠 اختبر فهمك</h2>
+                <div id="quizArea" class="space-y-4 max-w-2xl mx-auto">
+                    <!-- Questions injected by JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="text-center py-8 border-t border-slate-700 text-slate-500">
+            <p>© منصة الفيزياء 2024</p>
+            <a href="index.html"
+                class="inline-block mt-4 px-6 py-2 bg-slate-800 rounded-full hover:bg-slate-700 transition">العودة
+                للرئيسية</a>
+        </footer>
+
+    </main>
+
+    <!-- Scripts -->
+    <script>
+        // --- Navigation ---
+        function toggleNav() {
+            document.getElementById('sidebar').classList.toggle('active');
+        }
+        function scrollToSection(id) {
+            document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // --- Communicating Vessels Simulation (Fixed & Unified) ---
+        const vCanvas = document.getElementById('vesselsCanvas');
+        const vCtx = vCanvas.getContext('2d');
+
+        let waterProgress = 0; // 0.0 to 1.0 (Full)
+        let isFilling = false;
+
+        function initVessels() {
+            const container = vCanvas.parentElement;
+            vCanvas.width = container.clientWidth;
+            vCanvas.height = container.clientHeight;
+            drawVessels();
+        }
+
+        // Define the Unified Path for Vessels
+        function defineVesselsPath(ctx, w, h) {
+            const pipeBottom = h - 10;
+            const pipeTop = h - 50; // Base pipe height
+            const vesselTop = 60; // Top of vessels
+
+            ctx.beginPath();
+
+            // Start from bottom-left corner of the pipe
+            ctx.moveTo(10, pipeBottom);
+
+
+            // === LEFT TUBE (Simple Rectangle) ===
+            const x1 = w * 0.12;
+            const tube1W = 25;
+            ctx.lineTo(10, pipeTop); // Left wall up
+            ctx.lineTo(x1 - tube1W / 2, pipeTop);
+            ctx.lineTo(x1 - tube1W / 2, vesselTop); // Go up
+            ctx.lineTo(x1 + tube1W / 2, vesselTop); // Top
+            ctx.lineTo(x1 + tube1W / 2, pipeTop); // Go down
+
+
+            // === CONE (Funnel Shape) ===
+            const x2 = w * 0.35;
+            const coneTopW = 70;
+            const coneBottomW = 25;
+            ctx.lineTo(x2 - coneBottomW / 2, pipeTop);
+            ctx.lineTo(x2 - coneTopW / 2, vesselTop); // Wide top left
+            ctx.lineTo(x2 + coneTopW / 2, vesselTop); // Wide top right
+            ctx.lineTo(x2 + coneBottomW / 2, pipeTop); // Narrow bottom
+
+
+            // === BULB (Oval Shape) ===
+            const x3 = w * 0.58;
+            const bulbW = 60;
+            const neckW = 20;
+            ctx.lineTo(x3 - neckW / 2, pipeTop); // Left neck
+            ctx.lineTo(x3 - neckW / 2, pipeTop - 40); // Neck up
+            ctx.bezierCurveTo(x3 - bulbW, pipeTop - 80, x3 - bulbW, vesselTop + 30, x3 - neckW / 2, vesselTop); // Left bulge
+            ctx.lineTo(x3 + neckW / 2, vesselTop); // Top
+            ctx.bezierCurveTo(x3 + bulbW, vesselTop + 30, x3 + bulbW, pipeTop - 80, x3 + neckW / 2, pipeTop - 40); // Right bulge
+            ctx.lineTo(x3 + neckW / 2, pipeTop); // Neck down
+
+
+            // === ZIGZAG (S-Shape) ===
+            const x4 = w * 0.82;
+            const zigW = 30;
+            ctx.lineTo(x4 - zigW / 2, pipeTop);
+            ctx.lineTo(x4 - zigW / 2, pipeTop - 50);
+            ctx.lineTo(x4 + zigW, pipeTop - 80);
+            ctx.lineTo(x4 - zigW, pipeTop - 140);
+            ctx.lineTo(x4 - zigW / 2, vesselTop); // Top left
+            ctx.lineTo(x4 + zigW / 2, vesselTop); // Top right
+            ctx.lineTo(x4 + zigW, pipeTop - 140);
+            ctx.lineTo(x4 - zigW + zigW, pipeTop - 80);
+            ctx.lineTo(x4 + zigW / 2, pipeTop - 50);
+            ctx.lineTo(x4 + zigW / 2, pipeTop);
+
+
+            // === CLOSE THE PIPE ===
+            ctx.lineTo(w - 10, pipeTop); // Right edge of pipe
+            ctx.lineTo(w - 10, pipeBottom); // Right wall down
+            ctx.lineTo(10, pipeBottom); // Bottom of pipe
+
+            ctx.closePath();
+        }
+
+        function drawVessels() {
+            const w = vCanvas.width;
+            const h = vCanvas.height;
+            vCtx.clearRect(0, 0, w, h);
+
+            // 1. Draw Glass Walls (Behind)
+            vCtx.save();
+            defineVesselsPath(vCtx, w, h);
+            vCtx.strokeStyle = 'rgba(255,255,255,0.3)';
+            vCtx.lineWidth = 4;
+            vCtx.stroke();
+            vCtx.fillStyle = 'rgba(255,255,255,0.05)';
+            vCtx.fill();
+            vCtx.restore();
+
+            // 2. Draw Water (Masked)
+            vCtx.save();
+            defineVesselsPath(vCtx, w, h);
+            vCtx.clip(); // Everything drawn after this stays INSIDE the vessels
+
+            // Calculate Water Height
+            // Start from bottom (h) up to 50px (top)
+            const bottomY = h - 10;
+            const topY = 50;
+            const totalH = bottomY - topY;
+            const currentH = waterProgress * totalH;
+            const waterLevelY = bottomY - currentH;
+
+            // Water Gradient
+            const grad = vCtx.createLinearGradient(0, bottomY, 0, waterLevelY);
+            grad.addColorStop(0, '#1e3a8a');
+            grad.addColorStop(1, '#60a5fa');
+            vCtx.fillStyle = grad;
+
+            // Fill from bottom up
+            vCtx.fillRect(0, waterLevelY, w, currentH);
+
+            // Water Top Surface Line (White-ish)
+            if (waterProgress > 0) {
+                vCtx.fillStyle = 'rgba(255,255,255,0.5)';
+                vCtx.fillRect(0, waterLevelY, w, 2);
+            }
+            vCtx.restore();
+
+            // 3. Draw Tap Stream (If filling)
+            if (isFilling && waterProgress < 1.0) {
+                const x1 = w * 0.12; // Must match vessel 1 position!
+                const tapX = x1; // Directly above first vessel
+                const tapY = 30;
+                const pipeTop = h - 50;
+
+                // Calculate where water level is
+                const bottomY = h - 10;
+                const topY = 60;
+                const totalH = bottomY - topY;
+                const currentH = waterProgress * totalH;
+                const waterLevelY = bottomY - currentH;
+
+                // Stream target: top of water or pipeTop (whichever is higher)
+                let targetY = Math.min(waterLevelY, pipeTop);
+
+                // Main Water Stream
+                const streamGrad = vCtx.createLinearGradient(tapX, tapY, tapX, targetY);
+                streamGrad.addColorStop(0, 'rgba(96, 165, 250, 0.9)');
+                streamGrad.addColorStop(1, 'rgba(30, 58, 138, 0.7)');
+
+                vCtx.beginPath();
+                vCtx.moveTo(tapX - 4, tapY);
+                vCtx.lineTo(tapX + 4, tapY);
+                vCtx.lineTo(tapX + 2, targetY);
+                vCtx.lineTo(tapX - 2, targetY);
+                vCtx.closePath();
+                vCtx.fillStyle = streamGrad;
+                vCtx.fill();
+
+                // Animated Water Drops
+                const time = Date.now() / 100;
+                for (let i = 0; i < 3; i++) {
+                    const dropY = tapY + ((time + i * 50) % (targetY - tapY));
+                    vCtx.beginPath();
+                    vCtx.arc(tapX + (Math.sin(time + i) * 2), dropY, 3, 0, Math.PI * 2);
+                    vCtx.fillStyle = 'rgba(191, 219, 254, 0.8)';
+                    vCtx.fill();
+                }
+
+                // Splash Ripples at water surface
+                const rippleTime = (Date.now() / 200) % 20;
+                vCtx.beginPath();
+                vCtx.ellipse(tapX, targetY, 8 + rippleTime, 2 + rippleTime / 4, 0, 0, Math.PI * 2);
+                vCtx.strokeStyle = `rgba(255,255,255,${0.6 - rippleTime / 30})`;
+                vCtx.lineWidth = 1;
+                vCtx.stroke();
+
+                // Inner ripple
+                vCtx.beginPath();
+                vCtx.ellipse(tapX, targetY, 4 + rippleTime / 2, 1 + rippleTime / 8, 0, 0, Math.PI * 2);
+                vCtx.strokeStyle = `rgba(255,255,255,${0.4 - rippleTime / 40})`;
+                vCtx.stroke();
+
+                // Tap Faucet
+                vCtx.fillStyle = '#64748b';
+                vCtx.fillRect(tapX - 8, 5, 16, 25);
+                vCtx.fillStyle = '#94a3b8';
+                vCtx.fillRect(tapX - 10, 5, 20, 8);
+            }
+        }
+
+        function toggleVessels() {
+            const btn = document.getElementById('vesselBtnText');
+            if (isFilling) {
+                isFilling = false;
+                btn.innerText = 'افتح الحنفية';
+            } else {
+                isFilling = true;
+                waterProgress = 0;
+                btn.innerText = 'إيقاف';
+                animateVessels();
+            }
+        }
+
+        function animateVessels() {
+            if (isFilling) {
+                // UPGRADE: Variable Area Filling
+                // Speed is inversely proportional to cross-sectional area.
+                // Bulb area (approx 0.3 to 0.7) is wider -> Slower fill.
+                let speed = 0.005; // Base speed (Narrow pipes)
+
+                if (waterProgress > 0.35 && waterProgress < 0.65) {
+                    speed = 0.0015; // Slow speed (Wide bulb)
+                }
+
+                waterProgress += speed;
+
+                if (waterProgress >= 1.0) {
+                    waterProgress = 1.0;
+                    isFilling = false;
+                    document.getElementById('vesselBtnText').innerText = 'تم الامتلاء';
+                }
+                drawVessels();
+                requestAnimationFrame(animateVessels);
+            }
+        }
+
+        // --- U-Tube Simulation (Revised Physics) ---
+        const uCanvas = document.getElementById('utubeCanvas');
+        const uCtx = uCanvas.getContext('2d');
+        const slider = document.getElementById('oilSlider');
+        let oilH = 0; // cm input
+
+        function initUtube() {
+            const container = uCanvas.parentElement;
+            uCanvas.width = container.clientWidth;
+            uCanvas.height = container.clientHeight;
+            drawUtube();
+        }
+
+        function drawUtube() {
+            const w = uCanvas.width;
+            const h = uCanvas.height;
+            uCtx.clearRect(0, 0, w, h);
+
+            const cx = w / 2;
+            const tubeW = 60;
+            const leftX = cx - 80;
+            const rightX = cx + 80;
+            const bottomY = h - 60;
+
+            // 1. Define U-Shape Path
+            uCtx.beginPath();
+            // Outer
+            uCtx.moveTo(leftX - 30, 50);
+            uCtx.lineTo(leftX - 30, bottomY);
+            uCtx.arc(cx, bottomY, 110, Math.PI, 0, true);
+            uCtx.lineTo(rightX + 30, 50);
+            // Inner
+            uCtx.lineTo(rightX - 30, 50);
+            uCtx.lineTo(rightX - 30, bottomY);
+            uCtx.arc(cx, bottomY, 50, 0, Math.PI, false);
+            uCtx.lineTo(leftX + 30, 50);
+            uCtx.closePath();
+
+            // 2. Clip for Fluid
+            uCtx.save();
+            uCtx.clip();
+
+            // 3. Physics Math
+            const eqLevel = h - 200; // Base water level
+            const pxPerCm = 10;
+
+            // Displacement logic:
+            // Oil pushes down left side by distance d
+            // Water rises right side by distance d
+            // h_water_column_above_interface = 2 * d
+            // rho_oil * h_oil = rho_water * (2d)
+            // d = (rho_oil * h_oil) / (2 * rho_water)
+
+            const rho_oil = 800;
+            const rho_water = 1000;
+            // UPGRADE: Use dynamic physics value
+            const displacement = u_currentDisp; // Used mainly for drawing water levels
+
+            const leftInterfaceY = eqLevel + displacement;
+            const rightSurfaceY = eqLevel - displacement;
+            const oilTopY = leftInterfaceY - (oilH * pxPerCm);
+
+            // Draw Water (Blue)
+            const wGrad = uCtx.createLinearGradient(0, 0, w, 0);
+            wGrad.addColorStop(0, '#1d4ed8');
+            wGrad.addColorStop(1, '#3b82f6');
+            uCtx.fillStyle = wGrad;
+
+            // Fill everything up to rightSurfaceY
+            // We use a big rect and the clip takes care of the shape
+            uCtx.fillRect(0, rightSurfaceY, w, h);
+
+            // Clear the space above oil on left (since we filled everything)
+            // Actually, better to fill Oil on top of Water on left
+
+            // Draw Oil (Yellow) on Left
+            const oGrad = uCtx.createLinearGradient(leftX - 30, 0, leftX + 30, 0);
+            oGrad.addColorStop(0, '#b45309');
+            oGrad.addColorStop(0.5, '#fbbf24');
+            oGrad.addColorStop(1, '#b45309');
+            uCtx.fillStyle = oGrad;
+
+            // Oil is from oilTopY to leftInterfaceY
+            // But we already filled water there. It's okay, paint over.
+            uCtx.fillRect(leftX - 30, oilTopY, 60, leftInterfaceY - oilTopY);
+
+            // Clear space above oil (Left) and above water (Right) inside the tube
+            uCtx.globalCompositeOperation = 'destination-out';
+            uCtx.fillRect(0, 0, cx, oilTopY); // Clear left top
+            uCtx.fillRect(cx, 0, w, rightSurfaceY); // Clear right top
+            uCtx.globalCompositeOperation = 'source-over';
+
+            uCtx.restore(); // End Clip
+
+            // 4. Glass Overlay (Stroke)
+            uCtx.strokeStyle = 'rgba(255,255,255,0.4)';
+            uCtx.lineWidth = 4;
+            uCtx.stroke(); // Strokes the path defined at start (saved in context? no, need to redefine or use Path2D)
+
+            // Redraw path for stroke
+            uCtx.beginPath();
+            uCtx.moveTo(leftX - 30, 50);
+            uCtx.lineTo(leftX - 30, bottomY);
+            uCtx.arc(cx, bottomY, 110, Math.PI, 0, true);
+            uCtx.lineTo(rightX + 30, 50);
+            uCtx.lineTo(rightX - 30, 50);
+            uCtx.lineTo(rightX - 30, bottomY);
+            uCtx.arc(cx, bottomY, 50, 0, Math.PI, false);
+            uCtx.lineTo(leftX + 30, 50);
+            uCtx.stroke();
+
+            // 5. Interface Line & Separation Surface
+            if (oilH > 0.5) {
+                // Dashed line at interface level
+                uCtx.strokeStyle = '#4ade80'; // Green
+                uCtx.setLineDash([5, 5]);
+                uCtx.lineWidth = 2;
+                uCtx.beginPath();
+                uCtx.moveTo(leftX - 60, leftInterfaceY);
+                uCtx.lineTo(rightX + 60, leftInterfaceY);
+                uCtx.stroke();
+                uCtx.setLineDash([]);
+
+                uCtx.fillStyle = '#4ade80';
+                uCtx.font = '12px Cairo';
+                uCtx.fillText('السطح الفاصل', leftX - 100, leftInterfaceY + 5);
+
+                // Height Markers
+                // Oil Height
+                drawArrow(uCtx, leftX - 40, leftInterfaceY, leftX - 40, oilTopY, '#fbbf24');
+
+                // Water Height (above interface)
+                drawArrow(uCtx, rightX + 40, leftInterfaceY, rightX + 40, rightSurfaceY, '#60a5fa');
+            }
+
+            // Update DOM
+            document.getElementById('oilVal').innerText = oilH.toFixed(1) + " cm";
+            const hWater = (oilH * 0.8).toFixed(1);
+            document.getElementById('oilCalc').innerText = `800 × ${oilH}`;
+            document.getElementById('waterCalc').innerText = `1000 × ${hWater}`;
+            if (oilH > 1) document.getElementById('eqResult').classList.remove('hidden');
+        }
+
+        function drawArrow(ctx, x1, y1, x2, y2, color) {
+            ctx.strokeStyle = color;
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+            ctx.stroke();
+            // Ends
+            ctx.fillStyle = color;
+            ctx.beginPath(); ctx.arc(x1, y1, 3, 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath(); ctx.arc(x2, y2, 3, 0, Math.PI * 2); ctx.fill();
+        }
+
+        // UPGRADE: Damped Harmonic Motion Scope
+        let u_targetDisp = 0;
+        let u_currentDisp = 0;
+        let u_velocity = 0;
+        let u_running = false;
+
+        function updateUtubePhysics() {
+            const k = 0.08; // Spring stiffness
+            const damping = 0.92; // Friction
+
+            const diff = u_targetDisp - u_currentDisp;
+
+            // If close enough and slow enough, stop
+            if (Math.abs(diff) < 0.1 && Math.abs(u_velocity) < 0.01) {
+                u_currentDisp = u_targetDisp;
+                u_velocity = 0;
+                u_running = false;
+                drawUtube(); // Final draw
+                return;
+            }
+
+            u_velocity += diff * k;
+            u_velocity *= damping;
+            u_currentDisp += u_velocity;
+
+            drawUtube();
+            requestAnimationFrame(updateUtubePhysics);
+        }
+
+
+        // --- Barometer Simulation ---
+        const bCanvas = document.getElementById('barometerCanvas');
+        const bCtx = bCanvas.getContext('2d');
+        const mCanvas = document.getElementById('magCanvas');
+        const mCtx = mCanvas.getContext('2d');
+        const hSlider = document.getElementById('altitudeSlider');
+        const aSlider = document.getElementById('angleSlider');
+
+        // State
+        let altitude = 0;
+        let angle = 0;
+
+        function initBarometer() {
+            if (!bCanvas) return;
+            const container = bCanvas.parentElement;
+            bCanvas.width = container.clientWidth;
+            bCanvas.height = container.clientHeight;
+            drawBarometerSim();
+        }
+
+        function drawBarometerSim() {
+            if (!bCanvas) return;
+            const w = bCanvas.width;
+            const h = bCanvas.height;
+            bCtx.clearRect(0, 0, w, h);
+
+            // Physics Calc
+            // P = P0 * e^(-Mgh/RT) simplified approximation
+            // Every 10m up -> ~1 torr down approx linear for small h
+            const hSeaLevel = 76; // cm
+            const pressureDrop = (altitude / 10.5); // very rough approx drop in mm
+            const currentH_vertical = hSeaLevel - (pressureDrop / 10); // cm
+
+            // Pa calc
+            const P_pa = (currentH_vertical / 76) * 101325;
+
+            // Tube Angle
+            // L = h / cos(theta)
+            const rad = angle * (Math.PI / 180);
+            const tubeLen = currentH_vertical / Math.cos(rad);
+
+            // Draw
+            // 1. Reservoir
+            bCtx.fillStyle = '#64748b'; // Bowl
+            bCtx.fillRect(w / 2 - 60, h - 80, 120, 60);
+            bCtx.fillStyle = '#9ca3af'; // Mercury
+            bCtx.fillRect(w / 2 - 50, h - 70, 100, 40);
+
+            // 2. Tube
+            bCtx.save();
+            bCtx.translate(w / 2, h - 50);
+            bCtx.rotate(rad);
+
+            // Tube Glass
+            bCtx.fillStyle = 'rgba(255,255,255,0.2)';
+            bCtx.strokeStyle = '#fff';
+            bCtx.lineWidth = 2;
+            bCtx.fillRect(-10, -350, 20, 360);
+            bCtx.strokeRect(-10, -350, 20, 360);
+
+            // Mercury Column
+            // Scale: let's say 300px = 100cm approx
+            const pxPerCm = 3.5;
+            const colHeightPx = tubeLen * pxPerCm;
+
+            bCtx.fillStyle = '#9ca3af'; // Mecury Grey
+            bCtx.fillRect(-8, -colHeightPx, 16, colHeightPx);
+
+            // Marks
+            bCtx.fillStyle = '#fff';
+            bCtx.font = '10px monospace';
+            for (let i = 10; i <= 100; i += 10) {
+                const y = -i * pxPerCm;
+                bCtx.fillRect(-10, y, 5, 1);
+                if (i % 20 === 0) bCtx.fillText(i, 12, y + 3);
+            }
+
+            bCtx.restore();
+
+            // Readings Update
+            document.getElementById('paVal').innerText = Math.round(P_pa).toLocaleString();
+            document.getElementById('hCmVal').innerText = tubeLen.toFixed(1) + " cm";
+            document.getElementById('angleVal').innerText = angle + "°";
+        }
+
+        // Events
+        if (hSlider) {
+            hSlider.addEventListener('input', (e) => { altitude = parseInt(e.target.value); drawBarometerSim(); });
+            aSlider.addEventListener('input', (e) => { angle = parseInt(e.target.value); drawBarometerSim(); });
+
+            // Magnifier logic
+            bCanvas.addEventListener('mousemove', (e) => {
+                const rect = bCanvas.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+
+                const mag = document.getElementById('magnifier');
+                mag.style.display = 'block';
+                mag.style.left = (x - 60) + 'px';
+                mag.style.top = (y - 60) + 'px';
+
+                // Draw magnified view
+                mCtx.clearRect(0, 0, 120, 120);
+                mCtx.fillStyle = '#fff';
+                mCtx.fillRect(0, 0, 120, 120);
+                mCtx.drawImage(bCanvas, x - 30, y - 30, 60, 60, 0, 0, 120, 120);
+            });
+            bCanvas.addEventListener('mouseleave', () => {
+                document.getElementById('magnifier').style.display = 'none';
+            });
+        }
+
+        // Unit Conversion
+        const convInput = document.getElementById('convInput');
+        if (convInput) {
+            function updateConv() {
+                const val = parseFloat(convInput.value);
+                const unit = document.getElementById('convFrom').value;
+                let atm = 0;
+
+                // To ATM
+                if (unit === 'atm') atm = val;
+                if (unit === 'cmHg') atm = val / 76;
+                if (unit === 'pa') atm = val / 101325;
+                if (unit === 'bar') atm = val / 1.013;
+                if (unit === 'torr') atm = val / 760;
+
+                const res = `
+                    ${(atm).toFixed(3)} atm <br>
+                    ${(atm * 76).toFixed(1)} cmHg <br>
+                    ${(atm * 101325).toFixed(0)} Pa
+                `;
+                document.getElementById('convResult').innerHTML = res;
+            }
+            convInput.addEventListener('input', updateConv);
+            document.getElementById('convFrom').addEventListener('change', updateConv);
+        }
+
+
+        // --- Hydraulic Press Simulation ---
+        const pCanvas = document.getElementById('pressCanvas');
+
+        // State
+        let inputForce = 0; // 0-100%
+
+        function initPress() {
+            if (!pCanvas) return;
+            const container = pCanvas.parentElement;
+            pCanvas.width = container.clientWidth;
+            pCanvas.height = container.clientHeight;
+            drawPressSim();
+        }
+
+        function drawPressSim() {
+            if (!pCanvas) return;
+            const pCtx = pCanvas.getContext('2d');
+            const w = pCanvas.width;
+            const h = pCanvas.height;
+            pCtx.clearRect(0, 0, w, h);
+
+            const pipeY = h - 80;
+            const p1X = w * 0.2;
+            const p2X = w * 0.7;
+            const p1W = 40;
+            const p2W = 120;
+
+            // Force slider
+            const fSlider = document.getElementById('forceSlider');
+            if (fSlider) inputForce = parseInt(fSlider.value);
+
+            // Calculation
+            const maxStroke = 100;
+            const stroke1 = (inputForce / 100) * maxStroke;
+            const stroke2 = stroke1 / 10; // Area ratio 10 assumed
+
+            const p1Y = (pipeY - 50) + stroke1;
+            const p2Y = (pipeY - 50) - stroke2;
+
+            // Draw Oil
+            pCtx.fillStyle = '#b45309';
+            pCtx.fillRect(p1X - p1W / 2, p1Y, p1W, pipeY - p1Y + 20);
+            pCtx.fillRect(p2X - p2W / 2, pipeY - 20, p2W, p2Y - (pipeY - 20) + 120);
+            pCtx.fillRect(p1X, pipeY, p2X - p1X, 20);
+
+            // Pistons
+            pCtx.fillStyle = '#cbd5e1';
+            pCtx.fillRect(p1X - p1W / 2, p1Y - 10, p1W, 10); // Small
+            pCtx.fillRect(p2X - p2W / 2, p2Y, p2W, 15); // Large
+
+            // Car
+            drawCar(pCtx, p2X, p2Y - 45);
+
+            // Force Text
+            const f2 = inputForce * 10;
+            const f2El = document.getElementById('f2Val');
+            if (f2El) f2El.innerText = f2 + " N";
+        }
+
+        function drawCar(ctx, x, y) {
+            ctx.fillStyle = '#ef4444';
+            ctx.fillRect(x - 50, y, 100, 40); // Body
+            ctx.fillStyle = '#333';
+            ctx.beginPath(); ctx.arc(x - 30, y + 40, 15, 0, Math.PI * 2); ctx.fill(); // Wheel 1
+            ctx.beginPath(); ctx.arc(x + 30, y + 40, 15, 0, Math.PI * 2); ctx.fill(); // Wheel 2
+        }
+
+        if (document.getElementById('forceSlider')) {
+            document.getElementById('forceSlider').addEventListener('input', drawPressSim);
+        }
+
+
+        // --- Updated Quiz ---
+        const questions = [
+            { q: "في الأواني المستطرقة، يعتمد ارتفاع السائل على...", opts: ["مساحة القاعدة", "شكل الإناء", "الكثافة والجاذبية", "حجم السائل"], ans: 2, exp: "الضغط يعتمد على الارتفاع والكثافة فقط (P=ρgh)." },
+            { q: "عند استخدام البارومتر لقياس ارتفاع مبنى، قراءة الزئبق...", opts: ["تزداد أسفل المبنى", "تقل أسفل المبنى", "ثابتة", "تساوي صفر"], ans: 0, exp: "أسفل المبنى عمود الهواء أطول، فالضغط أكبر، وقراءة البارومتر تزيد." },
+            { q: "في المكبس الهيدروليكي، الفائدة الآلية دايماً...", opts: ["أقل من 1", "تساوي 1", "أكبر من 1", "صفر"], ans: 2, exp: "لأننا بنكبر القوة! مساحة المكبس الكبير / الصغير > 1." },
+            { q: "إذا كان ضغط غاز في مستودع أكبر من الضغط الجوي، فإن قراءة المانومتر الزئبقي...", opts: ["سالبة", "موجبة", "صفر", "غير محددة"], ans: 1, exp: "P_gas = Pa + h (الزئبق هيرتفع في الفرع الخالص)." },
+            { q: "الشغل المبذول على المكبس الصغير ....... الشغل الناتج عند الكبير.", opts: ["أكبر من", "أقل من", "يساوي", "ضعف"], ans: 2, exp: "الطاقة لا تفنى ولا تستحدث! الشغل متساوي (في المكبس المثالي)." }
+        ];
+
+        function renderQuiz() {
+            const area = document.getElementById('quizArea');
+            if (!area) return;
+            area.innerHTML = questions.map((q, i) => `
+                <div class="bg-slate-800 p-4 rounded-xl border border-slate-700">
+                    <p class="font-bold mb-3 text-white">${i + 1}. ${q.q}</p>
+                    <div class="space-y-2">
+                        ${q.opts.map((o, j) => `
+                            <button onclick="checkAns(this, ${i}, ${j})" class="w-full text-right p-3 rounded bg-slate-700 hover:bg-slate-600 transition">${o}</button>
+                        `).join('')}
+                    </div>
+                    <div id="feed-${i}" class="hidden mt-3 text-sm p-3 rounded"></div>
+                </div>
+            `).join('');
+        }
+
+        function checkAns(btn, qIdx, optIdx) {
+            const q = questions[qIdx];
+            const feed = document.getElementById(`feed-${qIdx}`);
+            const parent = btn.parentElement;
+            Array.from(parent.children).forEach(b => b.disabled = true);
+
+            if (optIdx === q.ans) {
+                btn.classList.add('bg-green-600');
+                feed.className = "mt-3 text-sm p-3 rounded bg-green-900/50 text-green-200 block";
+                feed.innerText = "✅ إجابة صحيحة! " + q.exp;
+            } else {
+                btn.classList.add('bg-red-600');
+                feed.className = "mt-3 text-sm p-3 rounded bg-red-900/50 text-red-200 block";
+                feed.innerText = "❌ خطأ. الإجابة هي: " + q.opts[q.ans];
+            }
+        }
+
+        window.onload = function () {
+            initVessels();
+            initUtube();
+            initBarometer();
+            initPress();
+            renderQuiz();
+        };
+        window.onresize = function () {
+            initVessels();
+            initUtube();
+            initBarometer();
+            initPress();
+        }
+    </script>
+</body>
+
+</html>

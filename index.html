@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>منصة الفيزياء | مصطفى هاني</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <style>
+        * {
+            font-family: 'Cairo', sans-serif;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #312e81 100%);
+            color: white;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #6366f1;
+            border-radius: 4px;
+        }
+
+        /* Animations */
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        .animate-float {
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes pulse-glow {
+
+            0%,
+            100% {
+                box-shadow: 0 0 15px rgba(99, 102, 241, 0.3);
+            }
+
+            50% {
+                box-shadow: 0 0 30px rgba(99, 102, 241, 0.6);
+            }
+        }
+
+        .animate-pulse-glow {
+            animation: pulse-glow 3s infinite;
+        }
+
+        .glass-card {
+            background: rgba(30, 41, 59, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-5px);
+            background: rgba(30, 41, 59, 0.8);
+            border-color: rgba(99, 102, 241, 0.3);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .hero-avatar-ring {
+            background: linear-gradient(45deg, #6366f1, #ec4899, #f59e0b);
+            padding: 4px;
+            border-radius: 50%;
+        }
+
+        .btn-primary {
+            background: linear-gradient(90deg, #6366f1, #8b5cf6);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+
+        .btn-primary:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.5);
+        }
+
+        .badge-new {
+            background: linear-gradient(90deg, #ef4444, #f97316);
+            animation: pulse-glow 2s infinite;
+        }
+
+        .locked-overlay {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(4px);
+        }
+
+        /* Particles Background */
+        .particle {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+    </style>
+</head>
+
+<body class="selection:bg-indigo-500 selection:text-white">
+
+    <!-- Decorative particles -->
+    <div id="particles" class="fixed inset-0 pointer-events-none z-0 overflow-hidden"></div>
+
+    <!-- Header -->
+    <header
+        class="fixed top-0 w-full z-50 bg-slate-900/80 backdrop-blur-md border-b border-white/5 transition-all duration-300"
+        id="mainHeader">
+        <div class="max-w-7xl mx-auto px-4 md:px-8 h-20 flex items-center justify-between">
+
+            <!-- Logo area -->
+            <div class="flex items-center gap-3">
+                <div
+                    class="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center text-xl shadow-lg animate-float">
+                    ⚛️
+                </div>
+                <div>
+                    <h1 class="text-xl md:text-2xl font-black tracking-tight flex items-center gap-2">
+                        منصة الفيزياء
+                        <span
+                            class="text-[10px] bg-indigo-500/20 text-indigo-300 px-2 py-0.5 rounded-full border border-indigo-500/30">BETA</span>
+                    </h1>
+                    <p class="text-xs text-slate-400 font-medium">مع م/ مصطفى هاني</p>
+                </div>
+            </div>
+
+            <!-- Grade Badge -->
+            <div class="hidden md:flex items-center gap-2 bg-slate-800/50 px-4 py-2 rounded-full border border-white/5">
+                <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                <span class="text-sm text-slate-300">الصف الثاني الثانوي</span>
+            </div>
+
+            <!-- Mobile Menu Button -->
+            <button class="md:hidden p-2 text-slate-300 hover:text-white">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                    stroke="currentColor" class="w-8 h-8">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="relative pt-32 pb-20 px-4 overflow-hidden">
+
+        <!-- Gradient Circle behind -->
+        <div
+            class="absolute top-20 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-indigo-600/20 rounded-full blur-3xl -z-10 animate-pulse-glow">
+        </div>
+
+        <div class="max-w-5xl mx-auto text-center relative z-10">
+
+            <!-- Avatar -->
+            <div class="relative inline-block mb-8 group">
+                <div class="hero-avatar-ring p-1">
+                    <div
+                        class="w-24 h-24 md:w-32 md:h-32 bg-slate-800 rounded-full overflow-hidden border-4 border-slate-900 shadow-2xl relative">
+                        <!-- Use an emoji representation for now, or placeholder image -->
+                        <div
+                            class="w-full h-full flex items-center justify-center text-6xl bg-gradient-to-b from-slate-700 to-slate-900">
+                            👨‍🏫
+                        </div>
+                    </div>
+                </div>
+                <!-- Speech Bubble -->
+                <div
+                    class="absolute -top-4 -right-16 md:-right-24 bg-white text-slate-900 px-4 py-2 rounded-2xl rounded-bl-none shadow-xl transform rotate-3 animate-float opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100">
+                    <p class="font-bold text-sm">أبو حجاج هنا! 🚀</p>
+                </div>
+            </div>
+
+            <!-- Creator Name Badge -->
+            <div class="mb-6">
+                <div class="inline-block relative">
+                    <div
+                        class="px-8 py-3 bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 rounded-2xl shadow-2xl transform hover:scale-105 transition-transform">
+                        <p class="text-white text-lg md:text-xl font-black tracking-wide">
+                            ✨ مصطفى هاني حجاج ✨
+                        </p>
+                    </div>
+                    <div
+                        class="absolute -top-2 -right-2 w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center shadow-lg animate-bounce">
+                        <span class="text-xs">👑</span>
+                    </div>
+                </div>
+                <p class="text-slate-400 text-sm mt-2">صانع المحتوى ومؤسس المنصة</p>
+            </div>
+
+            <h1 class="text-4xl md:text-6xl font-black mb-6 leading-tight">
+                <span
+                    class="bg-clip-text text-transparent bg-gradient-to-r from-white via-indigo-200 to-indigo-400">الفيزياء..
+                    لعبتك الصغيرة</span>
+            </h1>
+
+            <p class="text-lg md:text-xl text-slate-300 max-w-2xl mx-auto mb-10 leading-relaxed">
+                مش مجرد قوانين بنحفظها.. دي رحلة ممتعة عشان نفهم الكون بيشتغل ازاي.
+                <br> <span class="text-yellow-400 font-bold">افهم.. طبق.. استمتع!</span> 😎
+            </p>
+
+            <!-- Stats -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto mb-12">
+                <div class="glass-card p-4 rounded-2xl">
+                    <div class="text-2xl font-bold text-indigo-400 font-mono">4+</div>
+                    <div class="text-xs text-slate-400">دروس تفاعلية</div>
+                </div>
+                <div class="glass-card p-4 rounded-2xl">
+                    <div class="text-2xl font-bold text-pink-400 font-mono">50+</div>
+                    <div class="text-xs text-slate-400">سؤال و لغز</div>
+                </div>
+                <div class="glass-card p-4 rounded-2xl">
+                    <div class="text-2xl font-bold text-green-400 font-mono">100%</div>
+                    <div class="text-xs text-slate-400">مجاني بالكامل</div>
+                </div>
+                <div class="glass-card p-4 rounded-2xl">
+                    <div class="text-2xl font-bold text-yellow-400 font-mono">∞</div>
+                    <div class="text-xs text-slate-400">شغف لا ينتهي</div>
+                </div>
+            </div>
+
+            <a href="#lessons"
+                class="inline-flex items-center gap-2 btn-primary px-8 py-4 rounded-full font-bold text-lg shadow-lg group">
+                <span>ابدأ المذاكرة الآن</span>
+                <span class="group-hover:translate-y-1 transition-transform">👇</span>
+            </a>
+
+        </div>
+    </section>
+
+    <!-- Lessons Section -->
+    <section id="lessons" class="py-20 px-4 relative">
+        <div class="max-w-6xl mx-auto">
+
+            <!-- Section Header -->
+            <div class="flex items-center justify-between mb-12 border-b border-slate-700 pb-4">
+                <h2 class="text-3xl font-bold flex items-center gap-3">
+                    <span class="text-4xl">📚</span> المقرر الدراسي
+                </h2>
+                <div class="text-sm text-slate-400 bg-slate-800 px-3 py-1 rounded-lg">الترم الثاني</div>
+            </div>
+
+            <!-- Unit 1: Fluids -->
+            <div class="mb-16">
+                <h3 class="text-xl md:text-2xl font-bold mb-6 text-blue-300 flex items-center gap-2">
+                    <span
+                        class="text-2xl bg-blue-500/20 w-10 h-10 flex items-center justify-center rounded-lg">💧</span>
+                    الوحدة الثالثة: خواص الموائع الساكنة
+                </h3>
+
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+                    <!-- الفصل الخامس: تطبيقات الضغط (Merged Lesson) -->
+                    <a href="lesson-fluids-part1.html"
+                        class="glass-card rounded-2xl overflow-hidden group relative block lg:col-span-2">
+                        <div class="absolute top-0 right-0 p-3 z-10">
+                            <span
+                                class="bg-green-500/90 text-white text-[10px] font-bold px-2 py-1 rounded shadow-lg">متاح
+                                الآن</span>
+                        </div>
+                        <div class="absolute top-0 left-0 p-3 z-10">
+                            <span
+                                class="bg-indigo-600 text-white text-[10px] font-bold px-2 py-1 rounded shadow-lg">الفصل
+                                الخامس</span>
+                        </div>
+                        <div
+                            class="h-40 bg-gradient-to-br from-blue-600 via-indigo-600 to-violet-600 flex items-center justify-center relative overflow-hidden">
+                            <div class="flex gap-4">
+                                <span
+                                    class="text-5xl transform group-hover:scale-110 transition-transform duration-300">🌊</span>
+                                <span
+                                    class="text-5xl transform group-hover:scale-110 transition-transform duration-300">🌡️</span>
+                                <span
+                                    class="text-5xl transform group-hover:scale-110 transition-transform duration-300">🚗</span>
+                            </div>
+                            <div class="absolute inset-0 bg-black/10 group-hover:bg-transparent transition"></div>
+                        </div>
+                        <div class="p-6">
+                            <h4 class="text-xl font-bold mb-3 group-hover:text-blue-400 transition">
+                                تطبيقات الضغط عند نقطة في باطن سائل
+                            </h4>
+                            <p class="text-sm text-slate-400 mb-4">
+                                الأواني المستطرقة • البارومتر والضغط الجوي • قاعدة باسكال والمكبس الهيدروليكي
+                            </p>
+                            <div class="flex flex-wrap gap-2 mb-4">
+                                <span class="text-xs bg-blue-900/50 text-blue-300 px-2 py-1 rounded-full">الأواني
+                                    المستطرقة</span>
+                                <span
+                                    class="text-xs bg-indigo-900/50 text-indigo-300 px-2 py-1 rounded-full">البارومتر</span>
+                                <span class="text-xs bg-violet-900/50 text-violet-300 px-2 py-1 rounded-full">المكبس
+                                    الهيدروليكي</span>
+                            </div>
+                            <div
+                                class="flex items-center justify-between text-xs text-slate-500 border-t border-slate-700 pt-3">
+                                <span class="flex items-center gap-1">⏱️ 60+ دقيقة</span>
+                                <span
+                                    class="flex items-center gap-1 font-bold text-indigo-400 group-hover:translate-x-[-4px] transition">ابدأ
+                                    الدرس ⬅️</span>
+                            </div>
+                        </div>
+                    </a>
+
+                    <!-- Coming Soon: Other Chapters -->
+                    <div class="glass-card rounded-2xl overflow-hidden relative opacity-60">
+                        <div
+                            class="absolute inset-0 z-20 flex flex-col items-center justify-center text-center p-4 bg-slate-900/80">
+                            <div
+                                class="w-12 h-12 bg-slate-800 rounded-full flex items-center justify-center mb-2 border border-slate-600">
+                                🔒
+                            </div>
+                            <h5 class="font-bold text-slate-400">الفصول السابقة</h5>
+                            <p class="text-xs text-slate-500 mt-1">الفصل 1-4 (قريباً)</p>
+                        </div>
+                        <div class="h-32 bg-gradient-to-br from-slate-700 to-slate-800"></div>
+                        <div class="p-5">
+                            <h4 class="text-lg font-bold mb-2 text-slate-500">فصول أخرى</h4>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Unit 2: Heat & Gases -->
+            <div>
+                <h3 class="text-xl md:text-2xl font-bold mb-6 text-red-300 flex items-center gap-2">
+                    <span class="text-2xl bg-red-500/20 w-10 h-10 flex items-center justify-center rounded-lg">🔥</span>
+                    الباب الثاني: الحرارة والغازات
+                </h3>
+
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+                    <!-- Gases 1 Card -->
+                    <a href="lesson-gases-part1.html"
+                        class="glass-card rounded-2xl overflow-hidden group relative block border-yellow-500/30">
+                        <div class="absolute top-2 left-2 z-10">
+                            <span class="badge-new text-white text-[10px] font-bold px-2 py-1 rounded shadow-lg">جديد
+                                🔥</span>
+                        </div>
+                        <div
+                            class="h-32 bg-gradient-to-br from-red-600 to-orange-500 flex items-center justify-center relative overflow-hidden">
+                            <span
+                                class="text-5xl transform group-hover:scale-110 transition-transform duration-300">💨</span>
+                            <!-- Animated Particles -->
+                            <div class="absolute w-2 h-2 bg-white/50 rounded-full top-1/4 left-1/4 animate-bounce">
+                            </div>
+                            <div class="absolute w-1 h-1 bg-white/30 rounded-full bottom-1/4 right-1/4 animate-ping">
+                            </div>
+                        </div>
+                        <div class="p-5">
+                            <h4 class="text-lg font-bold mb-2 group-hover:text-red-400 transition">الحرارة وقوانين
+                                الغازات</h4>
+                            <p class="text-sm text-slate-400 mb-4 line-clamp-2">بويل، شارل، وجولي. الجزيئات بتعمل إيه
+                                لما تسخن؟</p>
+                            <div
+                                class="flex items-center justify-between text-xs text-slate-500 border-t border-slate-700 pt-3">
+                                <span class="flex items-center gap-1">⏱️ 40 دقيقة</span>
+                                <span
+                                    class="flex items-center gap-1 font-bold text-red-400 group-hover:translate-x-[-4px] transition">ابدأ
+                                    التحدي ⬅️</span>
+                            </div>
+                        </div>
+                    </a>
+
+                    <!-- Coming Soon Card 1 -->
+                    <div class="glass-card rounded-2xl overflow-hidden relative">
+                        <div
+                            class="locked-overlay absolute inset-0 z-20 flex flex-col items-center justify-center text-center p-4">
+                            <div
+                                class="w-12 h-12 bg-slate-800 rounded-full flex items-center justify-center mb-2 border border-slate-600">
+                                🔒
+                            </div>
+                            <h5 class="font-bold text-slate-300">قريباً جداً</h5>
+                            <button disabled
+                                class="mt-2 px-4 py-1 bg-slate-700/50 text-slate-500 text-xs rounded-full border border-slate-600 cursor-not-allowed">
+                                جاري التجهيز...
+                            </button>
+                        </div>
+                        <!-- Blurred Content -->
+                        <div class="h-32 bg-slate-800 opacity-50 flex items-center justify-center">
+                            <span class="text-4xl grayscale">🧪</span>
+                        </div>
+                        <div class="p-5 opacity-50">
+                            <h4 class="text-lg font-bold mb-2">قانون الغاز المثالي</h4>
+                            <p class="text-sm text-slate-400 mb-4">استنتاج القانون العام.. وحل مسائل المستويات العليا.
+                            </p>
+                            <div class="h-4 bg-slate-700 rounded w-1/2"></div>
+                        </div>
+                    </div>
+
+                    <!-- Coming Soon Card 2 -->
+                    <div class="glass-card rounded-2xl overflow-hidden relative">
+                        <div
+                            class="locked-overlay absolute inset-0 z-20 flex flex-col items-center justify-center text-center p-4">
+                            <div
+                                class="w-12 h-12 bg-slate-800 rounded-full flex items-center justify-center mb-2 border border-slate-600">
+                                🔒
+                            </div>
+                            <h5 class="font-bold text-slate-300">قريباً جداً</h5>
+                            <button disabled
+                                class="mt-2 px-4 py-1 bg-slate-700/50 text-slate-500 text-xs rounded-full border border-slate-600 cursor-not-allowed">
+                                جاري التجهيز...
+                            </button>
+                        </div>
+                        <!-- Blurred Content -->
+                        <div class="h-32 bg-slate-800 opacity-50 flex items-center justify-center">
+                            <span class="text-4xl grayscale">📉</span>
+                        </div>
+                        <div class="p-5 opacity-50">
+                            <h4 class="text-lg font-bold mb-2">مراجعة عامة</h4>
+                            <p class="text-sm text-slate-400 mb-4">حل امتحانات السنوات السابقة وبنك الأسئلة.</p>
+                            <div class="h-4 bg-slate-700 rounded w-1/2"></div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 border-t border-slate-800 py-12 mt-12 relative overflow-hidden">
+        <!-- Floating decoration in footer -->
+        <div class="absolute -top-20 -left-20 w-40 h-40 bg-indigo-500/10 rounded-full blur-2xl"></div>
+        <div class="absolute -bottom-20 -right-20 w-40 h-40 bg-pink-500/10 rounded-full blur-2xl"></div>
+
+        <div class="max-w-7xl mx-auto px-4 text-center">
+
+            <div class="flex items-center justify-center gap-3 mb-6">
+                <span class="text-2xl">⚛️</span>
+                <span class="font-bold text-xl text-slate-200">منصة الفيزياء</span>
+            </div>
+
+            <p class="text-slate-500 max-w-sm mx-auto mb-8 text-sm leading-relaxed">
+                مبادرة تعليمية لتبسيط الفيزياء للمرحلة الثانوية.
+                <br>
+                هدفنا إنك "تفهم" مش بس تحفظ، وتستمتع وأنت بتذاكر.
+            </p>
+
+            <div class="flex justify-center gap-4 mb-8">
+                <!-- Social Placeholders -->
+                <a href="#"
+                    class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-slate-400 hover:bg-indigo-600 hover:text-white transition">F</a>
+                <a href="#"
+                    class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-slate-400 hover:bg-pink-600 hover:text-white transition">Y</a>
+                <a href="#"
+                    class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-slate-400 hover:bg-blue-500 hover:text-white transition">T</a>
+            </div>
+
+            <div class="text-xs text-slate-600 font-mono">
+                &copy; 2024 Physics Platform. All rights reserved. <br>
+                Made with ❤️ & ☕ by Mostafa Hany
+            </div>
+        </div>
+    </footer>
+
+    <!-- Simple JS for Scroll Effects & Particles -->
+    <script>
+        // Header Blur Effect styling on scroll
+        window.addEventListener('scroll', () => {
+            const header = document.getElementById('mainHeader');
+            if (window.scrollY > 50) {
+                header.classList.add('bg-slate-900/95', 'shadow-lg');
+                header.classList.remove('bg-slate-900/80');
+            } else {
+                header.classList.remove('bg-slate-900/95', 'shadow-lg');
+                header.classList.add('bg-slate-900/80');
+            }
+        });
+
+        // Simple Particle System
+        const particleContainer = document.getElementById('particles');
+        const particleCount = 30;
+
+        for (let i = 0; i < particleCount; i++) {
+            const p = document.createElement('div');
+            p.className = 'particle';
+            const size = Math.random() * 5 + 2;
+            p.style.width = size + 'px';
+            p.style.height = size + 'px';
+            p.style.left = Math.random() * 100 + 'vw';
+            p.style.top = Math.random() * 100 + 'vh';
+            p.style.opacity = Math.random() * 0.5 + 0.1;
+
+            // Random floating animation
+            const duration = Math.random() * 20 + 10 + 's';
+            const delay = Math.random() * 5 + 's';
+            p.style.animation = `float ${duration} ease-in-out infinite ${delay}`;
+
+            particleContainer.appendChild(p);
+        }
+    </script>
+</body>
+
+</html>

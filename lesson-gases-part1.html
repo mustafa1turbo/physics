@@ -1,0 +1,2251 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الحرارة وقوانين الغازات | منصة الفيزياء</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <style>
+        * {
+            font-family: 'Cairo', sans-serif;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background: #0f172a;
+            color: white;
+            overflow-x: hidden;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #6366f1;
+            border-radius: 4px;
+        }
+
+        /* Glassmorphism */
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-sidebar {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            width: 260px;
+            height: calc(100vh - 100px);
+            overflow-y: auto;
+            z-index: 40;
+            transition: transform 0.3s ease;
+        }
+
+        @media (max-width: 1024px) {
+            .nav-sidebar {
+                transform: translateX(110%);
+                background: #1e293b;
+                right: 0;
+                top: 0;
+                height: 100vh;
+                width: 300px;
+                padding-top: 60px;
+            }
+
+            .nav-sidebar.active {
+                transform: translateX(0);
+            }
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            margin-bottom: 8px;
+            border-radius: 12px;
+            color: #94a3b8;
+            transition: all 0.3s;
+            cursor: pointer;
+            border-right: 3px solid transparent;
+        }
+
+        .nav-item:hover,
+        .nav-item.active {
+            background: rgba(99, 102, 241, 0.1);
+            color: #fff;
+            border-right-color: #6366f1;
+        }
+
+        /* Scientific Boxes */
+        .sc-box {
+            position: relative;
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .sc-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 4px;
+            height: 100%;
+        }
+
+        .def-box {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+        }
+
+        .def-box::before {
+            background: #3b82f6;
+        }
+
+        .law-box {
+            background: rgba(234, 179, 8, 0.1);
+            border: 1px solid rgba(234, 179, 8, 0.2);
+        }
+
+        .law-box::before {
+            background: #eab308;
+        }
+
+        .note-box {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .note-box::before {
+            background: #10b981;
+        }
+
+        /* Dialogues */
+        .chat-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            align-items: flex-start;
+        }
+
+        .chat-avatar {
+            width: 50px;
+            height: 50px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            font-size: 24px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .chat-bubble {
+            padding: 15px;
+            border-radius: 18px;
+            position: relative;
+            max-width: 80%;
+            line-height: 1.6;
+        }
+
+        .teacher-row .chat-avatar {
+            background: linear-gradient(135deg, #7c3aed, #4c1d95);
+        }
+
+        .teacher-row .chat-bubble {
+            background: #2e1065;
+            color: #e9d5ff;
+            border-top-right-radius: 4px;
+        }
+
+        .student-row .chat-avatar {
+            background: linear-gradient(135deg, #2563eb, #1e3a8a);
+        }
+
+        .student-row .chat-bubble {
+            background: #172554;
+            color: #bfdbfe;
+            border-top-left-radius: 4px;
+        }
+
+        /* Confused Student (Funny) */
+        .confused-row .chat-avatar {
+            background: linear-gradient(135deg, #dc2626, #7f1d1d);
+        }
+
+        .confused-row .chat-bubble {
+            background: #450a0a;
+            color: #fecaca;
+            border-top-left-radius: 4px;
+            border: 1px dashed #f87171;
+        }
+
+        /* Animations */
+        @keyframes pulse-ring {
+            0% {
+                box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4);
+            }
+
+            70% {
+                box-shadow: 0 0 0 10px rgba(99, 102, 241, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(99, 102, 241, 0);
+            }
+        }
+
+        .canvas-container {
+            position: relative;
+            width: 100%;
+            height: 350px;
+            background: #0f172a;
+            border-radius: 16px;
+            border: 1px solid #334155;
+            overflow: hidden;
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .range-slider {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 8px;
+            border-radius: 5px;
+            background: #334155;
+            outline: none;
+        }
+
+        .range-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #6366f1;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(99, 102, 241, 0.5);
+        }
+
+        /* Pedagogical Badges */
+        .badge-understand {
+            background: linear-gradient(135deg, #4c1d95, #6d28d9);
+            color: #e9d5ff;
+            border: 1px solid #8b5cf6;
+            padding: 4px 12px;
+            border-radius: 99px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 4px 12px rgba(109, 40, 217, 0.3);
+            margin-bottom: 8px;
+        }
+
+        .badge-memo {
+            background: linear-gradient(135deg, #1e40af, #2563eb);
+            color: #dbeafe;
+            border: 1px solid #60a5fa;
+            padding: 4px 12px;
+            border-radius: 99px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+            margin-bottom: 8px;
+        }
+
+        .trick-box {
+            background: rgba(220, 38, 38, 0.1);
+            border-right: 4px solid #ef4444;
+            padding: 16px;
+            border-radius: 8px;
+            margin-top: 16px;
+            position: relative;
+        }
+
+        .trick-box h5 {
+            color: #f87171;
+            font-weight: bold;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* أبو حجاج Tips */
+        .hagag-tip {
+            background: linear-gradient(135deg, rgba(251, 191, 36, 0.15), rgba(245, 158, 11, 0.1));
+            border: 2px dashed #f59e0b;
+            border-radius: 16px;
+            padding: 20px;
+            margin: 24px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hagag-tip::before {
+            content: "👨‍🏫";
+            position: absolute;
+            top: -10px;
+            right: 10px;
+            font-size: 40px;
+            opacity: 0.3;
+        }
+
+        .hagag-tip-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .hagag-tip-header .name {
+            background: linear-gradient(90deg, #f59e0b, #d97706);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 900;
+            font-size: 1.1rem;
+        }
+
+        .hagag-tip-header .phrase {
+            color: #fbbf24;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body class="pb-20">
+
+    <!-- Mobile Nav Toggle -->
+    <button onclick="toggleNav()"
+        class="fixed top-4 left-4 z-50 lg:hidden bg-slate-800 p-3 rounded-xl border border-slate-700">
+        ☰ الفهرس
+    </button>
+
+    <!-- Header -->
+    <header
+        class="fixed top-0 w-full z-30 bg-slate-900/90 backdrop-blur-md border-b border-slate-700 h-16 flex items-center px-6 justify-between">
+        <div class="flex items-center gap-4">
+            <a href="index.html" class="flex items-center gap-2 text-slate-400 hover:text-white transition">
+                <span>⬅️</span> <span class="hidden md:inline font-bold">الرئيسية</span>
+            </a>
+            <div class="h-6 w-[1px] bg-slate-700 mx-2"></div>
+            <h1 class="font-bold text-lg md:text-xl text-white">الحرارة وقوانين الغازات 🌡️</h1>
+        </div>
+        <div class="text-sm font-mono text-indigo-400" id="readingProgress">0%</div>
+    </header>
+
+    <!-- Sidebar Navigation -->
+    <nav class="nav-sidebar" id="sidebar">
+        <div class="mb-6 px-4">
+            <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">محتويات الدرس</h3>
+        </div>
+        <div onclick="scrollToSection('intro')" class="nav-item active">
+            <span>👋</span> <span class="mr-2">مقدمة وخصائص الغازات</span>
+        </div>
+        <div onclick="scrollToSection('brownian')" class="nav-item">
+            <span>🔬</span> <span class="mr-2">الحركة البراونية</span>
+        </div>
+        <div onclick="scrollToSection('kinetic')" class="nav-item">
+            <span>🧠</span> <span class="mr-2">النظرية الحركية للغازات</span>
+        </div>
+        <div onclick="scrollToSection('boyle-intro')" class="nav-item">
+            <span>⚖️</span> <span class="mr-2">قانون بويل: المفهوم</span>
+        </div>
+        <div onclick="scrollToSection('boyle-sim')" class="nav-item">
+            <span>🧪</span> <span class="mr-2">محاكاة قانون بويل</span>
+        </div>
+        <div onclick="scrollToSection('charles-intro')" class="nav-item">
+            <span>🌡️</span> <span class="mr-2">قانون شارل: المفهوم</span>
+        </div>
+        <div onclick="scrollToSection('charles-sim')" class="nav-item">
+            <span>🔥</span> <span class="mr-2">محاكاة قانون شارل</span>
+        </div>
+        <div onclick="scrollToSection('jolly-intro')" class="nav-item">
+            <span>🍲</span> <span class="mr-2">قانون جولي (الضغط)</span>
+        </div>
+        <div onclick="scrollToSection('general-law')" class="nav-item">
+            <span>🌍</span> <span class="mr-2">القانون العام للغازات</span>
+        </div>
+        <div onclick="scrollToSection('advanced-tricks')" class="nav-item">
+            <span>🏴‍☠️</span> <span class="mr-2">محطة المتفوقين (هام)</span>
+        </div>
+        <div onclick="scrollToSection('summary')" class="nav-item">
+            <span>🍋</span> <span class="mr-2">الزتونة (الملخص)</span>
+        </div>
+        <div onclick="scrollToSection('quiz')" class="nav-item">
+            <span>📝</span> <span class="mr-2">اختبر نفسك</span>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="lg:mr-[280px] pt-24 px-4 md:px-8 max-w-5xl mx-auto">
+
+        <!-- Section 1: Intro -->
+        <section id="intro" class="mb-20 scroll-mt-24">
+
+            <!-- URGENT ALERT -->
+            <div class="mb-8 mx-auto max-w-4xl transform hover:scale-[1.02] transition-all duration-300">
+                <div
+                    class="bg-gradient-to-r from-red-600 via-orange-500 to-red-600 p-1 rounded-2xl shadow-[0_0_40px_rgba(239,68,68,0.4)] animate-pulse">
+                    <div
+                        class="bg-slate-900 rounded-xl p-6 text-center border border-red-500/30 relative overflow-hidden">
+                        <div
+                            class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-white/50 to-transparent opacity-50">
+                        </div>
+
+                        <h3
+                            class="text-2xl md:text-3xl font-black text-white mb-2 flex items-center justify-center gap-3">
+                            <span>🚨</span> تحذير هام جداً <span>🚨</span>
+                        </h3>
+                        <p class="text-xl md:text-2xl text-yellow-300 font-bold mb-4">
+                            الدرس ده بيمثل 70% من أسئلة الامتحان! 😱
+                        </p>
+                        <p class="text-slate-200 text-lg leading-relaxed">
+                            أنا مش بخوفك، أنا بنبهك.. اللي يلم الدرس ده، يعتبر حط <span
+                                class="text-green-400 font-bold">الفيزياء الحرارية</span> في جيبه الصغير.
+                            <br>
+                            ده "العمود الفقري" للمنهج.. <span
+                                class="text-red-400 font-bold underline decoration-wavy">ممنوع السرحان!</span> جهز
+                            كوباية الشاي وركز في كل فتفوتة. ☕💪
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass-panel p-8 text-center relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-3xl -z-10"></div>
+
+                <div
+                    class="inline-block p-4 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 shadow-lg shadow-indigo-500/30 mb-6">
+                    <span class="text-5xl">💨</span>
+                </div>
+                <h2 class="text-3xl md:text-5xl font-black mb-4">خصائص الغازات</h2>
+                <p class="text-xl text-indigo-200 mb-8 max-w-2xl mx-auto">
+                    ليه الغاز بينتشر؟ وليه بيضغط؟ وإيه اللي بيحصل جوا البالونة لما ننفخها؟
+                </p>
+
+                <!-- Teacher Intro -->
+                <div class="teacher-row chat-row justify-center">
+                    <div class="chat-avatar">👨‍🏫</div>
+                    <div class="chat-bubble text-right text-lg">
+                        <p class="font-bold text-yellow-300 mb-2">مصطفى هاني:</p>
+                        <p>يا بطل الأبطال! 💪 قبل ما ندخل في القوانين والمعادلات، لازم نفهم "سلوك" الغاز الأول. الغاز ده
+                            عامل زي "الشلة الفوضوية"، كل جزيء ماشي في حاله وبيخبط في التاني.. تعال نشوف ده بيحصل ازاي!
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Comparison Table -->
+            <div class="mt-8">
+                <h3 class="text-2xl font-bold mb-4 flex items-center gap-2">
+                    <span class="text-indigo-400">#</span> حالات المادة (مراجعة سريعة)
+                </h3>
+                <div class="overflow-x-auto rounded-xl border border-slate-700">
+                    <table class="w-full text-right text-sm md:text-base">
+                        <thead class="bg-slate-800 text-indigo-300">
+                            <tr>
+                                <th class="p-4">الخاصية</th>
+                                <th class="p-4">الغاز (Gas) ☁️</th>
+                                <th class="p-4 opacity-50">السائل والصلب</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-700 bg-slate-900/50">
+                            <tr>
+                                <td class="p-4 font-bold text-slate-300">المسافات البينية</td>
+                                <td class="p-4 text-yellow-400 font-bold">كبيرة جداً</td>
+                                <td class="p-4 text-slate-500">صغيرة نسبياً</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-bold text-slate-300">قوى التماسك</td>
+                                <td class="p-4 text-red-400 font-bold">تكاد تكون منعدمة</td>
+                                <td class="p-4 text-slate-500">كبيرة</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-bold text-slate-300">الحركة</td>
+                                <td class="p-4 text-green-400 font-bold">انتقالية عشوائية سريعة</td>
+                                <td class="p-4 text-slate-500">محدودة</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="hagag-tip">
+                <div class="hagag-tip-header">
+                    <span class="name">أبو حجاج</span>
+                    <span class="phrase">بيقولك:</span>
+                </div>
+                <p class="text-white text-sm leading-relaxed">
+                    ركز ياض! 🤨 الغاز عامل زي العيال الصغيرة في الفسحة، بيتحرك براحته في كل حتة. <br>
+                    لكن السائل زي الطابور، بيتحركوا بس "لامسين اكتاف بعض". افهم الفرق ده هيريحك في القوانين الجاية! 😉
+                </p>
+            </div>
+        </section>
+
+        <!-- Section 2: Brownian Motion -->
+        <section id="brownian" class="mb-20 scroll-mt-24">
+            <h2 class="text-3xl font-bold mb-6 border-r-4 border-purple-500 pr-4">الحركة البراونية (Brownian Motion) 🔬
+            </h2>
+
+            <div class="grid md:grid-cols-2 gap-8">
+                <div>
+                    <div class="sc-box def-box">
+                        <h4 class="font-bold text-blue-400 text-lg mb-2">التعريف:</h4>
+                        <p class="leading-relaxed">هي حركة عشوائية مستمرة لجزيئات المائع (سائل أو غاز) تؤدي إلى تصادمها
+                            مع الجسيمات المعلقة فيها.</p>
+                    </div>
+
+                    <div class="sc-box note-box">
+                        <h4 class="font-bold text-green-400 text-lg mb-2">سبب التسمية:</h4>
+                        <p>نسبة للعالم الاسكتلندي <span class="text-white font-bold">روبرت براون</span> (1827) لما لاحظ
+                            حركة حبوب اللقاح في المية تحت الميكروسكوب.</p>
+                    </div>
+
+                    <div class="student-row chat-row">
+                        <div class="chat-avatar">🧑‍🎓</div>
+                        <div class="chat-bubble">
+                            <p class="text-sm">يعني يا مستر حبوب اللقاح بتتحرك لوحدها؟ زي السحر؟ 🤔</p>
+                        </div>
+                    </div>
+
+                    <div class="teacher-row chat-row">
+                        <div class="chat-avatar">👨‍🏫</div>
+                        <div class="chat-bubble">
+                            <p class="text-sm">لأ طبعاً! 😂 تخيل إنك واقف وسط زحمة ناس (جزيئات المية/الهواء) والناس دي
+                                عمالة تزقك من كل حتة بشكل عشوائي.. هتتحرك غصب عنك يمين وشمال في خطوط متعرجة (Zig-zag).
+                                ده بالظبط اللي بيحصل!</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Brownian Simulation Canvas -->
+                <div class="glass-panel p-4 flex flex-col items-center justify-center">
+                    <h5 class="text-indigo-300 font-bold mb-2">محاكاة مجهرية دقيقة</h5>
+                    <div class="canvas-container" id="brownianCanvasContainer">
+                        <canvas id="brownianCanvas" class="w-full h-full"></canvas>
+                    </div>
+                    <div class="flex gap-4 mt-4 text-xs text-slate-400">
+                        <div class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-blue-500"></span>
+                            جزيئات الهواء (غير مرئية بالعين)</div>
+                        <div class="flex items-center gap-1"><span
+                                class="w-4 h-4 rounded-full bg-yellow-500 border border-white"></span> ذرة الدخان/اللقاح
+                        </div>
+                    </div>
+                    <button onclick="resetBrownian()"
+                        class="mt-4 px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg text-sm transition">🔄 إعادة
+                        المحاكاة</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: Kinetic Theory -->
+        <section id="kinetic" class="mb-20 scroll-mt-24">
+            <h2 class="text-3xl font-bold mb-6 border-r-4 border-pink-500 pr-4">فروض النظرية الحركية للغازات 🧠</h2>
+            <div class="mb-4">
+                <span class="badge-understand">🧠 فهم عميق: "الغاز المثالي" ده خيال علمي!</span>
+            </div>
+            <p class="text-slate-400 mb-6">علشان نقدر نعمل قوانين للغازات، العلماء افترضوا وجود "غاز مثالي" (Ideal Gas)
+                بيمشي على القواعد دي:</p>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div class="glass-panel p-6 hover:-translate-y-2 transition duration-300 border-t-4 border-indigo-500">
+                    <div class="text-3xl mb-3">🤏</div>
+                    <h4 class="font-bold mb-2">حجم مهمل</h4>
+                    <p class="text-sm text-slate-300">جزيئات الغاز صغيرة جداً لدرجة إن حجمها بالنسبة للمسافات اللي بينها
+                        يعتبر "صفر".</p>
+                </div>
+                <div class="glass-panel p-6 hover:-translate-y-2 transition duration-300 border-t-4 border-pink-500">
+                    <div class="text-3xl mb-3">🎱</div>
+                    <h4 class="font-bold mb-2">تصادم مرن</h4>
+                    <p class="text-sm text-slate-300">لما الجزيئات بتخبط في بعض، مفيش طاقة بتضيع. زي كور البلياردو
+                        المثالية.</p>
+                </div>
+                <div class="glass-panel p-6 hover:-translate-y-2 transition duration-300 border-t-4 border-green-500">
+                    <div class="text-3xl mb-3">🕸️</div>
+                    <h4 class="font-bold mb-2">مفيش قوى</h4>
+                    <p class="text-sm text-slate-300">مفيش قوى تجاذب أو تنافر بين الجزيئات (إلا لحظة التصادم بس).</p>
+                </div>
+                <div class="glass-panel p-6 hover:-translate-y-2 transition duration-300 border-t-4 border-yellow-500">
+                    <div class="text-3xl mb-3">🔄</div>
+                    <h4 class="font-bold mb-2">حركة عشوائية</h4>
+                    <p class="text-sm text-slate-300">الحركة في خطوط مستقيمة وفي جميع الاتجاهات بسرعة ثابتة (بين
+                        التصادمات).</p>
+                </div>
+                <div
+                    class="glass-panel p-6 hover:-translate-y-2 transition duration-300 border-t-4 border-red-500 col-span-1 md:col-span-2 lg:col-span-2">
+                    <div class="text-3xl mb-3">🌡️</div>
+                    <h4 class="font-bold mb-2">أصل الضغط</h4>
+                    <p class="text-sm text-slate-300">ضغط الغاز هو نتيجة <span
+                            class="text-yellow-400 font-bold">تصادمات</span> الجزيئات مع جدران الإناء. كل ما الخبطات
+                        تزيد، الضغط يزيد!</p>
+                </div>
+            </div>
+
+            <!-- NEW: Student Dialogue -->
+            <div
+                class="mt-8 max-w-2xl mx-auto text-right bg-gradient-to-r from-pink-900/30 to-indigo-900/30 p-6 rounded-xl border border-pink-500/30">
+                <h4 class="text-lg font-bold text-pink-300 mb-4 text-center">🤔 سؤال الطالب الشاطر</h4>
+                <div class="student-row chat-row">
+                    <div class="chat-avatar">🧑‍🎓</div>
+                    <div class="chat-bubble">
+                        <p class="text-sm">طب يا مستر، ليه احنا بنقول "غاز مثالي"؟ مفيش غاز كده في الحقيقة؟ 🤔</p>
+                    </div>
+                </div>
+                <div class="teacher-row chat-row">
+                    <div class="chat-avatar">👨‍🏫</div>
+                    <div class="chat-bubble">
+                        <p class="text-sm">سؤال رهيب! 💡 "الغاز المثالي" ده <strong class="text-yellow-400">"موديل"
+                                رياضي</strong>، زي النقطة في الرياضة.. ملهاش أبعاد بس بنستخدمها في الحسابات!</p>
+                        <p class="text-xs text-purple-300 mt-1">الغازات الحقيقية (زي الهواء) بتبقى قريبة من المثالي في
+                            الظروف العادية (ضغط وحرارة طبيعيين).</p>
+                    </div>
+                </div>
+                <div class="student-row chat-row">
+                    <div class="chat-avatar">🧑‍🎓</div>
+                    <div class="chat-bubble">
+                        <p class="text-sm">يعني "تصادم مرن" يعني بعد ما الجزيئات تخبط في بعض.. مفيش طاقة بتضيع؟</p>
+                    </div>
+                </div>
+                <div class="teacher-row chat-row">
+                    <div class="chat-avatar">👨‍🏫</div>
+                    <div class="chat-bubble">
+                        <p class="text-sm">بالظبط! 🎱 زي كور البلياردو المثالية. لما بتخبط في بعض، سرعتهم بتتبادل بس
+                            المجموع الكلي للطاقة <strong class="text-green-400">ثابت!</strong></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- توضيح مهم -->
+            <div class="mt-6 p-4 bg-red-900/20 rounded-xl border border-red-500/30 max-w-2xl mx-auto">
+                <div class="student-row chat-row">
+                    <div class="chat-avatar">😵</div>
+                    <div class="chat-bubble">
+                        <p class="text-sm">يا مستر طب لو الجزيئات "حجمها مهمل"، يعني مفيش جزيئات أصلاً؟ 🤔</p>
+                    </div>
+                </div>
+                <div class="teacher-row chat-row">
+                    <div class="chat-avatar">👨‍🏫</div>
+                    <div class="chat-bubble">
+                        <p class="text-sm">سؤال ذكي! � لا، الجزيئات موجودة بس حجمها <strong class="text-yellow-400">صغير
+                                جداً مقارنة بالمسافات بينها</strong>. تخيل 3 نمل في ملعب كرة!</p>
+                    </div>
+                </div>
+                <div class="student-row chat-row">
+                    <div class="chat-avatar">🧑‍🎓</div>
+                    <div class="chat-bubble">
+                        <p class="text-sm">آه فهمت! يعني في الغاز المثالي بنهمل الحجم عشان الحسابات تبقى أسهل؟</p>
+                    </div>
+                </div>
+                <div class="teacher-row chat-row">
+                    <div class="chat-avatar">👨‍🏫</div>
+                    <div class="chat-bubble">
+                        <p class="text-sm">بالظبط! 🎯 ده "تبسيط علمي". في الواقع الغازات الحقيقية قريبة جداً من المثالي
+                            في الظروف العادية.</p>
+                    </div>
+                </div>
+
+                <div class="trick-box mt-4">
+                    <h5>💡 تريكة امتحان</h5>
+                    <p class="text-xs text-slate-300">
+                        لو جالك سؤال: "امتى الغاز الحقيقي يسلك سلوك مثالي؟"
+                        <br><span class="text-green-400 font-bold">الإجابة: عند ضغط منخفض وحرارة عالية!</span>
+                    </p>
+                </div>
+            </div>
+
+            <div class="hagag-tip">
+                <div class="hagag-tip-header">
+                    <span class="name">مصطفى هاني حجاج</span>
+                    <span class="phrase">بيفكرك:</span>
+                </div>
+                <p class="text-white text-sm leading-relaxed">
+                    خلي بالك من "الصفر كلفن" 🥶 .. ده مش زي الصفر بتاعنا في التلاجة!<br>
+                    ده معناه ان الجزيئات وقفت حركة تماماً (نظرياً). لو جالك سؤال "امتى ينعدم الضغط؟" قوله عند الصفر
+                    كلفن، مش صفر سيليزيوس! 👌
+                </p>
+            </div>
+        </section>
+
+        <!-- Section 4: Boyle's Law Intro -->
+        <section id="boyle-intro" class="mb-20 scroll-mt-24">
+            <h2 class="text-3xl font-bold mb-6 border-r-4 border-yellow-500 pr-4 flex items-center gap-3">
+                <span>قانون بويل (Boyle's Law)</span>
+                <span
+                    class="text-sm bg-yellow-500/20 text-yellow-500 px-3 py-1 rounded-full border border-yellow-500/50">العلاقة
+                    بين P و V</span>
+            </h2>
+
+            <!-- Ping-Pong Dialogue: Boyle -->
+            <div class="flex flex-col gap-4 mb-8">
+                <div class="teacher-row chat-row">
+                    <div class="chat-avatar">👨‍🏫</div>
+                    <div class="chat-bubble w-full">
+                        <p class="text-sm">دلوقتي يا بطل هنسأل سؤال مهم: لو جبت حقنة وسديت فتحتها وضغطت المكبس (قللت
+                            الحجم V).. تفتكر ضغط الهوا جواها (P) هيحصل له إيه؟ 🤔</p>
+                    </div>
+                </div>
+                <div class="student-row chat-row">
+                    <div class="chat-avatar">🧑‍🎓</div>
+                    <div class="chat-bubble">
+                        <p class="text-sm">أكيد هيزيد يا مستر! أنا بحس بالمقاومة في إيدي كل ما أضغط أكتر. 💪</p>
+                    </div>
+                </div>
+                <div class="teacher-row chat-row">
+                    <div class="chat-avatar">👨‍🏫</div>
+                    <div class="chat-bubble">
+                        <p class="text-sm">برافو! 👏 علاقة عكسية واضحة. بس خد بالك من "الفخ": لو الحقنة مشدودة كويس
+                            وبتسرب هوا.. هل القانون لسه شغال؟</p>
+                    </div>
+                </div>
+                <div class="student-row chat-row">
+                    <div class="chat-avatar">🧑‍🎓</div>
+                    <div class="chat-bubble">
+                        <p class="text-sm">تصدق لا! لو الهواء هرب، الضغط مش هيزيد زي ما أحنا حاسبين.. عشان كدة بنقول
+                            "كمية معينة" من الغاز؟</p>
+                    </div>
+                </div>
+                <div class="teacher-row chat-row">
+                    <div class="chat-avatar">👨‍🏫</div>
+                    <div class="chat-bubble">
+                        <p class="text-sm">عليك نور! 💡 شرط أساسي لقانون بويل: <b>ثبوت درجة الحرارة</b> و <b>ثبوت كتلة
+                                الغاز</b>.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sc-box law-box text-center py-8">
+                <h3 class="text-2xl font-black text-yellow-400 mb-4">نص القانون</h3>
+                <p class="text-xl leading-loose mb-6">
+                    "عند ثبوت درجة الحرارة، يتناسب حجم كمية معينة من الغاز <span class="text-red-400 font-bold">تناسباً
+                        عكسياً</span> مع ضغطه."
+                </p>
+
+                <div class="bg-slate-900 inline-block p-6 rounded-xl border border-yellow-500/30">
+                    <div class="text-3xl font-mono text-yellow-400 mb-2" style="direction: ltr;">P ∝ 1/V</div>
+                    <div class="w-full h-[1px] bg-slate-700 my-2"></div>
+                    <div class="text-3xl font-mono text-white" style="direction: ltr;">P₁ V₁ = P₂ V₂ = Constant</div>
+                </div>
+                <p class="mt-4 text-sm text-slate-400">حيث P هو الضغط (Pressure) و V هو الحجم (Volume)</p>
+
+                <!-- Trick Box 1: Unit Cocktail -->
+                <div class="trick-box">
+                    <h5>🚫 ممنوع "كوكتيل" الوحدات!</h5>
+                    <p class="text-sm text-slate-300 leading-relaxed">
+                        بص يا هندسة، القانون بيقول <b>P<sub>1</sub> V<sub>1</sub> = P<sub>2</sub> V<sub>2</sub></b>.. ده
+                        معناه "مساواة".<br>
+                        يعني لو بدأت الضغط بـ <b>atm</b> لازم تخلص الناحية التانية بـ <b>atm</b>.<br>
+                        لو بدأت الحجم بـ <b>Litre</b> لازم تخلص بـ <b>Litre</b>.<br>
+                        <span class="text-yellow-400 font-bold">إوعى تخلط!</span> متعملش سلطة وحدات وتقولي الناتج طلع
+                        غلط ليه 😂
+                    </p>
+                </div>
+            </div>
+
+            <!-- Graph Section -->
+            <div class="grid md:grid-cols-2 gap-8 mt-8">
+                <div class="glass-panel p-6">
+                    <h4 class="text-center font-bold mb-4">العلاقة العكسية (P vs V)</h4>
+                    <canvas id="graphPV"></canvas>
+                    <p class="text-center text-sm text-slate-400 mt-2">شكل منحنى (Hyperbola)</p>
+                </div>
+                <div class="glass-panel p-6">
+                    <h4 class="text-center font-bold mb-4">العلاقة الطردية (P vs 1/V)</h4>
+                    <canvas id="graphP1V"></canvas>
+                    <p class="text-center text-sm text-slate-400 mt-2">خط مستقيم يمر بنقطة الأصل</p>
+                    <div
+                        class="mt-2 text-center text-xs font-mono text-green-400 bg-green-900/20 py-1 rounded border border-green-500/30">
+                        Slope = P × V = Constant
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 5: Boyle's Law Simulation (The WOW Factor) -->
+        <section id="boyle-sim" class="mb-20 scroll-mt-24">
+            <h2 class="text-3xl font-bold mb-6 border-r-4 border-green-500 pr-4">المختبر الافتراضي: تجربة بويل 🧪</h2>
+
+            <div class="glass-panel p-4 md:p-8 border-green-500/30">
+                <div class="flex flex-col md:flex-row gap-8">
+
+                    <!-- Controls & Stats -->
+                    <div class="w-full md:w-1/3 space-y-6">
+                        <div class="sc-box note-box mt-0">
+                            <h4 class="font-bold mb-2">التعليمات:</h4>
+                            <p class="text-sm">اسحب المكبس لتحت 👇 عشان تضغط الغاز، وشوف العداد بيقرأ كام وسرعة الجزيئات
+                                بيحصلها إيه.</p>
+                        </div>
+
+                        <div class="bg-slate-800 p-4 rounded-xl border border-slate-600">
+                            <label class="block text-sm font-bold text-slate-400 mb-2">حجم الإناء (V)</label>
+                            <input type="range" min="20" max="100" value="100" class="range-slider mb-2"
+                                id="volumeSlider">
+                            <div class="flex justify-between font-mono text-sm">
+                                <span>High Compression</span>
+                                <span>Low Compression</span>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="bg-slate-900 p-4 rounded-xl text-center border border-indigo-500/30">
+                                <div class="text-xs text-slate-400 mb-1">الحجم (V)</div>
+                                <div class="text-2xl font-bold text-indigo-400 font-mono" id="volDisplay">10.0 L</div>
+                            </div>
+                            <div
+                                class="bg-slate-900 p-4 rounded-xl text-center border border-red-500/30 relative overflow-hidden">
+                                <div class="absolute inset-0 bg-red-500/5 animate-pulse"></div>
+                                <div class="text-xs text-slate-400 mb-1">الضغط (P)</div>
+                                <div class="text-2xl font-bold text-red-400 font-mono" id="pressDisplay">1.0 atm</div>
+                            </div>
+                        </div>
+
+                        <div class="text-center">
+                            <div
+                                class="inline-block px-4 py-2 bg-yellow-500/10 rounded-lg border border-yellow-500/20 text-yellow-400 font-mono text-sm">
+                                P × V = <span id="constantDisplay">10.0</span> (ثابت)
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- The Visual Simulation -->
+                    <div
+                        class="w-full md:w-2/3 relative h-[400px] bg-slate-800 rounded-xl border border-slate-600 overflow-hidden shadow-inner flex flex-col items-center justify-end pb-8">
+
+                        <!-- Piston Mechanism -->
+                        <div id="pistonContainer"
+                            class="w-48 bg-slate-900/50 border-x-2 border-slate-500 relative transition-all duration-100 ease-out"
+                            style="height: 300px;">
+
+                            <!-- Gas Particles Area -->
+                            <div class="absolute bottom-0 left-0 w-full h-full overflow-hidden" id="gasChamber">
+                                <!-- Particles injected by JS -->
+                            </div>
+
+                            <!-- The Piston Head -->
+                            <div id="pistonHead"
+                                class="absolute top-0 left-0 w-full h-8 bg-gradient-to-b from-gray-400 to-gray-600 border-b-2 border-gray-700 shadow-lg z-10 flex items-center justify-center">
+                                <div class="w-16 h-1 bg-black/20 rounded-full"></div>
+                            </div>
+
+                            <!-- The Piston Rod -->
+                            <div id="pistonRod"
+                                class="absolute bottom-full left-1/2 -translate-x-1/2 w-6 h-[400px] bg-gradient-to-r from-gray-300 to-gray-500 border-x border-gray-600">
+                            </div>
+                        </div>
+
+                        <!-- Base -->
+                        <div class="w-64 h-4 bg-gray-700 rounded-full mt-[-2px] z-20 shadow-xl"></div>
+
+                        <!-- Manometer / Gauge -->
+                        <div
+                            class="absolute top-4 right-4 w-24 h-24 bg-white rounded-full border-4 border-gray-400 shadow-xl flex items-center justify-center z-30">
+                            <div class="absolute bottom-2 text-[10px] text-gray-500 font-bold">PRESSURE</div>
+                            <!-- Ticks -->
+                            <div class="absolute w-full h-full">
+                                <div class="absolute top-1 left-1/2 -translate-x-1/2 w-0.5 h-2 bg-black"></div>
+                                <div class="absolute bottom-1 left-1/2 -translate-x-1/2 w-0.5 h-2 bg-black"></div>
+                                <div class="absolute left-1 top-1/2 -translate-y-1/2 w-2 h-0.5 bg-black"></div>
+                                <div class="absolute right-1 top-1/2 -translate-y-1/2 w-2 h-0.5 bg-black"></div>
+                            </div>
+                            <!-- Needle -->
+                            <div id="gaugeNeedle"
+                                class="w-1 h-10 bg-red-600 origin-bottom absolute top-2 left-1/2 -translate-x-1/2 transition-transform duration-100 ease-out"
+                                style="transform: rotate(-45deg);"></div>
+                            <div class="w-3 h-3 bg-gray-800 rounded-full z-10"></div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 6: Charles's Law Intro -->
+        <section id="charles-intro" class="mb-20 scroll-mt-24">
+            <h2 class="text-3xl font-bold mb-6 border-r-4 border-red-500 pr-4 flex items-center gap-3">
+                <span>قانون شارل (Charles's Law)</span>
+                <span class="text-sm bg-red-500/20 text-red-500 px-3 py-1 rounded-full border border-red-500/50">العلاقة
+                    بين V و T</span>
+            </h2>
+
+            <!-- Ping-Pong Dialogue: Charles -->
+            <div class="flex flex-col gap-4 mb-8">
+                <div class="teacher-row chat-row">
+                    <div class="chat-avatar">👨‍🏫</div>
+                    <div class="chat-bubble w-full">
+                        <p class="text-sm">سؤال عالماشي: عمرك نسيت كورة في البلكونة في عز الشتا ولقيتها "فشت" لوحدها؟ أو
+                            سبت كيس شيبسي في العربية في الشمس واتنفخ؟ ده قانون شارل! 🎈</p>
+                    </div>
+                </div>
+                <div class="student-row chat-row">
+                    <div class="chat-avatar">🧑‍🎓</div>
+                    <div class="chat-bubble">
+                        <p class="text-sm">يعني كل ما نسخن الحجم يزيد.. سهلة أهي! لو سخنت من 20°C لـ 40°C الحجم هيزيد
+                            للضعف صح؟ 😎</p>
+                    </div>
+                </div>
+                <div class="teacher-row chat-row">
+                    <div class="chat-avatar">👨‍🏫</div>
+                    <div class="chat-bubble">
+                        <p class="text-sm">حااااسب! 🚨 وقعت في الفخ يا بطل! الـ 40°C مش ضعف الـ 20°C في لغة الغازات.
+                            الغازات لا تعترف إلا بـ <b>الكلفن (K)</b>.</p>
+                    </div>
+                </div>
+                <div class="student-row chat-row">
+                    <div class="chat-avatar">🧑‍🎓</div>
+                    <div class="chat-bubble">
+                        <p class="text-sm">ليه يا مستر؟ ما 40 قد 20 مرتين! 🤷‍♂️</p>
+                    </div>
+                </div>
+                <div class="teacher-row chat-row">
+                    <div class="chat-avatar">👨‍🏫</div>
+                    <div class="chat-bubble">
+                        <p class="text-sm">لأن الصفر بتاع السيليزيوس (تجمد الماء) ده رقم اعتباطي. الصفر الحقيقي (انعدام
+                            الطاقة) هو -273°C. <br>
+                            الـ 20°C دي أصلاً 293K، والـ 40°C دي 313K.. زادت حاجة بسيطة مش الضعف! فهمت؟ 😉</p>
+                        <div class="mt-2 text-center">
+                            <span class="badge-understand">🧠 فهم: كلفن = طاقة الحركة</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-8 mb-8">
+                <div class="sc-box law-box text-center py-8">
+                    <h3 class="text-2xl font-black text-red-400 mb-4">نص القانون</h3>
+                    <p class="text-xl leading-loose mb-6">
+                        "عند ثبوت الضغط، يتناسب حجم كمية معينة من الغاز <span class="text-green-400 font-bold">تناسباً
+                            طردياً</span> مع درجة حرارته المطلقة (كلفن)."
+                    </p>
+
+                    <div class="bg-slate-900 inline-block p-6 rounded-xl border border-red-500/30">
+                        <div class="text-3xl font-mono text-red-400 mb-2" style="direction: ltr;">V ∝ T</div>
+                        <div class="w-full h-[1px] bg-slate-700 my-2"></div>
+                        <div class="text-3xl font-mono text-white" style="direction: ltr;">V₁ / T₁ = V₂ / T₂</div>
+                    </div>
+                    <div class="mt-4 p-2 bg-red-900/20 rounded text-sm text-red-200 border border-red-900/50">
+                        ⚠️ <b>تحذير هام:</b> لازم درجة الحرارة تكون بالكلفن (K)<br>
+                        <span class="font-mono" style="direction: ltr">T(K) = t(°C) + 273</span>
+                    </div>
+                </div>
+
+                <div class="glass-panel p-6 flex flex-col justify-center">
+                    <h4 class="font-bold text-center mb-4 text-purple-300">قصة الصفر المطلق (Absolute Zero) 🥶</h4>
+                    <p class="text-slate-300 mb-4 text-sm leading-relaxed">
+                        العلماء رسموا العلاقة بين الحجم (V) والحرارة السيليزية (t°C)، ولقوا إن الخط المستقيم لو مديناه
+                        على استقامته بيقطع محور الحرارة عند نقطة عجيبة جداً.. عند النقطة دي حجم الغاز نظرياً بيساوي صفر!
+                    </p>
+                    <div class="relative h-48 bg-slate-900 rounded-lg border border-slate-700 overflow-hidden">
+                        <!-- CSS Simple Graph Representation -->
+                        <div class="absolute bottom-8 left-8 right-8 h-[1px] bg-slate-500"></div> <!-- X Axis -->
+                        <div class="absolute bottom-8 left-1/2 w-[1px] h-32 bg-slate-500"></div> <!-- Y Axis -->
+
+                        <!-- The Line -->
+                        <div
+                            class="absolute bottom-8 left-[10%] w-[80%] h-[120px] border-b border-l border-transparent">
+                            <div class="absolute w-full h-full"
+                                style="background: linear-gradient(to top right, transparent 49%, #f87171 50%, transparent 51%);">
+                            </div>
+                            <!-- Dashed Extension -->
+                            <div class="absolute w-[50%] h-[50%] bottom-0 left-[-50%] opacity-50"
+                                style="background: linear-gradient(to top right, transparent 49%, #f87171 50%, transparent 51%); border-right: 2px dashed #f87171;">
+                            </div>
+                        </div>
+
+                        <div class="absolute bottom-2 left-[5%] text-xs font-mono text-blue-400">-273°C</div>
+                        <div class="absolute bottom-2 left-1/2 text-xs font-mono text-white">0°C</div>
+                        <div class="absolute top-4 right-4 text-xs font-bold text-red-400">V (Volume)</div>
+                        <!-- Adjusted dashed line to visibly hit -273C -->
+                        <div class="absolute w-[1px] h-2 bg-slate-500 bottom-8 left-[5%]"></div>
+                    </div>
+                    <p class="text-center mt-2 text-xs text-blue-400 font-bold">عند -273°C تنعدم طاقة الحركة وتتوقف
+                        الجزيئات!</p>
+                    <div class="mt-2 text-center">
+                        <span class="badge-understand">🧠 فهم عميق: صفر كلفن = سكون تام</span>
+                    </div>
+                    <div
+                        class="mt-2 text-center text-xs font-mono text-red-400 bg-red-900/20 py-1 rounded border border-red-500/30">
+                        Slope = V / T = Constant
+                    </div>
+                </div>
+
+                <!-- Trick Box 2: Graph Detective -->
+                <div
+                    class="col-span-1 md:col-span-2 bg-indigo-900/20 border border-indigo-500/50 rounded-xl p-4 text-right relative overflow-hidden group hover:border-indigo-400 transition-all mt-4">
+                    <div class="absolute top-0 right-0 w-1 h-full bg-indigo-500"></div>
+                    <h4 class="font-bold text-indigo-300 mb-2 flex items-center gap-2">
+                        <span>🕵️</span> شغل محققين: اعرف الرسمة من نظرة!
+                    </h4>
+                    <p class="text-sm text-slate-300 leading-relaxed">
+                        عشان متبقاش "بصمجي" في الامتحان، بص على الخط المستقيم:<br>
+                        1. لو الخط طالع من <span class="text-green-400 font-bold">نقطة الأصل (0,0)</span> بالضبط ⬅️ يبقى
+                        التدريج <b>كلفن (K)</b>.<br>
+                        2. لو الخط قاطع محور الحرارة في السالب وبادئ من ورا ⬅️ يبقى التدريج <b>سيليزيوس (°C)</b>.<br>
+                        <span class="text-gray-400 text-xs mt-1 block">سهلة أهي ومش محتاجة تلسكوب! 🔭</span>
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 7: Charles's Law Simulation -->
+        <section id="charles-sim" class="mb-20 scroll-mt-24">
+            <h2 class="text-3xl font-bold mb-6 border-r-4 border-orange-500 pr-4">تجربة عملية: أثر الحرارة 🔥❄️</h2>
+
+            <div class="glass-panel p-4 md:p-8 border-orange-500/30">
+                <div class="flex flex-col md:flex-row gap-8">
+
+                    <!-- Controls -->
+                    <div class="w-full md:w-1/3 space-y-6">
+                        <div class="sc-box note-box mt-0">
+                            <h4 class="font-bold mb-2">جرب بنفسك:</h4>
+                            <p class="text-sm">غير درجة الحرارة من السلايدر وشوف إيه اللي يحصل لسرعة الجزيئات ولمكبس
+                                الاناء (الحجم).</p>
+                        </div>
+
+                        <div class="bg-slate-800 p-4 rounded-xl border border-slate-600">
+                            <label class="block text-sm font-bold text-slate-400 mb-2">التحكم في الحرارة (T)</label>
+                            <input type="range" min="-273" max="300" value="25" class="range-slider mb-2"
+                                id="tempSlider" style="background: linear-gradient(to right, #3b82f6, #ef4444);">
+                            <div class="flex justify-between font-mono text-sm">
+                                <span class="text-blue-400">Cold (Ice)</span>
+                                <span class="text-red-400">Hot (Fire)</span>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div
+                                class="bg-slate-900 p-4 rounded-xl text-center border border-red-500/30 relative overflow-hidden">
+                                <div id="tempBg" class="absolute inset-0 bg-red-500/10 transition-colors duration-300">
+                                </div>
+                                <div class="text-xs text-slate-400 mb-1 relative">الحرارة (T)</div>
+                                <div class="text-xl font-bold text-white font-mono relative" id="tempDisplayC">25 °C
+                                </div>
+                                <div class="text-sm text-red-400 font-mono relative" id="tempDisplayK">298 K</div>
+                            </div>
+                            <div class="bg-slate-900 p-4 rounded-xl text-center border border-indigo-500/30">
+                                <div class="text-xs text-slate-400 mb-1">الحجم (V)</div>
+                                <div class="text-2xl font-bold text-indigo-400 font-mono" id="charlesVolDisplay">1.0 L
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="text-center">
+                            <div
+                                class="inline-block px-4 py-2 bg-orange-500/10 rounded-lg border border-orange-500/20 text-orange-400 font-mono text-sm">
+                                V / T = <span id="charlesConstant">Constant</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Visual Simulation -->
+                    <div
+                        class="w-full md:w-2/3 relative h-[450px] bg-slate-800 rounded-xl border border-slate-600 overflow-hidden shadow-inner flex flex-col items-center justify-end pb-12">
+
+                        <!-- Container Cylinder -->
+                        <div
+                            class="w-48 h-[350px] border-x-4 border-b-4 border-slate-400 bg-slate-900/30 relative backdrop-blur-sm z-10 mx-auto">
+
+                            <!-- Gas Area -->
+                            <div id="charlesGasChamber"
+                                class="absolute bottom-0 w-full bg-indigo-500/5 transition-all duration-300 ease-out"
+                                style="height: 50%;">
+                                <!-- Piston -->
+                                <div
+                                    class="absolute top-0 w-full h-4 bg-gray-300 border-b border-gray-500 shadow-lg flex justify-center">
+                                    <div class="w-16 h-1 bg-black/20 mt-1 rounded-full"></div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <!-- Heat Source -->
+                        <div class="mt-2 text-center relative z-20">
+                            <div id="heatSource" class="text-4xl transition-transform duration-300">🔥</div>
+                            <div id="heatGlow"
+                                class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-20 h-20 bg-orange-500/0 rounded-full blur-xl transition-all duration-300">
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 8: Jolly's Law (Pressure Law) -->
+        <section id="jolly-intro" class="mb-20 scroll-mt-24">
+            <h2 class="text-3xl font-bold mb-6 border-r-4 border-blue-500 pr-4 flex items-center gap-3">
+                <span>قانون جولي (Pressure Law)</span>
+                <span
+                    class="text-sm bg-blue-500/20 text-blue-500 px-3 py-1 rounded-full border border-blue-500/50">العلاقة
+                    بين P و T</span>
+            </h2>
+
+            <!-- Ping-Pong Dialogue: Jolly -->
+            <div class="flex flex-col gap-4 mb-8">
+                <div class="student-row chat-row">
+                    <div class="chat-avatar">🧑‍🎓</div>
+                    <div class="chat-bubble">
+                        <p class="text-sm">يا مستر، ليه دايماً بيقولوا لنا "افحص ضغط كاوتش العربية" بالذات في الصيف؟ هو
+                            الهواء بيزيد جوه الكاوتش؟ 🤔</p>
+                    </div>
+                </div>
+                <div class="teacher-row chat-row">
+                    <div class="chat-avatar">👨‍🏫</div>
+                    <div class="chat-bubble">
+                        <p class="text-sm">سؤال عبقري! 🌟 الهواء جوه الكاوتش (كمية ثابتة) وحجم الكاوتش تقريباً (ثابت).
+                            لما الجو يبقى حر نار ☀️، جزيئات الهواء بتتسخط وبتجري بسرعة رهيبة، فتخبط في جدار الكاوتش بقوة
+                            أكبر.. فـ "الضغط" يزيد!</p>
+                    </div>
+                </div>
+                <div class="student-row chat-row">
+                    <div class="chat-avatar">🧑‍🎓</div>
+                    <div class="chat-bubble">
+                        <p class="text-sm">أها! يعني الحرارة زادت فالضغط زاد.. علاقة طردية زي شارل؟</p>
+                    </div>
+                </div>
+                <div class="teacher-row chat-row">
+                    <div class="chat-avatar">👨‍🏫</div>
+                    <div class="chat-bubble">
+                        <p class="text-sm">بالظبط! 👌 بس هنا بنسميه <b>قانون جولي</b> (أو قانون الضغط). وبرضو لازم
+                            الحرارة تكون بـ <b>الكلفن</b>!</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sc-box law-box text-center py-8">
+                <h3 class="text-2xl font-black text-blue-400 mb-4">نص القانون</h3>
+                <p class="text-xl leading-loose mb-6">
+                    "عند ثبوت الحجم، يتناسب ضغط كمية معينة من الغاز <span class="text-green-400 font-bold">تناسباً
+                        طردياً</span> مع درجة حرارته المطلقة (كلفن)."
+                </p>
+
+                <div class="bg-slate-900 inline-block p-6 rounded-xl border border-blue-500/30">
+                    <div class="text-3xl font-mono text-blue-400 mb-2" style="direction: ltr;">P ∝ T</div>
+                    <div class="w-full h-[1px] bg-slate-700 my-2"></div>
+                    <div class="text-3xl font-mono text-white" style="direction: ltr;">P₁ / T₁ = P₂ / T₂</div>
+                    <div
+                        class="mt-4 text-sm font-mono text-blue-300 bg-blue-900/20 inline-block px-3 py-1 rounded border border-blue-500/30">
+                        Graph Slope (P vs T) = P / T = Constant
+                    </div>
+                </div>
+
+                <!-- Symbol Breakdown -->
+                <div class="mt-6 overflow-x-auto">
+                    <table class="w-full text-sm text-right border-collapse">
+                        <thead>
+                            <tr class="border-b border-slate-700 text-slate-400">
+                                <th class="p-2">الرمز</th>
+                                <th class="p-2">الاسم</th>
+                                <th class="p-2">يعني إيه؟</th>
+                                <th class="p-2">الوحدة الدولية</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-slate-300">
+                            <tr class="border-b border-slate-800">
+                                <td class="p-2 font-mono text-blue-400">P</td>
+                                <td class="p-2">الضغط (Pressure)</td>
+                                <td class="p-2">قوة خبط الجزيئات في الجدار</td>
+                                <td class="p-2 font-mono text-yellow-500">Pascal (Pa)</td>
+                            </tr>
+                            <tr>
+                                <td class="p-2 font-mono text-red-400">T</td>
+                                <td class="p-2">درجة الحرارة (Temp)</td>
+                                <td class="p-2">مقياس لطاقة حركة الجزيئات</td>
+                                <td class="p-2 font-mono text-yellow-500">Kelvin (K) ⚠️</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Trick Box 3: Volume Trap -->
+                <div
+                    class="mt-6 bg-yellow-900/20 border border-yellow-500/50 rounded-xl p-4 text-right relative overflow-hidden group hover:border-yellow-400 transition-all text-left">
+                    <div class="absolute top-0 right-0 w-1 h-full bg-yellow-500"></div>
+                    <h4 class="font-bold text-yellow-300 mb-2 flex items-center gap-2">
+                        <span>⚠️</span> تنبيه هام: فخ التحويلات
+                    </h4>
+                    <p class="text-sm text-slate-300 leading-relaxed">
+                        ركز يا وحش.. دي حجوم مش أطوال!<br>
+                        لما تحول من <b>سم</b> لـ <b>متر</b> بتضرب في <b>10<sup>-2</sup></b>.. ماشي.<br>
+                        لكن لما تحول من <b class="text-yellow-400">سم مكعب (cm<sup>3</sup>)</b> لـ <b
+                            class="text-yellow-400">متر مكعب (m<sup>3</sup>)</b> لازم تكعب التحويل!<br>
+                        <span class="font-mono text-lg block text-center my-2 text-white ltr">10<sup>-2</sup> ×
+                            10<sup>-2</sup> × 10<sup>-2</sup> = 10<sup>-6</sup></span>
+                        متخليش التكعيب يطير منك درجات ببلاش! 💸
+                    </p>
+                </div>
+            </div>
+
+            <!-- Jolly Simulation -->
+            <div class="glass-panel p-6 mt-8 border-blue-500/30 text-center">
+                <h4 class="font-bold text-xl mb-4">تجربة الحلة البريستو (Pressure Cooker) 🍲</h4>
+                <p class="text-sm text-slate-400 mb-4">الحجم ثابت (الإناء مغلق). زود النار وشوف الضغط بيحصل له إيه!</p>
+
+                <div
+                    class="relative w-full max-w-md mx-auto h-64 bg-slate-800 rounded-2xl border-4 border-slate-600 flex items-center justify-center overflow-hidden">
+                    <!-- Particles -->
+                    <div id="jollyChamber" class="absolute inset-0"></div>
+
+                    <!-- Gauge -->
+                    <div
+                        class="absolute top-2 right-2 w-20 h-20 bg-white rounded-full border-2 border-slate-400 shadow-lg flex items-center justify-center z-10">
+                        <div class="text-[8px] font-bold text-slate-600 mt-4">PRESSURE</div>
+                        <div id="jollyNeedle"
+                            class="w-1 h-8 bg-red-600 absolute bottom-1/2 left-1/2 origin-bottom transition-transform duration-100"
+                            style="transform: rotate(-45deg);"></div>
+                        <div class="w-2 h-2 bg-slate-800 rounded-full z-20"></div>
+                    </div>
+                </div>
+
+                <div class="mt-6 flex items-center justify-center gap-4">
+                    <span class="text-blue-400">❄️ تبريد</span>
+                    <input type="range" min="100" max="600" value="300" class="range-slider w-64" id="jollySlider">
+                    <span class="text-red-400">🔥 تسخين</span>
+                </div>
+                <div class="mt-2 font-mono text-xl" id="jollyStats">T = 300 K | P = 1.0 atm</div>
+            </div>
+        </section>
+
+        <!-- Section 9: General Gas Law -->
+        <section id="general-law" class="mb-20 scroll-mt-24">
+            <h2 class="text-3xl font-bold mb-6 border-r-4 border-white pr-4">القانون العام للغازات 🌍</h2>
+
+            <div class="teacher-row chat-row">
+                <div class="chat-avatar">👨‍🏫</div>
+                <div class="chat-bubble w-full">
+                    <p class="text-sm font-bold mb-2">استنتاج القانون (هام جداً):</p>
+                    <div class="text-sm font-mono bg-slate-900 p-4 rounded-lg leading-loose text-indigo-300 border border-slate-700 shadow-inner"
+                        style="direction: ltr; text-align: left;">
+                        <div class="mb-2">1) Boyle: <span class="text-white">V ∝ 1/P</span></div>
+                        <div class="mb-2">2) Charles: <span class="text-white">V ∝ T</span></div>
+                        <div class="w-full h-px bg-slate-700 my-2"></div>
+                        <div class="mb-1">∴ V ∝ T/P</div>
+                        <div class="mb-1">∴ V = Constant × (T/P)</div>
+                        <div
+                            class="mt-2 text-white font-bold bg-slate-800 inline-block px-3 py-1 rounded border border-slate-600">
+                            (P × V) / T = Constant
+                        </div>
+                    </div>
+                    <p class="mt-2 text-sm">ده القانون "الجوكر" اللي بيحل أي مسألة لو مفيش حاجة ثابتة!</p>
+                </div>
+            </div>
+
+            <div class="sc-box def-box text-center">
+                <h3 class="text-xl font-bold mb-4">الصيغة النهائية</h3>
+                <div class="text-2xl md:text-4xl font-mono font-bold text-white mb-2" style="direction: ltr;">
+                    P₁V₁ / T₁ = P₂V₂ / T₂
+                </div>
+            </div>
+
+            <!-- Trick Box 4: STP Gift -->
+            <div
+                class="max-w-3xl mx-auto mt-8 bg-green-900/20 border border-green-500/50 rounded-xl p-6 text-right relative overflow-hidden group hover:border-green-400 transition-all">
+                <div class="absolute top-0 right-0 w-1 h-full bg-green-500"></div>
+                <div class="flex flex-col md:flex-row items-center gap-6">
+                    <div class="text-4xl shrink-0">🎁</div>
+                    <div>
+                        <h4 class="font-bold text-green-300 mb-2 text-lg">هدية جاية لك ببلاش: (STP)</h4>
+                        <p class="text-slate-300 leading-relaxed mb-3">
+                            لو لقيت في المسألة جملة "في معدل الضغط ودرجة الحرارة" (Standard Temperature & Pressure).. دي
+                            مش جملة اعتراضية! دي معناها إنه مديك معطيين هدية:
+                        </p>
+                        <div class="flex flex-wrap gap-4 justify-center md:justify-start">
+                            <span
+                                class="bg-slate-800 px-3 py-1 rounded text-sm font-mono border border-slate-600 text-blue-300">P
+                                = 1 atm</span>
+                            <span
+                                class="bg-slate-800 px-3 py-1 rounded text-sm font-mono border border-slate-600 text-red-300">T
+                                = 0°C (273 K)</span>
+                        </div>
+                        <p class="text-xs text-gray-400 mt-2">مترمش الهدية يا كابتن! 😉</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Advanced Tricks Section (The Black Box) -->
+        <section id="advanced-tricks" class="mb-20 scroll-mt-24">
+            <h2 class="text-3xl font-bold mb-6 border-r-4 border-rose-600 pr-4 flex items-center gap-3">
+                <span>🏴‍☠️</span> محطة المتفوقين (تريكات الامتحان)
+            </h2>
+
+            <div class="bg-rose-900/10 border border-rose-500/30 rounded-2xl p-6 mb-8 relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-rose-500 to-purple-600"></div>
+                <p class="text-rose-200 font-bold mb-4 text-lg">
+                    🚨 المنطقة دي للطلبة اللي عايزين يقفلوا الامتحان! دي الأفكار "العليا" اللي بتيجي عشان تفرق بين
+                    الطالب العادي والمتفوق.
+                </p>
+
+                <!-- Trick 1: The Air Bubble -->
+                <div class="mb-8 bg-slate-900/50 p-6 rounded-xl border border-rose-500/20">
+                    <h3 class="text-xl font-bold text-white mb-3 flex items-center gap-2">
+                        <span class="text-2xl">🫧</span> 1. فكرة "الفقاعة الغازية" (هام جداً 🚨)
+                    </h3>
+                    <p class="text-slate-300 mb-4 text-sm leading-relaxed">
+                        دي أهم فكرة في الدرس والأستاذ نبه عليها! ركز يا بطل.<br>
+                        لما فقاعة بتطلع من قاع بحيرة للسطح، <strong>حجمها بيزيد</strong> (قانون بويل).<br>
+                        ليه؟ لأن تحت فيه ضغط (الهواء + عمود المية)، لكن فوق فيه ضغط (الهواء) بس.
+                    </p>
+
+                    <!-- Fatal Error Warning -->
+                    <div class="bg-red-900/30 border border-red-500/50 p-4 rounded-lg mb-4 text-right">
+                        <h4 class="text-red-400 font-bold mb-2 text-sm">💀 فخ الموت: (توحيد الوحدات)</h4>
+                        <p class="text-sm text-slate-200 leading-relaxed">
+                            أوعى تجمع الضغط الجوي (مثلاً 1 atm) على عمق المية (مثلاً 30 متر)!!<br>
+                            مينفعش نجمع تفاح على برتقال. 🚫<br>
+                            <span class="text-yellow-400 font-bold">الحل السحري:</span> حول الضغط الجوي لـ "متر ماء"
+                            الأول.<br>
+                            عادة <b>P<sub>a</sub> ≈ 10m water</b>.
+                        </p>
+                    </div>
+
+                    <div class="bg-black/40 p-4 rounded-lg text-center font-mono text-lg text-indigo-300 ltr mb-4">
+                        P<sub>bottom</sub> = P<sub>a</sub> + h (depth)<br>
+                        P<sub>top</sub> = P<sub>a</sub>
+                    </div>
+
+                    <div class="bg-green-900/20 p-4 rounded-lg border border-green-500/30">
+                        <h4 class="text-green-400 font-bold mb-2 text-sm">📝 مثال محلول (بالأرقام):</h4>
+                        <p class="text-sm text-slate-300 mb-2">
+                            فقاعة حجمها 2cm<sup>3</sup> عند قاع بحيرة عمقها 30m. احسب حجمها عند السطح؟<br>
+                            <span class="text-xs text-slate-400">(P<sub>a</sub> = 1 atm ويعادل 10m ماء)</span>
+                        </p>
+                        <div
+                            class="text-xs font-mono text-yellow-200 bg-black/30 p-3 rounded ltr text-left leading-loose">
+                            <span class="text-green-400">// 1. حساب الضغط تحت (نجمع المتر على المتر)</span><br>
+                            P<sub>1</sub> (Bottom) = 10m (air) + 30m (water) = <strong>40m water</strong><br><br>
+
+                            <span class="text-green-400">// 2. حساب الضغط فوق</span><br>
+                            P<sub>2</sub> (Top) = 10m (air) only = <strong>10m water</strong><br><br>
+
+                            <span class="text-green-400">// 3. تطبيق قانون بويل (P1 V1 = P2 V2)</span><br>
+                            40 × 2 = 10 × V<sub>2</sub><br>
+                            80 = 10 V<sub>2</sub><br>
+                            V<sub>2</sub> = 8 cm<sup>3</sup>
+                        </div>
+                        <p class="text-right text-xs text-green-400 mt-2 font-bold">لاحظ: الضغط قل للربع، فالحجم زاد 4
+                            أضعاف!</p>
+                    </div>
+                </div>
+
+                <!-- Trick 2: Gas Mixtures -->
+                <div class="mb-8 bg-slate-900/50 p-6 rounded-xl border border-rose-500/20">
+                    <h3 class="text-xl font-bold text-white mb-3 flex items-center gap-2">
+                        <span class="text-2xl">🔀</span> 2. فكرة "خلط الغازات"
+                    </h3>
+                    <p class="text-slate-300 mb-4 text-sm leading-relaxed">
+                        لو عندنا إنائين بينهم صمام، وفتحنا الصمام.. الضغط الجديد للخليط يتحسب ازاي؟<br>
+                        بنطبق قانون بقاء الكمية (عدد المولات أو $P \times V$):
+                    </p>
+
+                    <div class="bg-black/40 p-4 rounded-lg text-center font-mono text-lg text-indigo-300 ltr mb-4">
+                        P<sub>mix</sub> V<sub>total</sub> = P<sub>1</sub> V<sub>1</sub> + P<sub>2</sub> V<sub>2</sub>
+                    </div>
+
+                    <div class="bg-green-900/20 p-4 rounded-lg border border-green-500/30">
+                        <h4 class="text-green-400 font-bold mb-2 text-sm">📝 مثال محلول:</h4>
+                        <p class="text-sm text-slate-300 mb-2">
+                            إناء سعة 1L به غاز ضغطه 3atm اتصل بإناء تاني سعة 2L به غاز ضغطه 6atm. احسب ضغط الخليط؟
+                        </p>
+                        <div class="text-xs font-mono text-yellow-200 bg-black/30 p-2 rounded ltr text-left">
+                            1. V<sub>total</sub> = 1 + 2 = 3L<br>
+                            2. P<sub>mix</sub> (3) = (3 × 1) + (6 × 2)<br>
+                            3. 3 P<sub>mix</sub> = 3 + 12 = 15<br>
+                            4. P<sub>mix</sub> = 15 / 3 = 5 atm
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Trick 3: Density -->
+                <div class="bg-slate-900/50 p-6 rounded-xl border border-rose-500/20">
+                    <h3 class="text-xl font-bold text-white mb-3 flex items-center gap-2">
+                        <span class="text-2xl">🧱</span> 3. فكرة "الكثافة والحرارة"
+                    </h3>
+                    <p class="text-slate-300 mb-4 text-sm leading-relaxed">
+                        الكثافة (&rho;) عكس الحجم. يعني لما نسخن، الحجم يزيد والكثافة تقل.<br>
+                        القانون العام بدلالة الكثافة:
+                    </p>
+                    <div class="bg-black/40 p-4 rounded-lg text-center font-mono text-lg text-indigo-300 ltr mb-4">
+                        P<sub>1</sub> / (&rho;<sub>1</sub> T<sub>1</sub>) = P<sub>2</sub> / (&rho;<sub>2</sub>
+                        T<sub>2</sub>)
+                    </div>
+                    <p class="text-center text-xs text-rose-300">⚠️ عند ثبوت الضغط: &rho;<sub>1</sub> T<sub>1</sub> =
+                        &rho;<sub>2</sub> T<sub>2</sub> (عكسي)</p>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Summary Section (The Zaytouna) -->
+        <section id="summary" class="mb-20 scroll-mt-24">
+            <h2 class="text-3xl font-bold mb-6 border-r-4 border-indigo-500 pr-4">خلاصة القوانين (الزتونة) 🍋</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+
+                <!-- Boyle -->
+                <div class="glass-panel p-4 border-t-4 border-yellow-500 hover:bg-yellow-500/10 transition">
+                    <h4 class="text-yellow-400 font-bold mb-2">قانون بويل</h4>
+                    <p class="text-xs text-slate-400 mb-2">عند ثبوت الحرارة (T)</p>
+                    <div class="text-xl font-mono text-center mb-2 ltr">P ∝ 1/V</div>
+                    <div class="bg-slate-900 rounded p-2 text-center font-mono text-sm ltr">P<sub>1</sub>V<sub>1</sub> =
+                        P<sub>2</sub>V<sub>2</sub></div>
+                    <div class="mt-2 text-[10px] text-center font-mono text-yellow-500 border-t border-slate-700 pt-1">
+                        Slope = PV</div>
+                    <p class="text-center text-xs mt-1 text-green-400">علاقة عكسية</p>
+                </div>
+
+                <!-- Charles -->
+                <div class="glass-panel p-4 border-t-4 border-red-500 hover:bg-red-500/10 transition">
+                    <h4 class="text-red-400 font-bold mb-2">قانون شارل</h4>
+                    <p class="text-xs text-slate-400 mb-2">عند ثبوت الضغط (P)</p>
+                    <div class="text-xl font-mono text-center mb-2 ltr">V ∝ T</div>
+                    <div class="bg-slate-900 rounded p-2 text-center font-mono text-sm ltr">V<sub>1</sub>/T<sub>1</sub>
+                        = V<sub>2</sub>/T<sub>2</sub></div>
+                    <div class="mt-2 text-[10px] text-center font-mono text-red-400 border-t border-slate-700 pt-1">
+                        Slope = V/T</div>
+                    <p class="text-center text-xs mt-1 text-green-400">علاقة طردية</p>
+                </div>
+
+                <!-- Jolly -->
+                <div class="glass-panel p-4 border-t-4 border-blue-500 hover:bg-blue-500/10 transition">
+                    <h4 class="text-blue-400 font-bold mb-2">قانون جولي</h4>
+                    <p class="text-xs text-slate-400 mb-2">عند ثبوت الحجم (V)</p>
+                    <div class="text-xl font-mono text-center mb-2 ltr">P ∝ T</div>
+                    <div class="bg-slate-900 rounded p-2 text-center font-mono text-sm ltr">P<sub>1</sub>/T<sub>1</sub>
+                        = P<sub>2</sub>/T<sub>2</sub></div>
+                    <div class="mt-2 text-[10px] text-center font-mono text-blue-400 border-t border-slate-700 pt-1">
+                        Slope = P/T</div>
+                    <p class="text-center text-xs mt-1 text-green-400">علاقة طردية</p>
+                </div>
+
+                <!-- General -->
+                <div class="glass-panel p-4 border-t-4 border-white hover:bg-white/10 transition">
+                    <h4 class="text-white font-bold mb-2">القانون العام</h4>
+                    <p class="text-xs text-slate-400 mb-2">الكل بيتغير!</p>
+                    <div class="text-xl font-mono text-center mb-2 ltr">PV/T = Const</div>
+                    <div class="bg-slate-900 rounded p-2 text-center font-mono text-sm ltr">
+                        P<sub>1</sub>V<sub>1</sub>/T<sub>1</sub> = P<sub>2</sub>V<sub>2</sub>/T<sub>2</sub></div>
+                    <p class="text-center text-xs mt-2 text-purple-400">الجوكر 🃏</p>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- 💀 Challenging Exam Questions (مسائل مرعبة) -->
+        <section id="hard-questions" class="mb-20 scroll-mt-24">
+            <h2 class="text-3xl font-bold mb-6 border-r-4 border-red-500 pr-4 flex items-center gap-3">
+                <span>💀 مسائل مرعبة</span>
+                <span class="text-sm bg-red-500/20 text-red-400 px-3 py-1 rounded-full">للمتفوقين فقط!</span>
+            </h2>
+            <p class="text-slate-400 mb-8">اكتب إجابتك بنفسك قبل ما تشوف الحل! مفيش اختيارات هنا 😈</p>
+
+            <!-- Question 1 -->
+            <div class="glass-panel p-6 mb-6 border-r-4 border-red-500">
+                <div class="flex items-start gap-3 mb-4">
+                    <span class="text-2xl">🔥</span>
+                    <div>
+                        <h4 class="font-bold text-lg text-white mb-2">سؤال 1: الإطار المحترق</h4>
+                        <p class="text-slate-300">
+                            إطار سيارة حجمه <span class="font-mono text-yellow-400">10 لتر</span> وضغطه
+                            <span class="font-mono text-yellow-400">2 atm</span> عند درجة حرارة
+                            <span class="font-mono text-yellow-400">27°C</span>.
+                            <br>بعد مشوار طويل في الصيف، ارتفعت الحرارة إلى <span
+                                class="font-mono text-yellow-400">127°C</span>.
+                            <br><strong class="text-red-400">المطلوب:</strong> احسب الضغط الجديد (بفرض ثبوت الحجم).
+                        </p>
+                    </div>
+                </div>
+                <div class="flex gap-4 items-center mb-4">
+                    <input type="text" placeholder="اكتب إجابتك (بالـ atm)"
+                        class="flex-1 bg-slate-800 border border-slate-600 rounded-lg px-4 py-2 text-white focus:border-red-500 focus:outline-none"
+                        id="q1-answer">
+                    <button onclick="revealSolution('q1')"
+                        class="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg font-bold transition">
+                        اكشف الحل 👀
+                    </button>
+                </div>
+                <div id="q1-solution" class="hidden bg-slate-900 p-4 rounded-xl border border-green-500/30 mt-4">
+                    <h5 class="font-bold text-green-400 mb-3">✅ الحل المفصل:</h5>
+                    <div class="space-y-3 text-sm">
+                        <p><strong class="text-yellow-400">الخطوة 1:</strong> حدد الثوابت والمتغيرات</p>
+                        <ul class="list-disc list-inside text-slate-300 mr-4">
+                            <li>الحجم ثابت ← نستخدم قانون <span class="text-pink-400 font-bold">جولي</span></li>
+                        </ul>
+                        <p><strong class="text-yellow-400">الخطوة 2:</strong> حول لكلفن (مهم جداً! ☠️)</p>
+                        <div class="bg-black/40 p-3 rounded-lg font-mono text-center text-indigo-300">
+                            T₁ = 27 + 273 = <span class="text-green-400">300 K</span><br>
+                            T₂ = 127 + 273 = <span class="text-green-400">400 K</span>
+                        </div>
+                        <p><strong class="text-yellow-400">الخطوة 3:</strong> طبق القانون</p>
+                        <div class="bg-black/40 p-3 rounded-lg font-mono text-center text-indigo-300">
+                            P₁ / T₁ = P₂ / T₂<br>
+                            2 / 300 = P₂ / 400<br>
+                            P₂ = (2 × 400) / 300 = <span class="text-green-400 text-lg font-bold">2.67 atm</span>
+                        </div>
+                        <div class="trick-box">
+                            <h5>⚠️ فخ شائع</h5>
+                            <p class="text-xs text-slate-300">لو نسيت تحول لكلفن وحسبت بـ 27 و 127 مباشرة، هتطلع الإجابة
+                                غلط! دايماً حول لكلفن في قوانين الغازات.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Question 2 -->
+            <div class="glass-panel p-6 mb-6 border-r-4 border-orange-500">
+                <div class="flex items-start gap-3 mb-4">
+                    <span class="text-2xl">🎈</span>
+                    <div>
+                        <h4 class="font-bold text-lg text-white mb-2">سؤال 2: البالونة المجنونة</h4>
+                        <p class="text-slate-300">
+                            بالونة حجمها <span class="font-mono text-yellow-400">5 لتر</span> عند الضغط الجوي العادي
+                            <span class="font-mono text-yellow-400">(1 atm)</span>.
+                            <br>وضعناها في غرفة مفرغة من الهواء وقل الضغط لـ <span class="font-mono text-yellow-400">0.5
+                                atm</span>.
+                            <br><strong class="text-orange-400">المطلوب:</strong> ما الحجم الجديد؟ (افترض ثبوت الحرارة)
+                        </p>
+                    </div>
+                </div>
+                <div class="flex gap-4 items-center mb-4">
+                    <input type="text" placeholder="اكتب إجابتك (بالـ لتر)"
+                        class="flex-1 bg-slate-800 border border-slate-600 rounded-lg px-4 py-2 text-white focus:border-orange-500 focus:outline-none"
+                        id="q2-answer">
+                    <button onclick="revealSolution('q2')"
+                        class="px-4 py-2 bg-orange-600 hover:bg-orange-700 rounded-lg font-bold transition">
+                        اكشف الحل 👀
+                    </button>
+                </div>
+                <div id="q2-solution" class="hidden bg-slate-900 p-4 rounded-xl border border-green-500/30 mt-4">
+                    <h5 class="font-bold text-green-400 mb-3">✅ الحل المفصل:</h5>
+                    <div class="space-y-3 text-sm">
+                        <p><strong class="text-yellow-400">الخطوة 1:</strong> الحرارة ثابتة ← قانون <span
+                                class="text-yellow-400 font-bold">بويل</span></p>
+                        <p><strong class="text-yellow-400">الخطوة 2:</strong> القانون: P₁V₁ = P₂V₂</p>
+                        <div class="bg-black/40 p-3 rounded-lg font-mono text-center text-indigo-300">
+                            1 × 5 = 0.5 × V₂<br>
+                            V₂ = 5 / 0.5 = <span class="text-green-400 text-lg font-bold">10 لتر</span>
+                        </div>
+                        <p class="text-green-400">✅ المنطق: الضغط قل للنص ← الحجم زاد للضعف (علاقة عكسية)</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Question 3 (SUPER HARD) -->
+            <div
+                class="glass-panel p-6 mb-6 border-r-4 border-purple-500 bg-gradient-to-r from-purple-900/20 to-red-900/20">
+                <div class="flex items-start gap-3 mb-4">
+                    <span class="text-2xl">☠️</span>
+                    <div>
+                        <h4 class="font-bold text-lg text-white mb-2">سؤال 3: المسألة الجهنمية (للعباقرة فقط!)</h4>
+                        <p class="text-slate-300">
+                            غاز حجمه <span class="font-mono text-yellow-400">2 لتر</span> عند ضغط
+                            <span class="font-mono text-yellow-400">3 atm</span> ودرجة حرارة
+                            <span class="font-mono text-yellow-400">27°C</span>.
+                            <br>تم تسخينه لـ <span class="font-mono text-yellow-400">127°C</span> وتغير ضغطه لـ
+                            <span class="font-mono text-yellow-400">4 atm</span>.
+                            <br><strong class="text-purple-400">المطلوب:</strong> احسب الحجم الجديد.
+                        </p>
+                    </div>
+                </div>
+                <div class="flex gap-4 items-center mb-4">
+                    <input type="text" placeholder="اكتب إجابتك (بالـ لتر)"
+                        class="flex-1 bg-slate-800 border border-slate-600 rounded-lg px-4 py-2 text-white focus:border-purple-500 focus:outline-none"
+                        id="q3-answer">
+                    <button onclick="revealSolution('q3')"
+                        class="px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded-lg font-bold transition">
+                        اكشف الحل 👀
+                    </button>
+                </div>
+                <div id="q3-solution" class="hidden bg-slate-900 p-4 rounded-xl border border-green-500/30 mt-4">
+                    <h5 class="font-bold text-green-400 mb-3">✅ الحل المفصل:</h5>
+                    <div class="space-y-3 text-sm">
+                        <p><strong class="text-yellow-400">الخطوة 1:</strong> كل حاجة بتتغير ← استخدم <span
+                                class="text-purple-400 font-bold">القانون العام</span> 🃏</p>
+                        <p><strong class="text-yellow-400">الخطوة 2:</strong> حول لكلفن</p>
+                        <div class="bg-black/40 p-3 rounded-lg font-mono text-center text-indigo-300">
+                            T₁ = 300 K, T₂ = 400 K
+                        </div>
+                        <p><strong class="text-yellow-400">الخطوة 3:</strong> القانون العام</p>
+                        <div class="bg-black/40 p-3 rounded-lg font-mono text-center text-indigo-300">
+                            P₁V₁/T₁ = P₂V₂/T₂<br>
+                            (3 × 2) / 300 = (4 × V₂) / 400<br>
+                            6/300 = 4V₂/400<br>
+                            V₂ = (6 × 400) / (300 × 4)<br>
+                            V₂ = 2400 / 1200 = <span class="text-green-400 text-lg font-bold">2 لتر</span>
+                        </div>
+                        <div class="trick-box">
+                            <h5>💡 ملاحظة مهمة</h5>
+                            <p class="text-xs text-slate-300">الحجم ظل ثابت! ليه؟ لأن زيادة الحرارة (كان هيزود الحجم)
+                                اتعادلت مع زيادة الضغط (كان هيقلل الحجم).</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quiz Section -->
+        <section id="quiz" class="mb-20 scroll-mt-24">
+            <div class="glass-panel p-8 text-center border-t-4 border-indigo-500">
+                <h2 class="text-3xl font-bold mb-4">🧠 جاهز للتحدي؟</h2>
+                <p class="text-slate-300 mb-8">نشوف فهمت درس النهاردة ولا محتاج كوباية شاي وتراجعه تاني!</p>
+
+                <div id="quiz-area" class="max-w-2xl mx-auto text-right">
+                    <!-- Quiz rendered by JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="text-center text-slate-500 pt-8 border-t border-slate-800">
+            <p>© منصة الفيزياء 2024</p>
+            <a href="index.html"
+                class="inline-block mt-4 px-6 py-2 bg-slate-800 rounded-full hover:bg-slate-700 transition">العودة
+                للرئيسية</a>
+        </footer>
+
+    </main>
+
+    <!-- Confetti Canvas -->
+    <canvas id="confetti" class="fixed top-0 left-0 w-full h-full pointer-events-none z-50 hidden"></canvas>
+
+    <script>
+        // --- Navigation Logic ---
+        function toggleNav() {
+            document.getElementById('sidebar').classList.toggle('active');
+        }
+
+        function scrollToSection(id) {
+            document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
+            if (window.innerWidth < 1024) toggleNav();
+
+            // Update active state
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+        }
+
+        // --- Scroll Progress ---
+        window.addEventListener('scroll', () => {
+            const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+            const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            const scrolled = (winScroll / height) * 100;
+            document.getElementById('readingProgress').innerText = Math.round(scrolled) + '%';
+        });
+
+        // --- Brownian Motion Simulation (Canvas) ---
+        const brownianCanvas = document.getElementById('brownianCanvas');
+        const ctxB = brownianCanvas.getContext('2d');
+
+        let bParticles = [];
+        const smokeParticle = { x: 0, y: 0, vx: 0, vy: 0, r: 8, color: '#fbbf24', trail: [] };
+
+        function initBrownian() {
+            // Resize canvas
+            const container = document.getElementById('brownianCanvasContainer');
+            brownianCanvas.width = container.clientWidth;
+            brownianCanvas.height = container.clientHeight;
+
+            // Create air molecules
+            bParticles = [];
+            for (let i = 0; i < 80; i++) {
+                bParticles.push({
+                    x: Math.random() * brownianCanvas.width,
+                    y: Math.random() * brownianCanvas.height,
+                    vx: (Math.random() - 0.5) * 4,
+                    vy: (Math.random() - 0.5) * 4,
+                    r: 2,
+                    color: '#3b82f6'
+                });
+            }
+
+            // Reset smoke particle
+            smokeParticle.x = brownianCanvas.width / 2;
+            smokeParticle.y = brownianCanvas.height / 2;
+            smokeParticle.vx = 0;
+            smokeParticle.vy = 0;
+            smokeParticle.trail = [];
+        }
+
+        function updateBrownian() {
+            ctxB.clearRect(0, 0, brownianCanvas.width, brownianCanvas.height);
+
+            // Draw & Update Air Particles
+            bParticles.forEach(p => {
+                p.x += p.vx;
+                p.y += p.vy;
+
+                // Bounce off walls
+                if (p.x < 0 || p.x > brownianCanvas.width) p.vx *= -1;
+                if (p.y < 0 || p.y > brownianCanvas.height) p.vy *= -1;
+
+                // Draw
+                ctxB.beginPath();
+                ctxB.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+                ctxB.fillStyle = p.color;
+                ctxB.fill();
+
+                // Collision with smoke particle (Simplified Momentum Transfer)
+                const dx = p.x - smokeParticle.x;
+                const dy = p.y - smokeParticle.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+
+                if (dist < (p.r + smokeParticle.r)) {
+                    // Kick the smoke particle
+                    smokeParticle.vx -= (dx / dist) * 0.5; // Impulse
+                    smokeParticle.vy -= (dy / dist) * 0.5;
+                    // Reflect small particle
+                    p.vx *= -1;
+                    p.vy *= -1;
+                }
+            });
+
+            // Update Smoke Particle
+            smokeParticle.x += smokeParticle.vx;
+            smokeParticle.y += smokeParticle.vy;
+
+            // Friction/Damping
+            smokeParticle.vx *= 0.98;
+            smokeParticle.vy *= 0.98;
+
+            // Bounce off walls
+            if (smokeParticle.x < smokeParticle.r || smokeParticle.x > brownianCanvas.width - smokeParticle.r) smokeParticle.vx *= -1;
+            if (smokeParticle.y < smokeParticle.r || smokeParticle.y > brownianCanvas.height - smokeParticle.r) smokeParticle.vy *= -1;
+
+            // Trail Logic
+            smokeParticle.trail.push({ x: smokeParticle.x, y: smokeParticle.y });
+            if (smokeParticle.trail.length > 50) smokeParticle.trail.shift();
+
+            // Draw Trail
+            ctxB.beginPath();
+            ctxB.strokeStyle = 'rgba(251, 191, 36, 0.3)';
+            ctxB.lineWidth = 2;
+            smokeParticle.trail.forEach((t, i) => {
+                if (i === 0) ctxB.moveTo(t.x, t.y);
+                else ctxB.lineTo(t.x, t.y);
+            });
+            ctxB.stroke();
+
+            // Draw Smoke Particle
+            ctxB.beginPath();
+            ctxB.arc(smokeParticle.x, smokeParticle.y, smokeParticle.r, 0, Math.PI * 2);
+            ctxB.fillStyle = smokeParticle.color;
+            ctxB.shadowBlur = 15;
+            ctxB.shadowColor = smokeParticle.color;
+            ctxB.fill();
+            ctxB.shadowBlur = 0;
+
+            requestAnimationFrame(updateBrownian);
+        }
+
+        function resetBrownian() { initBrownian(); }
+
+        // --- Boyle's Law Simulation Logic ---
+        const volSlider = document.getElementById('volumeSlider');
+        const pistonContainer = document.getElementById('pistonContainer');
+        const gasChamber = document.getElementById('gasChamber');
+        const volDisplay = document.getElementById('volDisplay');
+        const pressDisplay = document.getElementById('pressDisplay');
+        const constantDisplay = document.getElementById('constantDisplay');
+        const gaugeNeedle = document.getElementById('gaugeNeedle');
+
+        let gasParticles = [];
+
+        function initBoyleParticles() {
+            gasChamber.innerHTML = '';
+            gasParticles = [];
+            for (let i = 0; i < 30; i++) {
+                const el = document.createElement('div');
+                el.className = 'absolute w-3 h-3 bg-blue-400 rounded-full shadow-sm';
+                // Random start position within container
+                const x = Math.random() * 90; // percentage
+                const y = Math.random() * 90;
+
+                el.style.left = x + '%';
+                el.style.top = y + '%';
+
+                const pObj = {
+                    el: el,
+                    x: x, y: y,
+                    vx: (Math.random() - 0.5) * 1.5,
+                    vy: (Math.random() - 0.5) * 1.5
+                };
+
+                gasChamber.appendChild(el);
+                gasParticles.push(pObj);
+            }
+        }
+
+        function updateBoylePhysics() {
+            // Get current slider value (Height percentage basically)
+            // Slider 100 -> Height 100% (Low P)
+            // Slider 20 -> Height 20% (High P)
+            const hPercent = parseInt(volSlider.value);
+            const heightPx = (hPercent / 100) * 300; // 300 is max height
+
+            pistonContainer.style.height = heightPx + 'px';
+
+            // Calculate Physics Values
+            const volume = hPercent / 10; // 10L max
+            const pressure = (10 / volume).toFixed(2); // P = k/V (k=10)
+            const constant = (volume * pressure).toFixed(1);
+
+            // Update UI Text
+            volDisplay.innerText = volume.toFixed(1) + ' L';
+            pressDisplay.innerText = pressure + ' atm';
+            constantDisplay.innerText = constant;
+
+            // Update Gauge Needle
+            // Map pressure 1.0 -> 5.0 to Angle -45 -> +225
+            const minP = 1.0; const maxP = 5.0;
+            const percentageP = (pressure - minP) / (maxP - minP);
+            const angle = -45 + (percentageP * 270);
+            gaugeNeedle.style.transform = `translateX(-50%) rotate(${angle}deg)`;
+
+            // Update Particles
+            // Speed factor increases with pressure (simulating temperature constant but density collisions inc)
+            // Actually in Boyle's T is constant, but collision freq increases. 
+            // To visualize "Pressure", we make them move slightly faster visually to look "angrier"
+            const speedFactor = 1 + (percentageP * 2);
+
+            gasParticles.forEach(p => {
+                p.x += p.vx * speedFactor;
+                p.y += p.vy * speedFactor;
+
+                if (p.x <= 0 || p.x >= 92) p.vx *= -1;
+                if (p.y <= 0 || p.y >= 92) p.vy *= -1;
+
+                p.el.style.left = p.x + '%';
+                p.el.style.top = p.y + '%';
+            });
+
+            requestAnimationFrame(updateBoylePhysics);
+        }
+
+        // --- Charts for Boyle ---
+        function initCharts() {
+            // P vs V (Inverse)
+            const ctx1 = document.getElementById('graphPV').getContext('2d');
+            const dataV = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+            const dataP = dataV.map(v => 10 / v);
+
+            new Chart(ctx1, {
+                type: 'line',
+                data: {
+                    labels: dataV,
+                    datasets: [{
+                        label: 'الضغط (P)',
+                        data: dataP,
+                        borderColor: '#fbbf24',
+                        tension: 0.4,
+                        fill: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: { title: { display: true, text: 'Volume (V)' }, grid: { color: '#334155' } },
+                        y: { title: { display: true, text: 'Pressure (P)' }, grid: { color: '#334155' } }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+
+            // P vs 1/V (Linear)
+            const ctx2 = document.getElementById('graphP1V').getContext('2d');
+            const data1V = dataV.map(v => (1 / v).toFixed(2));
+
+            new Chart(ctx2, {
+                type: 'line',
+                data: {
+                    labels: data1V,
+                    datasets: [{
+                        label: 'الضغط (P)',
+                        data: dataP.reverse(), // Match logic roughly for visual
+                        borderColor: '#4ade80',
+                        tension: 0,
+                        fill: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: { title: { display: true, text: '1 / Volume' }, grid: { color: '#334155' } },
+                        y: { title: { display: true, text: 'Pressure (P)' }, grid: { color: '#334155' } }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+
+        // --- Charles's Law Simulation Logic ---
+        const tempSlider = document.getElementById('tempSlider');
+        const charlesGasChamber = document.getElementById('charlesGasChamber');
+        const tempDisplayC = document.getElementById('tempDisplayC');
+        const tempDisplayK = document.getElementById('tempDisplayK');
+        const charlesVolDisplay = document.getElementById('charlesVolDisplay');
+        const heatSource = document.getElementById('heatSource');
+        const heatGlow = document.getElementById('heatGlow');
+        const tempBg = document.getElementById('tempBg');
+
+        let charlesParticles = [];
+
+        function initCharles() {
+            // Create particles
+            charlesGasChamber.innerHTML = '<div class="absolute top-0 w-full h-4 bg-gray-300 border-b border-gray-500 shadow-lg flex justify-center"><div class="w-16 h-1 bg-black/20 mt-1 rounded-full"></div></div>';
+
+            charlesParticles = [];
+            for (let i = 0; i < 40; i++) {
+                const el = document.createElement('div');
+                el.className = 'absolute w-2 h-2 rounded-full shadow-sm transition-colors duration-300';
+
+                // Random pos
+                const x = Math.random() * 90;
+                const y = Math.random() * 90;
+
+                el.style.left = x + '%';
+                el.style.top = y + '%';
+
+                charlesGasChamber.appendChild(el);
+
+                charlesParticles.push({
+                    el: el,
+                    x: x, y: y,
+                    vx: (Math.random() - 0.5),
+                    vy: (Math.random() - 0.5),
+                    baseSpeed: (Math.random() * 0.5) + 0.5
+                });
+            }
+        }
+
+        function updateCharlesSim() {
+            const tempC = parseInt(tempSlider.value);
+            const tempK = tempC + 273;
+
+            // Visual Updates
+            tempDisplayC.innerText = tempC + " °C";
+            tempDisplayK.innerText = tempK + " K";
+
+            // Physics: V is proportional to T(K)
+            // Let's say at 300K, volume is 100% (or some baseline)
+            // Max T = 300C = 573K. Min T = -273C = 0K.
+            // Let's map 0K -> 0 height, 600K -> 100% height (approx)
+            let heightPercent = (tempK / 600) * 100;
+            if (heightPercent < 5) heightPercent = 5; // Minimum height so piston doesn't vanish
+            if (heightPercent > 100) heightPercent = 100;
+
+            charlesGasChamber.style.height = heightPercent + '%';
+
+            // Vol Display (arbitrary scale matching height)
+            const vol = (heightPercent / 10).toFixed(1);
+            charlesVolDisplay.innerText = vol + " L";
+
+            // Heat Source Visuals
+            if (tempC > 50) {
+                heatSource.innerText = "🔥";
+                heatSource.style.transform = "scale(1.2)";
+                heatGlow.style.backgroundColor = `rgba(239, 68, 68, ${tempC / 300})`; // Red glow
+                tempBg.className = "absolute inset-0 bg-red-500/10 transition-colors duration-300";
+                charlesParticles.forEach(p => p.el.style.backgroundColor = "#ef4444"); // Red particles
+            } else if (tempC < 0) {
+                heatSource.innerText = "🧊";
+                heatSource.style.transform = "scale(1)";
+                heatGlow.style.backgroundColor = `rgba(59, 130, 246, ${Math.abs(tempC) / 300})`; // Blue glow
+                tempBg.className = "absolute inset-0 bg-blue-500/10 transition-colors duration-300";
+                charlesParticles.forEach(p => p.el.style.backgroundColor = "#3b82f6"); // Blue particles
+            } else {
+                heatSource.innerText = "🕯️";
+                heatSource.style.transform = "scale(1)";
+                heatGlow.style.backgroundColor = "transparent";
+                tempBg.className = "absolute inset-0 bg-gray-500/10 transition-colors duration-300";
+                charlesParticles.forEach(p => p.el.style.backgroundColor = "#fbbf24"); // Yellow particles
+            }
+
+            // Particle Movement
+            // Speed factor depends on Sqrt(T) technically, but linear T is fine for visual sim
+            const speedFactor = (tempK / 300) * 2;
+
+            charlesParticles.forEach(p => {
+                // If 0K, stop moving
+                if (tempK <= 0) return;
+
+                p.x += p.vx * p.baseSpeed * speedFactor;
+                p.y += p.vy * p.baseSpeed * speedFactor;
+
+                // Bounce
+                if (p.x <= 0 || p.x >= 94) p.vx *= -1;
+                if (p.y <= 0 || p.y >= 94) p.vy *= -1;
+
+                p.el.style.left = p.x + '%';
+                p.el.style.top = p.y + '%';
+            });
+
+            requestAnimationFrame(updateCharlesSim);
+        }
+
+        // --- Quiz System (Hard Mode) ---
+        const quizQuestions = [
+            {
+                q: "في قانون شارل، لو سخنت غاز من 27°C لـ 327°C عند ثبوت الضغط، حجمه هيزيد للكام؟",
+                options: ["للضعف", "3 أضعاف", "4 أضعاف", "مش هيتغير"],
+                correct: 0,
+                explanation: "حول لكلفن الأول! T1 = 27+273=300K. T2 = 327+273=600K. الحرارة زادت للضعف (600/300) يبقى الحجم يزيد للضعف."
+            },
+            {
+                q: "فقاعة هواء حجمها 1cm³ عند قاع بحيرة، طلعت للسطح فحجمها بقى 3cm³. لو الضغط الجوي 1 atm، يبقى ضغط القاع كان كام؟",
+                options: ["2 atm", "3 atm", "4 atm", "1.5 atm"],
+                correct: 1,
+                explanation: "طبق بويل: P1 V1 = P2 V2 ➜ P_bottom × 1 = 1 × 3 ➜ P_bottom = 3 atm."
+            },
+            {
+                q: "عند تسخين كمية معينة من الغاز في إناء مفتوح، إيه اللي بيحصل للكثافة؟",
+                options: ["تزداد", "تقل", "تظل ثابتة", "تصبح صفر"],
+                correct: 1,
+                explanation: "التسخين بيزود الحجم (قانون شارل). والكثافة عكس الحجم (ρ = m/V). يبقى لما الحجم يزيد، الكثافة تقل."
+            },
+            {
+                q: "خلطنا 1 لتر غاز ضغطه 2 atm مع 2 لتر غاز ضغطه 1 atm في إناء حجمه 4 لتر. ضغط الخليط يكون كام؟",
+                options: ["1 atm", "2 atm", "4 atm", "1.5 atm"],
+                correct: 0,
+                explanation: "طبق القانون: P_mix V_total = P1 V1 + P2 V2 ➜ P × 4 = (2×1) + (1×2) ➜ 4P = 4 ➜ P = 1 atm."
+            },
+            {
+                q: "الرسم البياني للعلاقة بين الحجم (V) ودرجة الحرارة السيليزية (t) بيقطع محور الحرارة عند نقطة...",
+                options: ["0", "273", "-273", "100"],
+                correct: 2,
+                explanation: "بيقطع عند الصفر المطلق (-273°C) حيث ينعدم الحجم نظرياً."
+            },
+            {
+                q: "إطار سيارة ضغطه P عند 27°C. بعد مشوار طويل الحرارة بقت 127°C. الضغط الجديد يبقى كام؟ (افترض الحجم ثابت)",
+                options: ["4.7 P", "1.33 P", "2 P", "P"],
+                correct: 1,
+                explanation: "حول لكلفن: 300K بقت 400K. النسبة 400/300 = 1.33. يبقى الضغط زاد مرة وتلت."
+            },
+            {
+                q: "لتحويل الحجم من cm³ إلى m³ نضرب في...",
+                options: ["10⁻²", "10⁻⁶", "10⁶", "10⁻³"],
+                correct: 1,
+                explanation: "ده حجم مش طول! سم لـ متر (10⁻²) وكعّبها تبقى (10⁻⁶)."
+            },
+            {
+                q: "الهدية: في الظروف القياسية STP يكون الضغط والحرارة...",
+                options: ["1atm, 0°C", "76cmHg, 25°C", "1atm, 273°C", "2atm, 0K"],
+                correct: 0,
+                explanation: "STP يعني Standard Temp & Pressure (ضغط 1 جوي وحرارة صفر سيليزيوس)."
+            },
+            {
+                q: "في قانون بويل، حاصل ضرب الضغط في الحجم (PV) يساوي...",
+                options: ["مقدار ثابت", "صفر", "درجة الحرارة", "الكثافة"],
+                correct: 0,
+                explanation: "نص القانون: PV = Constant."
+            },
+            {
+                q: "أقل درجة حرارة ممكنة في الكون (نظرياً) هي...",
+                options: ["0°C", "-100°C", "0 K", "-273 K"],
+                correct: 2,
+                explanation: "هي الصفر كلفن (0K) وتساوي -273°C."
+            }
+        ];
+
+        function renderQuiz() {
+            const container = document.getElementById('quiz-area');
+            let html = '';
+
+            quizQuestions.forEach((q, idx) => {
+                html += `
+                    <div class="mb-8 p-6 bg-slate-800/50 rounded-xl border border-slate-700 text-right">
+                        <h4 class="text-lg font-bold mb-4 text-white">${idx + 1}. ${q.q}</h4>
+                        <div class="space-y-2">
+                            ${q.options.map((opt, optIdx) => `
+                                <button onclick="checkAnswer(this, ${idx}, ${optIdx})" 
+                                    class="w-full text-right p-3 rounded-lg bg-slate-700 hover:bg-slate-600 transition border border-transparent">
+                                    ${opt}
+                                </button>
+                            `).join('')}
+                        </div>
+                        <div id="feedback-${idx}" class="hidden mt-4 p-4 rounded-lg bg-indigo-900/30 text-indigo-200 text-sm"></div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        function checkAnswer(btn, qIdx, optIdx) {
+            const q = quizQuestions[qIdx];
+            const feedback = document.getElementById(`feedback-${qIdx}`);
+            const parent = btn.parentElement;
+
+            // Disable buttons
+            Array.from(parent.children).forEach(b => b.disabled = true);
+
+            if (optIdx === q.correct) {
+                btn.classList.add('bg-green-600', 'border-green-400');
+                btn.classList.remove('bg-slate-700', 'hover:bg-slate-600');
+                feedback.innerHTML = `✅ <b>إجابة صحيحة!</b><br>${q.explanation}`;
+                feedback.classList.remove('hidden');
+                triggerConfetti();
+            } else {
+                btn.classList.add('bg-red-600', 'border-red-400');
+                btn.classList.remove('bg-slate-700', 'hover:bg-slate-600');
+                // Highlight correct
+                parent.children[q.correct].classList.add('bg-green-600', 'border-green-400');
+                parent.children[q.correct].classList.remove('bg-slate-700');
+
+                feedback.innerHTML = `❌ <b>خطأ!</b> الإجابة الصح هي: ${q.options[q.correct]}<br>${q.explanation}`;
+                feedback.classList.remove('hidden');
+            }
+        }
+
+        // --- Simple Confetti Effect ---
+        function triggerConfetti() {
+            const canvas = document.getElementById('confetti');
+            canvas.classList.remove('hidden');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            const ctx = canvas.getContext('2d');
+
+            const particles = [];
+            for (let i = 0; i < 100; i++) {
+                particles.push({
+                    x: canvas.width / 2, y: canvas.height / 2,
+                    vx: (Math.random() - 0.5) * 10, vy: (Math.random() - 0.5) * 10,
+                    color: `hsl(${Math.random() * 360}, 100%, 50%)`,
+                    life: 100
+                });
+            }
+
+            function animateConfetti() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                let alive = false;
+                particles.forEach(p => {
+                    if (p.life > 0) {
+                        alive = true;
+                        p.x += p.vx; p.y += p.vy;
+                        p.vy += 0.2; // gravity
+                        p.life--;
+                        ctx.fillStyle = p.color;
+                        ctx.fillRect(p.x, p.y, 5, 5);
+                    }
+                });
+                if (alive) requestAnimationFrame(animateConfetti);
+                else canvas.classList.add('hidden');
+            }
+            animateConfetti();
+        }
+
+        // --- Initialization ---
+        window.onload = function () {
+            initBrownian();
+            requestAnimationFrame(updateBrownian);
+
+            initBoyleParticles();
+            updateBoylePhysics();
+
+            initCharles();
+            updateCharlesSim();
+
+            initJolly();
+            updateJollySim();
+
+            initCharts();
+            renderQuiz();
+        };
+
+        // --- Jolly's Law Simulation Logic ---
+        const jollySlider = document.getElementById('jollySlider');
+        const jollyChamber = document.getElementById('jollyChamber');
+        const jollyStats = document.getElementById('jollyStats');
+        const jollyNeedle = document.getElementById('jollyNeedle');
+        let jollyParticles = [];
+
+        function initJolly() {
+            jollyChamber.innerHTML = '';
+            jollyParticles = [];
+            for (let i = 0; i < 30; i++) {
+                const el = document.createElement('div');
+                el.className = 'absolute w-2 h-2 rounded-full bg-blue-400 shadow-sm transition-colors duration-300';
+                const x = Math.random() * 90;
+                const y = Math.random() * 90;
+                el.style.left = x + '%';
+                el.style.top = y + '%';
+                jollyChamber.appendChild(el);
+
+                jollyParticles.push({
+                    el: el,
+                    x: x, y: y,
+                    vx: (Math.random() - 0.5),
+                    vy: (Math.random() - 0.5),
+                    baseSpeed: (Math.random() * 0.5) + 0.5
+                });
+            }
+        }
+
+        function updateJollySim() {
+            const tempK = parseInt(jollySlider.value); // 100 to 600
+
+            // Pressure is proportional to Temp (P = k*T)
+            // Let's say at 300K, P = 1.0 atm
+            const pressure = (tempK / 300).toFixed(2);
+
+            jollyStats.innerText = `T = ${tempK} K | P = ${pressure} atm`;
+
+            // Needle Rotation
+            // Map 0.3 atm -> 2.0 atm to Angle
+            const angle = -45 + ((tempK - 100) / 500) * 270;
+            jollyNeedle.style.transform = `translateX(-50%) rotate(${angle}deg)`; // Fix center pivot
+            jollyNeedle.style.left = "50%"; // Ensure centering
+
+            // Particle Speed & Color
+            const speedFactor = (tempK / 300) * 3;
+            const color = tempK > 400 ? '#ef4444' : (tempK < 200 ? '#3b82f6' : '#fbbf24'); // Red, Blue, Yellow
+
+            jollyParticles.forEach(p => {
+                p.x += p.vx * p.baseSpeed * speedFactor;
+                p.y += p.vy * p.baseSpeed * speedFactor;
+
+                if (p.x <= 0 || p.x >= 96) p.vx *= -1;
+                if (p.y <= 0 || p.y >= 96) p.vy *= -1;
+
+                p.el.style.left = p.x + '%';
+                p.el.style.top = p.y + '%';
+                p.el.style.backgroundColor = color;
+            });
+
+            requestAnimationFrame(updateJollySim);
+        }
+
+        // Resize handler for canvas
+        window.onresize = function () {
+            initBrownian();
+        }
+
+        // Reveal Solution for Challenging Questions
+        function revealSolution(qId) {
+            const solution = document.getElementById(qId + '-solution');
+            if (solution.classList.contains('hidden')) {
+                solution.classList.remove('hidden');
+                solution.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            } else {
+                solution.classList.add('hidden');
+            }
+        }
+
+    </script>
+</body>
+
+</html>

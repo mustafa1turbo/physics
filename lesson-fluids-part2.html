@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>البارومتر والضغط الجوي | منصة الفيزياء</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <style>
+        * {
+            font-family: 'Cairo', sans-serif;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: white;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #3b82f6;
+            border-radius: 4px;
+        }
+
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+
+        .nav-sidebar {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            width: 260px;
+            height: calc(100vh - 100px);
+            overflow-y: auto;
+            z-index: 40;
+            transition: transform 0.3s ease;
+        }
+
+        @media (max-width: 1024px) {
+            .nav-sidebar {
+                transform: translateX(110%);
+                background: #1e293b;
+                right: 0;
+                top: 0;
+                height: 100vh;
+                width: 280px;
+                padding-top: 80px;
+            }
+
+            .nav-sidebar.active {
+                transform: translateX(0);
+            }
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            margin-bottom: 8px;
+            border-radius: 12px;
+            color: #94a3b8;
+            transition: all 0.2s;
+            cursor: pointer;
+            border-right: 3px solid transparent;
+            font-weight: 600;
+        }
+
+        .nav-item:hover,
+        .nav-item.active {
+            background: rgba(59, 130, 246, 0.1);
+            color: #fff;
+            border-right-color: #3b82f6;
+        }
+
+        .canvas-wrapper {
+            position: relative;
+            background: radial-gradient(circle at center, #bfdbfe 0%, #60a5fa 100%);
+            /* Sky Look */
+            border-radius: 16px;
+            border: 4px solid #475569;
+            box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .control-panel {
+            background: #1e293b;
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid #334155;
+        }
+
+        .range-slider {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            background: #475569;
+            outline: none;
+        }
+
+        .range-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #fbbf24;
+            cursor: pointer;
+            border: 2px solid #fff;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Magnifying Glass Effect */
+        .magnifier {
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            border: 4px solid white;
+            border-radius: 50%;
+            overflow: hidden;
+            pointer-events: none;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+            background: #fff;
+            z-index: 10;
+        }
+
+        /* Pedagogical Badges */
+        .badge-understand {
+            background: linear-gradient(135deg, #4c1d95, #6d28d9);
+            color: #e9d5ff;
+            border: 1px solid #8b5cf6;
+            padding: 4px 12px;
+            border-radius: 99px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 4px 12px rgba(109, 40, 217, 0.3);
+            margin-bottom: 8px;
+        }
+
+        .badge-memo {
+            background: linear-gradient(135deg, #1e40af, #2563eb);
+            color: #dbeafe;
+            border: 1px solid #60a5fa;
+            padding: 4px 12px;
+            border-radius: 99px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+            margin-bottom: 8px;
+        }
+
+        .trick-box {
+            background: rgba(245, 158, 11, 0.1);
+            border-right: 4px solid #f59e0b;
+            padding: 16px;
+            border-radius: 8px;
+            margin-top: 16px;
+            position: relative;
+        }
+
+        .trick-box h5 {
+            color: #fbbf24;
+            font-weight: bold;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+    </style>
+</head>
+
+<body class="pb-20">
+
+    <!-- Mobile Nav Toggle -->
+    <button onclick="toggleNav()"
+        class="fixed top-4 left-4 z-50 lg:hidden bg-slate-800 p-3 rounded-xl border border-slate-700 shadow-lg text-white">
+        ☰ الفهرس
+    </button>
+
+    <!-- Header -->
+    <header
+        class="fixed top-0 w-full z-30 bg-slate-900/95 backdrop-blur border-b border-slate-800 h-16 flex items-center px-6 justify-between shadow-lg">
+        <div class="flex items-center gap-4">
+            <a href="index.html" class="flex items-center gap-2 text-slate-400 hover:text-white transition">
+                <span>⬅️</span> <span class="hidden md:inline font-bold">الرئيسية</span>
+            </a>
+            <div class="h-6 w-[1px] bg-slate-700 mx-2"></div>
+            <h1 class="font-bold text-lg md:text-xl text-white">البارومتر والضغط الجوي 🌡️</h1>
+        </div>
+        <div class="text-sm font-mono text-blue-400 bg-blue-900/20 px-3 py-1 rounded border border-blue-500/30">
+            الصف الثاني الثانوي
+        </div>
+    </header>
+
+    <!-- Sidebar -->
+    <nav class="nav-sidebar glass-panel" id="sidebar">
+        <div class="p-4 border-b border-slate-700 mb-2">
+            <h3 class="font-bold text-white">محتويات الدرس</h3>
+        </div>
+        <div onclick="scrollToSection('intro')" class="nav-item active">🌍 مقدمة الضغط الجوي</div>
+        <div onclick="scrollToSection('barometer')" class="nav-item">🌡️ البارومتر الزئبقي</div>
+        <div onclick="scrollToSection('simulation')" class="nav-item">🎮 تجربة تورشيللي</div>
+        <div onclick="scrollToSection('manometer')" class="nav-item">⏲️ المانومتر</div>
+        <div onclick="scrollToSection('advanced')" class="nav-item">🚀 مسائل المتفوقين</div>
+        <div onclick="scrollToSection('summary')" class="nav-item">🍋 الزتونة (الملخص)</div>
+        <div onclick="scrollToSection('quiz')" class="nav-item">📝 اختبر نفسك</div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="lg:mr-[280px] pt-24 px-4 md:px-8 max-w-5xl mx-auto">
+
+        <!-- Intro -->
+        <section id="intro" class="mb-16 scroll-mt-24">
+            <!-- Warning -->
+            <div class="mb-8 p-1 rounded-2xl bg-gradient-to-r from-red-600 to-orange-600 animate-pulse">
+                <div class="bg-slate-900 rounded-xl p-6 text-center">
+                    <h3 class="text-2xl font-bold text-white mb-2">🚨 تنبيه هام جداً 🚨</h3>
+                    <p class="text-lg text-slate-300">
+                        الدرس ده فيه "كوكتيل وحدات" رهيب! (atm, bar, Pa, cmHg). <br>
+                        لو حفظت التحويلات غلط، المسألة طارت. ركز في قسم الوحدات كويس!
+                    </p>
+                </div>
+            </div>
+
+            <div class="glass-panel p-8 text-center relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-40 h-40 bg-purple-500/10 rounded-full blur-3xl"></div>
+                <h2 class="text-4xl font-black mb-6">الضغط الجوي (Atmospheric Pressure)</h2>
+
+                <!-- Chat Intro -->
+                <div class="flex flex-col gap-4 max-w-3xl mx-auto text-right">
+                    <div class="bg-slate-800/50 p-4 rounded-2xl rounded-tr-none border border-slate-700 self-start">
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="text-2xl">👨‍🏫</span> <span class="font-bold text-purple-400">مصطفى
+                                هاني:</span>
+                        </div>
+                        <p class="text-slate-300">عارف إننا عايشين في قاع "محيط" كبير من الهواء؟ الهواء ده ليه وزن،
+                            وبيضغط علينا طول الوقت!</p>
+                    </div>
+
+                    <div class="bg-blue-900/30 p-4 rounded-2xl rounded-tl-none border border-blue-500/30 self-end">
+                        <div class="flex items-center gap-2 mb-2 justify-end">
+                            <span class="font-bold text-blue-400">طالب ذكي:</span> <span class="text-2xl">🧑‍🎓</span>
+                        </div>
+                        <p class="text-slate-300">طب ليه مش بنحس بيه يا مستر؟ مش المفروض يفعصنا؟ 🤔</p>
+                    </div>
+
+                    <div class="bg-slate-800/50 p-4 rounded-2xl rounded-tr-none border border-slate-700 self-start">
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="text-2xl">👨‍🏫</span> <span class="font-bold text-purple-400">مصطفى
+                                هاني:</span>
+                        </div>
+                        <p class="text-slate-300">سؤال ممتاز! لأن ضغط السوائل والغازات جوه جسمنا بيعادل الضغط الجوي ده.
+                            فمحصلة القوة بتبقى صفر. تخيل 10 بيزقوك يمين و10 بيزقوك شمال.. هتتحرك؟ لأ!</p>
+                    </div>
+                </div>
+
+                <!-- NEW: Student Q&A -->
+                <div class="mt-8 max-w-2xl mx-auto text-right">
+                    <div class="student-row chat-row">
+                        <div class="chat-avatar">🧑‍🎓</div>
+                        <div class="chat-bubble">
+                            <p class="text-sm">يا مستر، طب لو أنا طلعت فوق جبل، الضغط الجوي هيقل؟ 🧗</p>
+                        </div>
+                    </div>
+                    <div class="teacher-row chat-row">
+                        <div class="chat-avatar">👨‍🏫</div>
+                        <div class="chat-bubble">
+                            <p class="text-sm">سؤال رهيب! 🏎️ أيوة، لما تطلع فوق، الهوا فوقك بيقل. يعني <strong
+                                    class="text-yellow-400">عمود الهواء اللي بيضغط بيبقى أقصر</strong>!</p>
+                            <p class="text-xs text-purple-300 mt-1">عشان كده الطيارين على الجبال العالية بيحتاجوا أنابيب
+                                أكسجين. ✈️</p>
+                        </div>
+                    </div>
+                    <div class="student-row chat-row">
+                        <div class="chat-avatar">🧑‍🎓</div>
+                        <div class="chat-bubble">
+                            <p class="text-sm">طب لو أنا ميلت الأنبوبة البارومترية، الرقم هيتغير؟</p>
+                        </div>
+                    </div>
+                    <div class="teacher-row chat-row">
+                        <div class="chat-avatar">👨‍🏫</div>
+                        <div class="chat-bubble">
+                            <p class="text-sm">ده "فخ الامتحان"! ☠️ الارتفاع الرأسي (h) <strong
+                                    class="text-green-400">ثابت</strong> لأن الضغط الجوي متغيرش! اللي بيزيد هو <strong
+                                    class="text-yellow-400">طول عمود الزئبق المايل</strong>.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Confused Student (Funny) -->
+                <div class="mt-6 p-4 bg-red-900/20 rounded-xl border border-red-500/30">
+                    <div class="student-row chat-row">
+                        <div class="chat-avatar">😵</div>
+                        <div class="chat-bubble">
+                            <p class="text-sm">يا مستر لو مايلين الأنبوبة كده الزئبق هيزيد صح؟ 🤩</p>
+                        </div>
+                    </div>
+                    <div class="teacher-row chat-row">
+                        <div class="chat-avatar">👨‍🏫</div>
+                        <div class="chat-bubble">
+                            <p class="text-sm">لا يا بطل! 😅 اللي بيزيد هو <strong class="text-yellow-400">طول عمود
+                                    الزئبق</strong>، بس الارتفاع الرأسي (h) ثابت!</p>
+                        </div>
+                    </div>
+                    <div class="student-row chat-row">
+                        <div class="chat-avatar">😵</div>
+                        <div class="chat-bubble">
+                            <p class="text-sm">طب ما هو الطول زاد! يبقى الضغط زاد! 🎲</p>
+                        </div>
+                    </div>
+                    <div class="teacher-row chat-row">
+                        <div class="chat-avatar">👨‍🏫</div>
+                        <div class="chat-bubble">
+                            <p class="text-sm">الضغط بيعتمد على الارتفاع الرأسي بس! 📐 تخيل حمام سباحة مايل.. الضغط على
+                                قدمك مبيتغيرش! 😂</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Barometer Theory -->
+        <section id="barometer" class="mb-16 scroll-mt-24">
+            <h2 class="text-3xl font-bold mb-6 border-r-4 border-purple-500 pr-4">🌡️ البارومتر الزئبقي (تجربة تورشيللي)
+            </h2>
+
+            <div class="grid md:grid-cols-2 gap-8">
+                <div class="glass-panel p-6">
+                    <h3 class="text-xl font-bold text-yellow-400 mb-4">فكرة العمل</h3>
+                    <p class="text-slate-300 leading-relaxed mb-4">
+                        تورشيللي جاب أنبوبة طولها 1 متر مليانة زئبق، وقلبها في حوض زئبق.<br>
+                        الزئبق نزل شوية ووقف عند ارتفاع معين. ليه وقف؟
+                    </p>
+                    <div class="bg-slate-900 p-4 rounded-xl border border-slate-700 text-center">
+                        <p class="font-bold text-green-400 mb-2">عند الاتزان:</p>
+                        <p class="text-white">ضغط عمود الزئبق = الضغط الجوي</p>
+                        <div class="mt-2 text-2xl font-mono text-purple-400 dir-ltr">Pₐ = ρ g h</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass-panel p-6">
+                <h3 class="text-xl font-bold text-red-400 mb-4">ليه زئبق مش مية؟</h3>
+                <ul class="space-y-3 text-slate-300 list-disc list-inside">
+                    <li>كثافة الزئبق عالية جداً (13600).</li>
+                    <li>فالارتفاع المطلوب لتعادل الضغط الجوي هو <b>0.76 متر</b> (ممكن في المعمل).</li>
+                    <li>لو استخدمنا مية، هنحتاج أنبوبة طولها <b>10 متر</b>! (قد عمارة 3 أدوار). تخيل تمشي بأنبوبة 10
+                        متر في المعمل! 😂</li>
+                </ul>
+            </div>
+            </div>
+        </section>
+
+        <!-- Simulation (The Legendary Masterpiece) -->
+        <section id="simulation" class="mb-16 scroll-mt-24">
+            <h2 class="text-3xl font-bold mb-6 border-r-4 border-green-500 pr-4">🎮 المعمل الافتراضي: تجربة تورشيللي
+            </h2>
+
+            <div class="glass-panel p-4 md:p-6 border border-green-500/30">
+                <div class="grid lg:grid-cols-12 gap-8">
+
+                    <!-- Sim Canvas -->
+                    <div class="lg:col-span-8">
+                        <div class="canvas-wrapper h-[500px] relative">
+                            <canvas id="barometerCanvas"></canvas>
+                            <!-- Magnifying Glass Overlay -->
+                            <div id="magnifier" class="magnifier hidden">
+                                <canvas id="magCanvas" width="120" height="120"></canvas>
+                            </div>
+                            <!-- Helper Text -->
+                            <div
+                                class="absolute bottom-4 right-4 text-slate-700 text-xs font-bold bg-white/50 px-2 py-1 rounded">
+                                حرك الماوس للتكبير 🔍
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Controls -->
+                    <div class="lg:col-span-4 space-y-6">
+                        <div class="control-panel">
+                            <h4 class="font-bold text-white mb-4">تحكم في الظروف:</h4>
+
+                            <div class="mb-6">
+                                <label class="block text-sm font-bold text-slate-400 mb-2">الارتفاع عن سطح البحر
+                                    (الجبل)</label>
+                                <input type="range" id="altitudeSlider" min="0" max="2000" step="10" value="0"
+                                    class="range-slider">
+                                <div class="flex justify-between text-xs mt-1 font-mono">
+                                    <span class="text-blue-400">سطح البحر (0m)</span>
+                                    <span class="text-red-400">قمة جبل (2000m)</span>
+                                </div>
+                            </div>
+
+                            <div class="mb-6">
+                                <label class="block text-sm font-bold text-slate-400 mb-2">ميل الأنبوبة (زاوية
+                                    $\theta$)</label>
+                                <input type="range" id="angleSlider" min="0" max="60" step="1" value="0"
+                                    class="range-slider">
+                                <div class="text-center mt-2 font-mono text-yellow-400" id="angleVal">0°</div>
+                            </div>
+
+                            <div class="bg-black/40 p-4 rounded-xl border border-slate-600">
+                                <h5 class="text-xs text-slate-500 mb-2 font-bold">القراءات الدقيقة:</h5>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <div class="text-[10px] text-slate-400">الضغط الجوي (Pa)</div>
+                                        <div class="text-sm font-mono text-white dir-ltr" id="paVal">101,325</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-[10px] text-slate-400">طول عمود الزئبق (h)</div>
+                                        <div class="text-sm font-mono text-green-400 dir-ltr" id="hCmVal">76.00 cm</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Trick Box -->
+                        <div class="trick-box">
+                            <h5>💡 تريكة امتحان</h5>
+                            <p class="text-xs text-slate-300 leading-relaxed">
+                                لو ميلنا الأنبوبة، طول الزئبق (المايل) هيزيد.. بس <b>الارتفاع الرأسي</b> هيفضل ثابت (76
+                                سم)!
+                                <br><span class="text-white font-bold">الضغط يعتمد على الارتفاع الرأسي h فقط.</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Units & Conversions (Crucial) -->
+        <section id="units" class="mb-16 scroll-mt-24">
+            <h2 class="text-3xl font-bold mb-6 border-r-4 border-blue-500 pr-4">📏 وحدات قياس الضغط (الخلاط)</h2>
+
+            <div class="glass-panel p-6">
+                <div class="text-center mb-6">
+                    <p class="text-slate-300 mb-2">القيمة المرجعية للضغط الجوي المعتاد ($P_a$):</p>
+                    <span class="badge-memo">🦜 بصمجة صماء (أوعى تنساها!)</span>
+                </div>
+
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 text-center">
+                    <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 hover:border-blue-500 transition">
+                        <div class="text-2xl font-bold text-white mb-1">1</div>
+                        <div class="text-sm text-blue-400 font-mono">atm</div>
+                    </div>
+                    <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 hover:border-green-500 transition">
+                        <div class="text-2xl font-bold text-white mb-1">76</div>
+                        <div class="text-sm text-green-400 font-mono">cmHg</div>
+                    </div>
+                    <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 hover:border-yellow-500 transition">
+                        <div class="text-xl font-bold text-white mb-1 dir-ltr">1.013×10⁵</div>
+                        <div class="text-sm text-yellow-400 font-mono">Pascal</div>
+                    </div>
+                    <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 hover:border-purple-500 transition">
+                        <div class="text-2xl font-bold text-white mb-1">1.013</div>
+                        <div class="text-sm text-purple-400 font-mono">bar</div>
+                    </div>
+                    <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 hover:border-red-500 transition">
+                        <div class="text-2xl font-bold text-white mb-1">760</div>
+                        <div class="text-sm text-red-400 font-mono">Torr</div>
+                    </div>
+                </div>
+
+                <!-- Conversion Calculator Tool -->
+                <div class="mt-8 bg-slate-900/50 p-6 rounded-xl border border-slate-600">
+                    <h4 class="font-bold text-center mb-4 text-slate-300">أداة التحويل السحري ✨</h4>
+                    <div class="flex flex-col md:flex-row gap-4 items-center justify-center">
+                        <input type="number" id="convInput" value="1"
+                            class="bg-slate-800 border border-slate-600 rounded p-2 text-center text-white w-24">
+                        <select id="convFrom" class="bg-slate-800 border border-slate-600 rounded p-2 text-white">
+                            <option value="atm">atm</option>
+                            <option value="cmHg">cmHg</option>
+                            <option value="pa">Pascal</option>
+                            <option value="bar">bar</option>
+                            <option value="torr">Torr</option>
+                        </select>
+                        <span class="text-2xl">⬅️</span>
+                        <div class="text-xl font-bold text-green-400 font-mono dir-ltr" id="convResult">...</div>
+                    </div>
+                    <p class="text-center text-xs text-slate-500 mt-4">القاعدة: القيمة × (اللي رايح له / اللي جاي منه)
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Advanced Problems -->
+        <section id="advanced" class="mb-16 scroll-mt-24">
+            <h2 class="text-3xl font-bold mb-6 border-r-4 border-red-500 pr-4">🚀 مسائل المتفوقين (المبنى والمانومتر)
+            </h2>
+
+            <!-- Problem 1: Building Height -->
+            <div class="glass-panel p-6 mb-8 relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-2 h-full bg-red-500"></div>
+                <h3 class="text-xl font-bold text-white mb-3">1. مسألة "ناطحة السحاب" 🏢</h3>
+                <p class="text-slate-300 text-sm mb-4">
+                    إزاي نحسب ارتفاع مبنى باستخدام شوية زئبق؟<br>
+                    الفكرة: فرق الضغط الجوي (تحت - فوق) = ضغط عمود الهواء بتاع المبنى.
+                </p>
+
+                <div class="bg-black/40 p-4 rounded-xl text-center mb-4">
+                    <div class="text-lg font-mono text-yellow-300 dir-ltr mb-2">
+                        ρ_air × g × h_bldg = ρ_Hg × g × Δh_Hg
+                    </div>
+                    <div class="text-sm text-slate-400">حيث Δh هو فرق قراءة البارومتر (تحت - فوق)</div>
+                </div>
+
+                <div class="bg-slate-800 p-4 rounded-xl border border-slate-700">
+                    <h4 class="text-green-400 font-bold text-sm mb-2">📝 مثال محلول:</h4>
+                    <p class="text-xs text-slate-300 mb-2">
+                        قراءة البارومتر أسفل مبنى 76cmHg وأعلاه 74cmHg. احسب ارتفاع المبنى؟<br>
+                        (كثافة الزئبق 13600، كثافة الهواء 1.25)
+                    </p>
+                    <div class="text-xs font-mono text-white bg-black/50 p-3 rounded dir-ltr text-left">
+                        1. Δh_Hg = 76 - 74 = 2 cm = 0.02 m<br>
+                        2. 1.25 × h_bldg = 13600 × 0.02<br>
+                        3. 1.25 × h_bldg = 272<br>
+                        4. h_bldg = 272 / 1.25 = 217.6 meter
+                    </div>
+                </div>
+            </div>
+
+            <!-- Problem 2: Manometer -->
+            <div class="glass-panel p-6 relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-2 h-full bg-blue-500"></div>
+                <h3 class="text-xl font-bold text-white mb-3">2. المانومتر (قياس ضغط غاز محبوس) 🎈</h3>
+                <p class="text-slate-300 text-sm mb-4">
+                    أنبوبة U متوصلة بمستودع غاز. بنشوف السائل طلع فين ونحسب.
+                </p>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+                    <div class="bg-slate-800 p-3 rounded-lg border border-slate-600">
+                        <div class="text-green-400 font-bold mb-1">P_gas > P_a</div>
+                        <div class="text-xs text-slate-400">السائل طلع في الفرع الخالص</div>
+                        <div class="text-xs font-mono mt-1 text-white dir-ltr">P_gas = P_a + h</div>
+                    </div>
+                    <div class="bg-slate-800 p-3 rounded-lg border border-slate-600">
+                        <div class="text-yellow-400 font-bold mb-1">P_gas < P_a</div>
+                                <div class="text-xs text-slate-400">السائل طلع ناحية الغاز</div>
+                                <div class="text-xs font-mono mt-1 text-white dir-ltr">P_gas = P_a - h</div>
+                        </div>
+                        <div class="bg-slate-800 p-3 rounded-lg border border-slate-600">
+                            <div class="text-blue-400 font-bold mb-1">P_gas = P_a</div>
+                            <div class="text-xs text-slate-400">السائل في مستوى واحد</div>
+                            <div class="text-xs font-mono mt-1 text-white dir-ltr">diff = 0</div>
+                        </div>
+                    </div>
+                </div>
+        </section>
+
+        <!-- Summary -->
+        <section id="summary" class="mb-16 scroll-mt-24">
+            <h2 class="text-3xl font-bold mb-6 border-r-4 border-yellow-500 pr-4">🍋 زتونة الدرس</h2>
+            <div class="grid md:grid-cols-2 gap-4">
+                <div class="glass-panel p-4 border-t-4 border-purple-500">
+                    <h4 class="font-bold text-purple-400 mb-2">البارومتر</h4>
+                    <p class="text-xs text-slate-300">لقياس الضغط الجوي</p>
+                    <div class="font-mono text-center text-lg mt-2 dir-ltr">Pₐ = ρ g h</div>
+                    <p class="text-[10px] text-center mt-1 text-slate-500">h = 76cm للزئبق</p>
+                </div>
+                <div class="glass-panel p-4 border-t-4 border-blue-500">
+                    <h4 class="font-bold text-blue-400 mb-2">المانومتر</h4>
+                    <p class="text-xs text-slate-300">لقياس ضغط غاز محبوس</p>
+                    <div class="font-mono text-center text-lg mt-2 dir-ltr">P_gas = Pₐ ± h</div>
+                    <p class="text-[10px] text-center mt-1 text-slate-500">+ لو الغاز أكبر، - لو أقل</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quiz -->
+        <section id="quiz" class="mb-16 scroll-mt-24">
+            <div class="glass-panel p-8">
+                <h2 class="text-2xl font-bold mb-6 text-center">🧠 اختبر فهمك</h2>
+                <div id="quizArea" class="space-y-4 max-w-2xl mx-auto">
+                    <!-- Loaded by JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="text-center py-8 border-t border-slate-700 text-slate-500">
+            <p>© منصة الفيزياء 2024</p>
+            <a href="index.html"
+                class="inline-block mt-4 px-6 py-2 bg-slate-800 rounded-full hover:bg-slate-700 transition">العودة
+                للرئيسية</a>
+        </footer>
+
+    </main>
+
+    <script>
+        // --- Navigation ---
+        function toggleNav() { document.getElementById('sidebar').classList.toggle('active'); }
+        function scrollToSection(id) { document.getElementById(id).scrollIntoView({ behavior: 'smooth' }); }
+
+        // --- Barometer Simulation (Torricelli) ---
+        const canvas = document.getElementById('barometerCanvas');
+        const ctx = canvas.getContext('2d');
+        const magCanvas = document.getElementById('magCanvas');
+        const magCtx = magCanvas.getContext('2d');
+        const magnifier = document.getElementById('magnifier');
+
+        const altitudeSlider = document.getElementById('altitudeSlider');
+        const angleSlider = document.getElementById('angleSlider');
+
+        // Physics Consts
+        const P_SEA_LEVEL = 101325; // Pa
+        const RHO_HG = 13600;
+        const G = 9.8;
+
+        // State
+        let mouseX = 0, mouseY = 0;
+        let isHovering = false;
+
+        function initSim() {
+            const container = canvas.parentElement;
+            canvas.width = container.clientWidth;
+            canvas.height = container.clientHeight;
+            drawSim();
+        }
+
+        function getPressureAtAltitude(h) {
+            return P_SEA_LEVEL * Math.pow(1 - 2.25577e-5 * h, 5.25588);
+        }
+
+        function drawSim() {
+            const w = canvas.width;
+            const h = canvas.height;
+            ctx.clearRect(0, 0, w, h);
+
+            const alt = parseInt(altitudeSlider.value);
+            const angle = parseInt(angleSlider.value);
+            const angleRad = angle * Math.PI / 180;
+
+            // 1. Realistic Sky Background
+            const skyGrad = ctx.createLinearGradient(0, 0, 0, h);
+            // Higher altitude = Darker sky
+            const darkness = alt / 3000;
+            skyGrad.addColorStop(0, `rgb(${80 * (1 - darkness)}, ${150 * (1 - darkness)}, ${230 * (1 - darkness)})`);
+            skyGrad.addColorStop(1, `rgb(${180 * (1 - darkness)}, ${220 * (1 - darkness)}, ${255 * (1 - darkness)})`);
+            ctx.fillStyle = skyGrad;
+            ctx.fillRect(0, 0, w, h);
+
+            // Mountain (Dynamic)
+            ctx.beginPath();
+            ctx.moveTo(0, h);
+            ctx.lineTo(w / 2, h - 50 - (alt / 20)); // Moves down visually as we "go up"
+            ctx.lineTo(w, h);
+            ctx.fillStyle = '#1e293b';
+            ctx.fill();
+
+            // Physics: h = P_atm / (rho * g)
+            // L_mercury = h / sin(theta)
+            // As theta decreases (angle from horizontal), sin(theta) decreases, L increases.
+            // Note: Our slider gives angle from Vertical (0 = vertical). 
+            // So angle from horiz = 90 - angle.
+            // But wait, standard measuring is often from horizontal. Let's assume slider is TILT angle from VERTICAL.
+
+            const tiltAngleRad = (angle * Math.PI) / 180;
+            const verticalHeight_m = getPressureAtAltitude(alt) / (RHO_HG * G); // Calculate based on altitude
+            const verticalHeight_cm = verticalHeight_m * 100; // Convert to cm
+
+            // L = h / cos(tiltAngle) because h is adjacent side if tilt is from vertical
+            const mercuryLength_cm = verticalHeight_cm / Math.cos(tiltAngleRad);
+
+            // Visual Limit (Tube Length)
+            const MAX_TUBE_HG_CM = 100; // 1 Meter tube (in cm)
+            const displayedLength_cm = Math.min(mercuryLength_cm, MAX_TUBE_HG_CM);
+
+            // If tube is too short, we have a problem (vacuum disappears)
+            const isFull = mercuryLength_cm > MAX_TUBE_HG_CM;
+
+            // Draw Scale
+            // Scale is defined later logic, but we need basin position
+            const basinY = h - 50;
+            const basinX = w / 2;
+
+            // 3. Mercury Basin (Realistic)
+            // Basin Gradient
+            const hgGrad = ctx.createLinearGradient(basinX - 60, basinY, basinX + 60, basinY);
+            hgGrad.addColorStop(0, '#94a3b8');
+            hgGrad.addColorStop(0.5, '#e2e8f0'); // Shine
+            hgGrad.addColorStop(1, '#94a3b8');
+
+            ctx.fillStyle = hgGrad;
+            ctx.beginPath();
+            ctx.roundRect(basinX - 70, basinY, 140, 40, 5);
+            ctx.fill();
+
+            // Glass container rim
+            ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+            ctx.lineWidth = 3;
+            ctx.strokeRect(basinX - 70, basinY, 140, 40);
+
+            // 4. Draw Tube
+            ctx.save();
+            ctx.translate(basinX, basinY + 15); // Pivot inside mercury
+            ctx.rotate(angleRad);
+
+            const tubeW = 24;
+            const maxTubePx = 380; // Visual length in pixels
+            // let's assume the tube is 100cm long physically.
+            MAX_TUBE_HG_CM = 100; // 1 Meter tube
+
+            // Scale: If maxTubePx (380) = 100cm, then scale = 3.8
+            // Let's adjust scale to fit 100cm into the drawing area
+            const scale = maxTubePx / MAX_TUBE_HG_CM; // 3.8 px/cm
+
+            // Calculate Required Length for Equilibrium
+            const req_len_cm = h_vertical_cm / Math.cos(angleRad);
+
+            // Actual Mercury Length (Capped at tube length)
+            let mercuryLen = req_len_cm;
+            if (mercuryLen > MAX_TUBE_HG_CM) {
+                mercuryLen = MAX_TUBE_HG_CM;
+            }
+
+            const mercuryPx = mercuryLen * scale;
+            const maxTubeL = MAX_TUBE_HG_CM * scale; // Should equal maxTubePx
+
+            // Glass Tube Background (Vacuum area)
+            ctx.fillStyle = 'rgba(255,255,255,0.05)';
+            ctx.fillRect(-tubeW / 2, -maxTubeL, tubeW, maxTubeL);
+
+            // Mercury Column (Metallic)
+            const colGrad = ctx.createLinearGradient(-tubeW / 2, 0, tubeW / 2, 0);
+            colGrad.addColorStop(0, '#64748b');
+            colGrad.addColorStop(0.3, '#cbd5e1'); // Highlight
+            colGrad.addColorStop(0.6, '#94a3b8');
+            colGrad.addColorStop(1, '#475569');
+
+            ctx.fillStyle = colGrad;
+            // Draw with Meniscus (Curve at top)
+            ctx.beginPath();
+            ctx.moveTo(-tubeW / 2, 0);
+            ctx.lineTo(-tubeW / 2, -mercuryPx + 5);
+            // Meniscus curve
+            ctx.bezierCurveTo(-tubeW / 2, -mercuryPx - 5, tubeW / 2, -mercuryPx - 5, tubeW / 2, -mercuryPx + 5);
+            ctx.lineTo(tubeW / 2, 0);
+            ctx.fill();
+
+            // Tube Borders (Glass)
+            ctx.strokeStyle = 'rgba(255,255,255,0.5)';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.rect(-tubeW / 2, -maxTubeL, tubeW, maxTubeL);
+            ctx.stroke();
+
+            // Vacuum Label
+            if (mercuryLen < MAX_TUBE_HG_CM - 1) { // If there is vacuum (tolerance 1cm)
+                ctx.save();
+                ctx.translate(0, -mercuryPx - 20); // Position above mercury
+                ctx.rotate(-angleRad); // Rotate text back to horizontal? No, keep it aligned with tube or horizontal.
+                // Let's keep it simple, just draw text at top of tube
+                ctx.restore();
+
+                ctx.fillStyle = 'rgba(255,255,255,0.7)';
+                ctx.font = 'bold 12px Cairo';
+                ctx.textAlign = 'center';
+                // Draw inside the vacuum space
+                const vacCenterY = -maxTubeL + (maxTubeL - mercuryPx) / 2;
+                ctx.fillText('فراغ', 0, vacCenterY);
+                ctx.fillText('تورشيللي', 0, vacCenterY + 12);
+            }
+
+            ctx.restore();
+
+            // 5. Measurements & Meniscus Highlight
+            // Actual vertical height might be less if tube is full!
+            const effectiveVerticalH = mercuryLen * Math.cos(angleRad);
+            const topY = (basinY + 15) - (effectiveVerticalH * scale);
+
+            // Dotted Green Line (Actual Level)
+            ctx.strokeStyle = '#22c55e';
+            ctx.setLineDash([4, 4]);
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(basinX - 120, topY);
+            ctx.lineTo(basinX + 120, topY);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // Reference Line (Atmospheric Pressure Height - theoretical)
+            // If tube is full, show ghost line where it SHOULD be? 
+            // Nah, just show current height.
+
+            // Height Arrow
+            ctx.beginPath();
+            ctx.moveTo(basinX + 100, basinY);
+            ctx.lineTo(basinX + 100, topY);
+            ctx.strokeStyle = '#fbbf24';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            // Arrowhead
+            ctx.beginPath();
+            ctx.moveTo(basinX + 95, topY + 10);
+            ctx.lineTo(basinX + 100, topY);
+            ctx.lineTo(basinX + 105, topY + 10);
+            ctx.stroke();
+
+            ctx.fillStyle = '#fbbf24';
+            ctx.font = 'bold 14px Mono';
+            ctx.fillText(`${effectiveVerticalH.toFixed(2)} cm`, basinX + 110, (basinY + topY) / 2);
+
+            // 6. Update Magnifier
+            if (isHovering) updateMagnifier(mouseX, mouseY);
+
+            // 7. Update DOM
+            document.getElementById('angleVal').innerText = angle + "°";
+            document.getElementById('paVal').innerText = currentP.toFixed(0);
+            document.getElementById('hCmVal').innerText = effectiveVerticalH.toFixed(2) + " cmHg";
+
+            // Warning if full
+            if (mercuryLen >= MAX_TUBE_HG_CM - 0.1) {
+                document.getElementById('hCmVal').innerHTML += " <span class='text-red-400 text-xs'>(الأنبوبة ممتلئة!)</span>";
+            }
+        }
+
+        function updateMagnifier(mx, my) {
+            // Clear Magnifier
+            magCtx.clearRect(0, 0, 120, 120);
+            magCtx.fillStyle = '#fff';
+            magCtx.fillRect(0, 0, 120, 120);
+
+            // Draw zoomed portion of main canvas
+            // Source X, Y, W, H -> Dest X, Y, W, H
+            // Zoom level 2x
+            const zoom = 2;
+            const sw = 120 / zoom;
+            const sh = 120 / zoom;
+            const sx = mx - sw / 2;
+            const sy = my - sh / 2;
+
+            magCtx.drawImage(canvas, sx, sy, sw, sh, 0, 0, 120, 120);
+
+            // Crosshair
+            magCtx.strokeStyle = 'rgba(255,0,0,0.5)';
+            magCtx.lineWidth = 1;
+            magCtx.beginPath();
+            magCtx.moveTo(60, 0); magCtx.lineTo(60, 120);
+            magCtx.moveTo(0, 60); magCtx.lineTo(120, 60);
+            magCtx.stroke();
+
+            // Position magnifier
+            magnifier.style.left = (mx + 20) + 'px';
+            magnifier.style.top = (my - 60) + 'px';
+        }
+
+        // Event Listeners for Magnifier
+        canvas.addEventListener('mousemove', e => {
+            const rect = canvas.getBoundingClientRect();
+            mouseX = e.clientX - rect.left;
+            mouseY = e.clientY - rect.top;
+            isHovering = true;
+            magnifier.classList.remove('hidden');
+            drawSim(); // Redraw to update mag
+        });
+        canvas.addEventListener('mouseleave', () => {
+            isHovering = false;
+            magnifier.classList.add('hidden');
+        });
+
+        altitudeSlider.addEventListener('input', drawSim);
+        angleSlider.addEventListener('input', drawSim);
+
+        // --- Conversion Tool ---
+        const convInput = document.getElementById('convInput');
+        const convFrom = document.getElementById('convFrom');
+        const convResult = document.getElementById('convResult');
+
+        function updateConv() {
+            const val = parseFloat(convInput.value);
+            const unit = convFrom.value;
+            let atmVal = 0;
+
+            if (unit === 'atm') atmVal = val;
+            else if (unit === 'cmHg') atmVal = val / 76;
+            else if (unit === 'pa') atmVal = val / 101325;
+            else if (unit === 'bar') atmVal = val / 1.013;
+            else if (unit === 'torr') atmVal = val / 760;
+
+            let res = `<span class="text-green-400">${(atmVal * 76).toFixed(1)} cmHg</span> | `;
+            res += `<span class="text-yellow-400">${(atmVal * 101325).toFixed(0)} Pa</span>`;
+            convResult.innerHTML = res;
+        }
+
+        convInput.addEventListener('input', updateConv);
+        convFrom.addEventListener('change', updateConv);
+
+        // --- Quiz ---
+        const questions = [
+            { q: "عند الصعود لقمة جبل، قراءة البارومتر...", opts: ["تزداد", "تقل", "تظل ثابتة", "تصبح صفر"], ans: 1, exp: "لأن عمود الهواء فوقنا بيقل وزنه، فالضغط بيقل." },
+            { q: "فراغ تورشيللي يختفي إذا...", opts: ["مالت الأنبوبة بزاوية كبيرة", "استخدمنا أنبوبة واسعة", "نزلنا لمنجم", "سخنا الزئبق"], ans: 0, exp: "لو ميلنا الأنبوبة، الزئبق هيملأ الفراغ لأن الطول الرأسي لسه مجبش 76 سم." },
+            { q: "لو استخدمنا الماء بدل الزئبق، طول الأنبوبة لازم يكون...", opts: ["1 متر", "76 سم", "10 متر", "لا يمكن استخدام الماء"], ans: 2, exp: "كثافة الماء قليلة جداً، فنحتاج ارتفاع 10 متر لتعادل الضغط الجوي." },
+            { q: "1 atm يعادل كام Torr؟", opts: ["76", "760", "1.013", "101300"], ans: 1, exp: "الـ Torr هو هو الـ mmHg. والـ atm فيه 760 mmHg." }
+        ];
+
+        function renderQuiz() {
+            const area = document.getElementById('quizArea');
+            area.innerHTML = questions.map((q, i) => `
+                <div class="bg-slate-800 p-4 rounded-xl border border-slate-700">
+                    <p class="font-bold mb-3 text-white">${i + 1}. ${q.q}</p>
+                    <div class="space-y-2">
+                        ${q.opts.map((o, j) => `
+                            <button onclick="checkAns(this, ${i}, ${j})" class="w-full text-right p-3 rounded bg-slate-700 hover:bg-slate-600 transition border border-transparent">${o}</button>
+                        `).join('')}
+                    </div>
+                    <div id="feed-${i}" class="hidden mt-3 text-sm p-3 rounded"></div>
+                </div>
+            `).join('');
+        }
+
+        function checkAns(btn, qIdx, optIdx) {
+            const q = questions[qIdx];
+            const feed = document.getElementById(`feed-${qIdx}`);
+            const parent = btn.parentElement;
+            Array.from(parent.children).forEach(b => b.disabled = true);
+
+            if (optIdx === q.ans) {
+                btn.classList.add('bg-green-600');
+                feed.className = "mt-3 text-sm p-3 rounded bg-green-900/50 text-green-200 block";
+                feed.innerHTML = "✅ <b>صح!</b> " + q.exp;
+            } else {
+                btn.classList.add('bg-red-600');
+                feed.className = "mt-3 text-sm p-3 rounded bg-red-900/50 text-red-200 block";
+                feed.innerHTML = "❌ <b>غلط.</b> الإجابة هي: " + q.opts[q.ans];
+            }
+        }
+
+        window.onload = function () {
+            initSim();
+            renderQuiz();
+            updateConv();
+        };
+        window.onresize = initSim;
+    </script>
+</body>
+
+</html>

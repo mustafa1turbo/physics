@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>قاعدة باسكال والمكبس الهيدروليكي | منصة الفيزياء</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <style>
+        * {
+            font-family: 'Cairo', sans-serif;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: white;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #3b82f6;
+            border-radius: 4px;
+        }
+
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+
+        .nav-sidebar {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            width: 260px;
+            height: calc(100vh - 100px);
+            overflow-y: auto;
+            z-index: 40;
+            transition: transform 0.3s ease;
+        }
+
+        @media (max-width: 1024px) {
+            .nav-sidebar {
+                transform: translateX(110%);
+                background: #1e293b;
+                right: 0;
+                top: 0;
+                height: 100vh;
+                width: 280px;
+                padding-top: 80px;
+            }
+
+            .nav-sidebar.active {
+                transform: translateX(0);
+            }
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            margin-bottom: 8px;
+            border-radius: 12px;
+            color: #94a3b8;
+            transition: all 0.2s;
+            cursor: pointer;
+            border-right: 3px solid transparent;
+            font-weight: 600;
+        }
+
+        .nav-item:hover,
+        .nav-item.active {
+            background: rgba(59, 130, 246, 0.1);
+            color: #fff;
+            border-right-color: #3b82f6;
+        }
+
+        .canvas-wrapper {
+            position: relative;
+            background: #1e293b;
+            /* Garage Floor Color */
+            border-radius: 16px;
+            border: 4px solid #475569;
+            box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+        }
+
+        .control-panel {
+            background: #1e293b;
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid #334155;
+        }
+
+        .range-slider {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            width: 100%;
+            height: 12px;
+            border-radius: 6px;
+            background: #475569;
+            outline: none;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .range-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #ef4444;
+            /* Red Button */
+            cursor: pointer;
+            border: 4px solid #b91c1c;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+            transition: transform 0.1s;
+        }
+
+        .range-slider::-webkit-slider-thumb:active {
+            transform: scale(0.9);
+        }
+
+        /* Pedagogical Badges */
+        .badge-understand {
+            background: linear-gradient(135deg, #4c1d95, #6d28d9);
+            color: #e9d5ff;
+            border: 1px solid #8b5cf6;
+            padding: 4px 12px;
+            border-radius: 99px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 4px 12px rgba(109, 40, 217, 0.3);
+            margin-bottom: 8px;
+        }
+
+        .badge-memo {
+            background: linear-gradient(135deg, #1e40af, #2563eb);
+            color: #dbeafe;
+            border: 1px solid #60a5fa;
+            padding: 4px 12px;
+            border-radius: 99px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+            margin-bottom: 8px;
+        }
+
+        .trick-box {
+            background: rgba(220, 38, 38, 0.1);
+            border-right: 4px solid #ef4444;
+            padding: 16px;
+            border-radius: 8px;
+            margin-top: 16px;
+            position: relative;
+        }
+
+        .trick-box h5 {
+            color: #f87171;
+            font-weight: bold;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+    </style>
+</head>
+
+<body class="pb-20">
+
+    <!-- Mobile Nav Toggle -->
+    <button onclick="toggleNav()"
+        class="fixed top-4 left-4 z-50 lg:hidden bg-slate-800 p-3 rounded-xl border border-slate-700 shadow-lg text-white">
+        ☰ الفهرس
+    </button>
+
+    <!-- Header -->
+    <header
+        class="fixed top-0 w-full z-30 bg-slate-900/95 backdrop-blur border-b border-slate-800 h-16 flex items-center px-6 justify-between shadow-lg">
+        <div class="flex items-center gap-4">
+            <a href="index.html" class="flex items-center gap-2 text-slate-400 hover:text-white transition">
+                <span>⬅️</span> <span class="hidden md:inline font-bold">الرئيسية</span>
+            </a>
+            <div class="h-6 w-[1px] bg-slate-700 mx-2"></div>
+            <h1 class="font-bold text-lg md:text-xl text-white">قاعدة باسكال والمكبس الهيدروليكي 🚜</h1>
+        </div>
+        <div class="text-sm font-mono text-blue-400 bg-blue-900/20 px-3 py-1 rounded border border-blue-500/30">
+            الصف الثاني الثانوي
+        </div>
+    </header>
+
+    <!-- Sidebar -->
+    <nav class="nav-sidebar glass-panel" id="sidebar">
+        <div class="p-4 border-b border-slate-700 mb-2">
+            <h3 class="font-bold text-white">محتويات الدرس</h3>
+        </div>
+        <div onclick="scrollToSection('intro')" class="nav-item active">💡 قاعدة باسكال</div>
+        <div onclick="scrollToSection('press')" class="nav-item">🏋️ المكبس الهيدروليكي</div>
+        <div onclick="scrollToSection('simulation')" class="nav-item">🎮 ورشة الميكانيكا</div>
+        <div onclick="scrollToSection('advanced')" class="nav-item">🚀 الفائدة الآلية (هام)</div>
+        <div onclick="scrollToSection('quiz')" class="nav-item">📝 اختبر نفسك</div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="lg:mr-[280px] pt-24 px-4 md:px-8 max-w-5xl mx-auto">
+
+        <!-- Intro -->
+        <section id="intro" class="mb-16 scroll-mt-24">
+            <div class="glass-panel p-8 text-center relative overflow-hidden">
+                <div class="absolute -top-10 -left-10 w-40 h-40 bg-red-500/10 rounded-full blur-3xl"></div>
+                <h2 class="text-4xl font-black mb-6">قاعدة باسكال (Pascal's Principle)</h2>
+
+                <div class="bg-slate-800 p-6 rounded-2xl border-r-4 border-red-500 text-right max-w-3xl mx-auto">
+                    <p class="text-xl leading-relaxed text-slate-200">
+                        "عند التأثير بضغط على سائل محبوس في إناء، فإن الضغط ينتقل <span
+                            class="text-yellow-400 font-bold">بتمامه</span> إلى جميع أجزاء السائل وجدران الإناء."
+                    </p>
+                    <div class="mt-4 flex justify-center">
+                        <span class="badge-understand">🧠 فهم عميق: (الضغط ينتقل بتمامه)</span>
+                    </div>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-4 mt-8">
+                    <div class="bg-blue-900/20 p-4 rounded-xl border border-blue-500/30">
+                        <h4 class="font-bold text-blue-300 mb-2">✅ ينطبق على السوائل</h4>
+                        <p class="text-sm">لأنها غير قابلة للانضغاط.</p>
+                    </div>
+                    <div class="bg-red-900/20 p-4 rounded-xl border border-red-500/30">
+                        <h4 class="font-bold text-red-300 mb-2">❌ لا ينطبق على الغازات</h4>
+                        <p class="text-sm">لأنها تنضغط وتستهلك جزء من الشغل.</p>
+                    </div>
+                </div>
+
+                <!-- NEW: Student Dialogue -->
+                <div class="mt-8 max-w-2xl mx-auto text-right">
+                    <h4 class="text-lg font-bold text-purple-300 mb-4 text-center">🤔 سؤال الطالب الشاطر</h4>
+                    <div class="student-row chat-row">
+                        <div class="chat-avatar">🧑‍🎓</div>
+                        <div class="chat-bubble">
+                            <p class="text-sm">يا مستر، طب ليه الضغط "بينتقل بتمامه"؟ مش المفروض السائل ياكل حاجة من
+                                الضغط؟ 🤔</p>
+                        </div>
+                    </div>
+                    <div class="teacher-row chat-row">
+                        <div class="chat-avatar">👨‍🏫</div>
+                        <div class="chat-bubble">
+                            <p class="text-sm">سؤال عبقري! 🧠 السائل <strong class="text-yellow-400">"مش
+                                    بينضغط"</strong>. تخيل إنك بتضغط على كرة حديد جامدة، القوة هتتنقل زي ما هي للناحية
+                                التانية!</p>
+                            <p class="text-xs text-purple-300 mt-1">لكن الغاز بينضغط، فبيمتص جزء من الضغط. عشان كده
+                                فرامل السيارة الهيدروليكية بتستخدم زيت مش هواء!</p>
+                        </div>
+                    </div>
+                    <div class="student-row chat-row">
+                        <div class="chat-avatar">🧑‍🎓</div>
+                        <div class="chat-bubble">
+                            <p class="text-sm">ذكي! 🤯 طب إيه الفايدة من الكلام ده عملياً؟</p>
+                        </div>
+                    </div>
+                    <div class="teacher-row chat-row">
+                        <div class="chat-avatar">👨‍🏫</div>
+                        <div class="chat-bubble">
+                            <p class="text-sm">الفايدة؟ تقدر ترفع عربية وزنها طن بإيدك الصغيرة! 🤯 باسكال عرفنا نعمل
+                                <strong class="text-green-400">المكبس الهيدروليكي</strong>، اللي بيكبر القوة.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Confused Student (Funny) -->
+                <div class="mt-6 p-4 bg-red-900/20 rounded-xl border border-red-500/30">
+                    <div class="student-row chat-row">
+                        <div class="chat-avatar">😵</div>
+                        <div class="chat-bubble">
+                            <p class="text-sm">يا مستر يعني لو ضغطت بـ 100 نيوتن، العربية هتطلع بـ 100 نيوتن برضو! 💪
+                            </p>
+                        </div>
+                    </div>
+                    <div class="teacher-row chat-row">
+                        <div class="chat-avatar">👨‍🏫</div>
+                        <div class="chat-bubble">
+                            <p class="text-sm">لا يا بطل! 😅 لو المكبس الكبير أكبر 50 مرة، هتطلع <strong
+                                    class="text-yellow-400">5000 نيوتن!</strong></p>
+                        </div>
+                    </div>
+                    <div class="student-row chat-row">
+                        <div class="chat-avatar">😵</div>
+                        <div class="chat-bubble">
+                            <p class="text-sm">واااو! يعني كسبنا طاقة من الفاضي! 🎉</p>
+                        </div>
+                    </div>
+                    <div class="teacher-row chat-row">
+                        <div class="chat-avatar">👨‍🏫</div>
+                        <div class="chat-bubble">
+                            <p class="text-sm">لا لا لا! 😂 كسبنا قوة بس خسرنا مسافة! الشغل = الشغل (قانون بقاء الطاقة)!
+                            </p>
+                            <p class="text-xs text-purple-300 mt-1">يعني لازم تحرك دراعك 50 سم عشان العربية تطلع 1 سم.
+                                📏</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Hydraulic Press Theory -->
+        <section id="press" class="mb-16 scroll-mt-24">
+            <h2 class="text-3xl font-bold mb-6 border-r-4 border-yellow-500 pr-4">🏋️ المكبس الهيدروليكي</h2>
+
+            <div class="glass-panel p-6">
+                <div class="flex flex-col md:flex-row items-center gap-8">
+                    <div class="flex-1">
+                        <h3 class="text-2xl font-bold text-white mb-4">فكرة العمل (تكبير القوة)</h3>
+                        <p class="text-slate-300 mb-4 leading-relaxed">
+                            زي "العتلة" بالظبط! بتأثر بقوة صغيرة ($F_1$) على مكبس صغير ($A_1$)، فالضغط ينتقل للمكبس
+                            الكبير ($A_2$) ويتحول لقوة جبارة ($F_2$) تقدر ترفع عربية!
+                        </p>
+                        <div
+                            class="bg-slate-900 p-4 rounded-xl border border-slate-700 font-mono text-center text-xl dir-ltr">
+                            P = F₁/A₁ = F₂/A₂
+                        </div>
+                    </div>
+                    <div class="w-full md:w-1/3 bg-white/5 p-4 rounded-xl text-center">
+                        <div class="text-4xl mb-2">🐜 ➡️ 🐘</div>
+                        <p class="text-sm text-slate-400">نملة ترفع فيل!</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Simulation (The Muscle) -->
+        <section id="simulation" class="mb-16 scroll-mt-24">
+            <h2 class="text-3xl font-bold mb-6 border-r-4 border-red-500 pr-4">🎮 ورشة الميكانيكا (ارفع العربية)</h2>
+
+            <div class="glass-panel p-4 md:p-6 border border-red-500/30">
+                <div class="grid lg:grid-cols-12 gap-8">
+
+                    <!-- Sim Canvas -->
+                    <div class="lg:col-span-8">
+                        <div class="canvas-wrapper h-[500px] relative">
+                            <canvas id="pressCanvas"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Controls -->
+                    <div class="lg:col-span-4 space-y-6">
+                        <div class="control-panel">
+                            <h4 class="font-bold text-white mb-4">لوحة التحكم:</h4>
+
+                            <div class="mb-6">
+                                <label class="block text-sm font-bold text-slate-400 mb-2">اضغط على المكبس الصغير
+                                    (F1)</label>
+                                <input type="range" id="forceSlider" min="0" max="100" step="1" value="0"
+                                    class="range-slider">
+                                <div class="flex justify-between text-xs mt-2 font-mono">
+                                    <span class="text-slate-400">بدون قوة</span>
+                                    <span class="text-red-400 font-bold">Max Force</span>
+                                </div>
+                            </div>
+
+                            <div class="bg-black/40 p-4 rounded-xl border border-slate-600 space-y-3">
+                                <h5 class="text-xs text-slate-500 font-bold mb-2">العدادات:</h5>
+                                <div class="flex justify-between items-center border-b border-slate-700 pb-2">
+                                    <span class="text-xs text-slate-300">القوة الناتجة (F2)</span>
+                                    <span class="text-lg font-mono text-green-400 dir-ltr" id="f2Val">0 N</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-xs text-slate-300">الفائدة الآلية (η)</span>
+                                    <span class="text-lg font-mono text-yellow-400 dir-ltr">10x</span>
+                                </div>
+                            </div>
+
+                            <div class="trick-box">
+                                <h5>⚡ إوعى تتلخبط!</h5>
+                                <p class="text-xs text-slate-300">
+                                    القوة بتزيد؟ <strong class="text-green-400">آه</strong>.<br>
+                                    الشغل (الطاقة) بيزيد؟ <strong class="text-red-400">لأ، مستحيل!</strong> (قانون بقاء
+                                    الطاقة).<br>
+                                    الشغل المبذول = الشغل الناتج.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+        </section>
+
+        <!-- Advanced Tricks (Mechanical Advantage) -->
+        <section id="advanced" class="mb-16 scroll-mt-24">
+            <h2 class="text-3xl font-bold mb-6 border-r-4 border-green-500 pr-4">🚀 الفائدة الآلية (Mechanical
+                Advantage)</h2>
+
+            <div class="glass-panel p-6 mb-8 relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-2 h-full bg-green-500"></div>
+
+                <h3 class="text-xl font-bold text-white mb-4">قوانين الفائدة الآلية ($\eta$)</h3>
+                <span class="badge-memo">🦜 بصمجة القوانين</span>
+                <p class="text-slate-300 mb-4">هي النسبة اللي بنكبر بيها القوة. دايماً أكبر من الواحد الصحيح.</p>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-center font-mono dir-ltr text-lg">
+                    <div class="bg-slate-800 p-3 rounded-lg border border-slate-600 text-green-400">
+                        η = F₂ / F₁
+                    </div>
+                    <div class="bg-slate-800 p-3 rounded-lg border border-slate-600 text-blue-400">
+                        η = A₂ / A₁
+                    </div>
+                    <div class="bg-slate-800 p-3 rounded-lg border border-slate-600 text-yellow-400">
+                        η = R₂² / R₁²
+                    </div>
+                    <div class="bg-slate-800 p-3 rounded-lg border border-slate-600 text-red-400">
+                        η = y₁ / y₂
+                    </div>
+                </div>
+            </div>
+
+            <!-- Warning Box -->
+            <div class="bg-red-900/20 p-6 rounded-2xl border border-red-500/50">
+                <h4 class="text-red-400 font-bold mb-2 flex items-center gap-2">
+                    <span>⚡</span> تحذير هام: قانون بقاء الطاقة
+                </h4>
+                <p class="text-slate-300 text-sm leading-loose">
+                    المكبس مش بيخلق طاقة من العدم! 🚫<br>
+                    الشغل المبذول عند المكبس الصغير = الشغل الناتج عند المكبس الكبير (في المكبس المثالي).<br>
+                    <span class="font-mono text-white bg-black/30 px-2 rounded">Work₁ = Work₂</span><br>
+                    يعني إحنا بنكسب قوة، بس بنخسر مسافة. (لازم تحرك دراعك كتير عشان العربية تطلع حتة صغيرة).
+                </p>
+            </div>
+        </section>
+
+        <!-- Quiz -->
+        <section id="quiz" class="mb-16 scroll-mt-24">
+            <div class="glass-panel p-8">
+                <h2 class="text-2xl font-bold mb-6 text-center">🧠 اختبر فهمك</h2>
+                <div id="quizArea" class="space-y-4 max-w-2xl mx-auto">
+                    <!-- Loaded by JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="text-center py-8 border-t border-slate-700 text-slate-500">
+            <p>© منصة الفيزياء 2024</p>
+            <a href="index.html"
+                class="inline-block mt-4 px-6 py-2 bg-slate-800 rounded-full hover:bg-slate-700 transition">العودة
+                للرئيسية</a>
+        </footer>
+
+    </main>
+
+    <script>
+        // --- Navigation ---
+        function toggleNav() { document.getElementById('sidebar').classList.toggle('active'); }
+        function scrollToSection(id) { document.getElementById(id).scrollIntoView({ behavior: 'smooth' }); }
+
+        // --- Hydraulic Press Simulation ---
+        const canvas = document.getElementById('pressCanvas');
+        const ctx = canvas.getContext('2d');
+        const slider = document.getElementById('forceSlider');
+
+        // Physics Consts
+        const AREA_RATIO = 10; // A2 = 10 * A1
+
+        // State
+        let inputForce = 0; // 0-100%
+        let currentPiston1Y = 0;
+        let currentPiston2Y = 0;
+        let carY = 0;
+
+        function initSim() {
+            const container = canvas.parentElement;
+            canvas.width = container.clientWidth;
+            canvas.height = container.clientHeight;
+            canvas.height = container.clientHeight;
+            // Init car position to resting state
+            const pipeY = canvas.height - 100;
+            carBodyY = (pipeY - 50) - 5;
+            drawSim();
+        }
+
+        function drawSim() {
+            const w = canvas.width;
+            const h = canvas.height;
+            ctx.clearRect(0, 0, w, h);
+
+            // Layout
+            const groundY = h - 50;
+            const pipeY = h - 100;
+            const p1X = w * 0.2; // Small piston
+            const p2X = w * 0.7; // Large piston
+            const p1W = 40;
+            const p2W = 120; // 3x width ~ 9x area visually
+
+            // Physics movement
+            // Input range 0-100 represents max stroke distance for P1
+            const maxStroke1 = 150;
+            const stroke1 = (inputForce / 100) * maxStroke1;
+
+            // Stroke 2 is inversely proportional to Area
+            const stroke2 = stroke1 / AREA_RATIO;
+
+            // Current positions (Base levels)
+            const p1Base = pipeY - 50;
+            const p2Base = pipeY - 50;
+
+            const p1Y = p1Base + stroke1; // Goes DOWN
+            const p2Y = p2Base - stroke2; // Goes UP
+
+            // 1. Draw Hydraulic Fluid (Oil)
+            ctx.fillStyle = '#b45309'; // Dark Oil
+            ctx.beginPath();
+            // Left cylinder
+            ctx.fillRect(p1X - p1W / 2, p1Y, p1W, (pipeY - p1Y) + 20);
+            // Right cylinder
+            ctx.fillRect(p2X - p2W / 2, pipeY - 20, p2W, (p2Y - (pipeY - 20)) + 200); // Fill below piston
+            // Connecting Pipe
+            ctx.fillRect(p1X, pipeY, p2X - p1X, 20);
+
+            // 2. Draw Cylinders (Walls)
+            ctx.strokeStyle = '#94a3b8';
+            ctx.lineWidth = 6;
+            ctx.lineCap = 'round';
+            ctx.beginPath();
+
+            // Left Cylinder
+            ctx.moveTo(p1X - p1W / 2, p1Base - maxStroke1); // Top
+            ctx.lineTo(p1X - p1W / 2, pipeY);
+            ctx.lineTo(p1X + p1W / 2, pipeY);
+            ctx.lineTo(p1X + p1W / 2, p1Base - maxStroke1);
+
+            // Right Cylinder
+            ctx.moveTo(p2X - p2W / 2, p2Base - 100); // Top
+            ctx.lineTo(p2X - p2W / 2, pipeY);
+            ctx.lineTo(p2X + p2W / 2, pipeY);
+            ctx.lineTo(p2X + p2W / 2, p2Base - 100);
+
+            // Pipe
+            ctx.stroke();
+
+            // 3. Draw Pistons
+            // Piston 1
+            ctx.fillStyle = '#cbd5e1';
+            ctx.fillRect(p1X - p1W / 2 + 2, p1Y - 10, p1W - 4, 10);
+            // Rod 1
+            ctx.fillStyle = '#64748b';
+            ctx.fillRect(p1X - 5, p1Y - 100, 10, 90);
+            // Handle (User pushes here)
+            ctx.fillStyle = '#ef4444';
+            ctx.beginPath();
+            ctx.roundRect(p1X - 20, p1Y - 110, 40, 10, 5);
+            ctx.fill();
+
+            // Piston 2
+            ctx.fillStyle = '#cbd5e1';
+            ctx.fillRect(p2X - p2W / 2 + 2, p2Y, p2W - 4, 15);
+            // Rod 2
+            ctx.fillStyle = '#64748b';
+            ctx.fillRect(p2X - 10, p2Y - 10, 20, 10); // Short connector
+
+            // 4. Draw Car (The Load)
+            // 4. Draw Car (The Load) with Suspension
+            drawCar(ctx, p2X, carBodyY);
+
+            // 5. Arrows
+            if (inputForce > 0) {
+                // Down Arrow (F1)
+                drawArrow(ctx, p1X, p1Y - 130, p1X, p1Y - 110, '#ef4444', `F1`);
+                // Up Arrow (F2)
+                drawArrow(ctx, p2X + 80, p2Y + 50, p2X + 80, p2Y, '#22c55e', `F2 = 10×F1`);
+            }
+
+            // DOM Updates
+            // Assume Max Input Force = 100N
+            const f1 = inputForce;
+            const f2 = f1 * AREA_RATIO;
+            document.getElementById('f2Val').innerText = f2 + " N";
+        }
+
+        function drawCar(ctx, x, y) {
+            const w = 140;
+            const h = 60;
+            const bottom = y;
+
+            ctx.save();
+            ctx.translate(x, bottom);
+
+            // Wheels
+            ctx.fillStyle = '#1e293b';
+            ctx.beginPath();
+            ctx.arc(-40, -10, 15, 0, Math.PI * 2);
+            ctx.arc(40, -10, 15, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Body
+            ctx.fillStyle = '#3b82f6'; // Blue Car
+            ctx.beginPath();
+            ctx.moveTo(-70, -10);
+            ctx.lineTo(70, -10);
+            ctx.lineTo(70, -30);
+            ctx.lineTo(40, -60); // Roof
+            ctx.lineTo(-40, -60);
+            ctx.lineTo(-70, -30);
+            ctx.closePath();
+            ctx.fill();
+
+            // Windows
+            ctx.fillStyle = '#bfdbfe';
+            ctx.beginPath();
+            ctx.moveTo(-35, -55);
+            ctx.lineTo(35, -55);
+            ctx.lineTo(55, -35);
+            ctx.lineTo(-55, -35);
+            ctx.closePath();
+            ctx.fill();
+
+            ctx.restore();
+        }
+
+        function drawArrow(ctx, x1, y1, x2, y2, color, text) {
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 3;
+            ctx.stroke();
+
+            // Text
+            ctx.fillStyle = color;
+            ctx.font = 'bold 12px Mono';
+            ctx.fillText(text, x1 + 10, (y1 + y2) / 2);
+        }
+
+        // UPGRADE: Suspension Physics Logic
+        let carBodyY = 0;
+        let carVel = 0;
+        let isSimRunning = false;
+
+        function updatePhysics() {
+            // 1. Calculate Piston Target Y
+            const maxStroke1 = 150;
+            const pipeY = canvas.height - 100;
+            const p2Base = pipeY - 50;
+
+            const stroke1 = (inputForce / 100) * maxStroke1;
+            const stroke2 = stroke1 / AREA_RATIO;
+            const pistonTopY = p2Base - stroke2; // Where the piston head is
+
+            // 2. Spring Physics for Car Body
+            // Target: Rest on top of piston (e.g., -5px offset)
+            const targetY = pistonTopY - 5;
+
+            if (Math.abs(targetY - carBodyY) < 0.1 && Math.abs(carVel) < 0.1 && inputForce == lastForce) {
+                // Settle
+                carBodyY = targetY;
+                drawSim();
+                isSimRunning = false; // Stop loop to save battery
+                return;
+            }
+
+            const k = 0.1;
+            const damp = 0.85; // Bouncy but settles
+
+            const diff = targetY - carBodyY;
+            carVel += diff * k;
+            carVel *= damp;
+            carBodyY += carVel;
+
+            drawSim();
+
+            if (isSimRunning) requestAnimationFrame(updatePhysics);
+        }
+
+        // Track input changes to wake up physics
+        let lastForce = -1;
+
+        slider.addEventListener('input', (e) => {
+            inputForce = parseInt(e.target.value);
+
+            if (!isSimRunning) {
+                isSimRunning = true;
+                updatePhysics();
+            }
+            lastForce = inputForce;
+        });
+
+        // --- Quiz ---
+        const questions = [
+            { q: "قاعدة باسكال تنطبق فقط على...", opts: ["السوائل", "الغازات", "الجوامد", "الفراغ"], ans: 0, exp: "لأن السوائل غير قابلة للانضغاط، فالضغط بينتقل بتمامه." },
+            { q: "في المكبس الهيدروليكي، الفائدة الآلية (η) دائماً...", opts: ["أقل من 1", "تساوي 1", "أكبر من 1", "صفر"], ans: 2, exp: "لأن مساحة المكبس الكبير أكبر من الصغير، فهدف الآلة هو تكبير القوة." },
+            { q: "الشغل المبذول عند المكبس الصغير ....... الشغل الناتج عند الكبير (في المكبس المثالي).", opts: ["أكبر من", "يساوي", "أقل من", "ضعف"], ans: 1, exp: "الطاقة لا تفنى. إحنا بنكسب قوة بس بنخسر مسافة، فحاصل الضرب (الشغل) ثابت." },
+            { q: "إذا كانت مساحة المكبس الكبير ضعف الصغير، فإن القوة الناتجة تكون...", opts: ["الضعف", "النصف", "4 أمثال", "الربع"], ans: 0, exp: "القوة تتناسب طردياً مع المساحة ($F_2 = F_1 \times \eta$)." }
+        ];
+
+        function renderQuiz() {
+            const area = document.getElementById('quizArea');
+            area.innerHTML = questions.map((q, i) => `
+                <div class="bg-slate-800 p-4 rounded-xl border border-slate-700">
+                    <p class="font-bold mb-3 text-white">${i + 1}. ${q.q}</p>
+                    <div class="space-y-2">
+                        ${q.opts.map((o, j) => `
+                            <button onclick="checkAns(this, ${i}, ${j})" class="w-full text-right p-3 rounded bg-slate-700 hover:bg-slate-600 transition border border-transparent">${o}</button>
+                        `).join('')}
+                    </div>
+                    <div id="feed-${i}" class="hidden mt-3 text-sm p-3 rounded"></div>
+                </div>
+            `).join('');
+        }
+
+        function checkAns(btn, qIdx, optIdx) {
+            const q = questions[qIdx];
+            const feed = document.getElementById(`feed-${qIdx}`);
+            const parent = btn.parentElement;
+            Array.from(parent.children).forEach(b => b.disabled = true);
+
+            if (optIdx === q.ans) {
+                btn.classList.add('bg-green-600');
+                feed.className = "mt-3 text-sm p-3 rounded bg-green-900/50 text-green-200 block";
+                feed.innerHTML = "✅ <b>صح!</b> " + q.exp;
+            } else {
+                btn.classList.add('bg-red-600');
+                feed.className = "mt-3 text-sm p-3 rounded bg-red-900/50 text-red-200 block";
+                feed.innerHTML = "❌ <b>غلط.</b> الإجابة هي: " + q.opts[q.ans];
+            }
+        }
+
+        window.onload = function () {
+            initSim();
+            renderQuiz();
+        };
+        window.onresize = initSim;
+    </script>
+</body>
+
+</html>
