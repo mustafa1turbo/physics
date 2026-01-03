@@ -8,6 +8,13 @@
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800;900&display=swap"
         rel="stylesheet">
+    <script>
+        window.MathJax = {
+            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] },
+            svg: { fontCache: 'global' }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <style>
         * {
             font-family: 'Cairo', sans-serif;
@@ -1050,9 +1057,20 @@
     </div>
 
     <script>
-        const OPENROUTER_API_KEY = 'sk-or-v1-' + 'beac3d30dcdb22761e6bb4f342edf6079' + '2f9649bdaedd66620871dd9d72e7fa2';
-        const SYSTEM_PROMPT = `أنت "دالتون 🧪"، المساعد الذكي لمادة الفيزياء في "منصة مصطفى هاني حجاج". 
-        اشرح ببساطة وبالمصري. ركز على تطبيقات الضغط وخصائص السوائل. أجب بأسلوب مشجع واستخدم "يا دكتور". استخدم MathJax لو متاح للتنسيق.`;
+        // 🛡️ Security: API Key is now handled by Cloudflare Worker
+        // 🛡️ Security: API Key is now handled by Cloudflare Worker
+        const OPENROUTER_API_URL = 'https://long-union-760genius-proxy.moustafahanyhagagg.workers.dev';
+        const SYSTEM_PROMPT = `أنت "دالتون 🧪"، المساعد الذكي لمادة الفيزياء.
+        مكان تواجدك: درس "البارومتر والضغط الجوي".
+        
+        🛑 تعليمات صارمة:
+        1. **الترحيب فقط:** "أهلاً يا دكتور! جاهز نقيس الضغط الجوي؟ 🌡️". **بدون شرح**.
+        2. **⚠️ الامتحان:** تحويل الوحدات، حساب ارتفاع مبنى، الأنبوبة المايلة.
+        3. **📝 المعادلات زي الكشكول:**
+           ❌ ممنوع: rho_air * h_bldg = rho_Hg * delta_h
+           ✅ صح: $\\rho_{air} \\times h_{bldg} = \\rho_{Hg} \\times \\Delta h$
+           - الوحدات: $1 \\text{ atm} = 76 \\text{ cmHg} = 1.013 \\times 10^5 \\text{ Pa}$
+        4. **أسلوب:** مصري، "يا بطل"، خطوات واضحة.`;
 
         let aiHistory = [];
         const CHAT_STORAGE_KEY = 'chat_history_phys_f2';
@@ -1072,21 +1090,63 @@
                 </div>`;
         }
 
-        function typeText(element, text) {
-            let i = 0;
-            element.innerHTML = '';
-            const fmt = text.replace(/\*\*(.*?)\*\*/g, '<b class="text-yellow-400">$1</b>').replace(/\n/g, '<br>');
-            const interval = setInterval(() => {
-                if (i < fmt.length) {
-                    element.innerHTML += fmt.charAt(i);
-                    i++;
-                    const box = document.getElementById('aiChatBox');
-                    if (box) box.scrollTop = box.scrollHeight;
-                } else {
-                    clearInterval(interval);
-                    if (window.MathJax) MathJax.typeset();
+        async function streamAIResponse(userMessage, targetElement) {
+            aiHistory.push({ role: "user", content: userMessage });
+            localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(aiHistory));
+            let fullResponse = '';
+
+            try {
+                const response = await fetch(OPENROUTER_API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Title': 'Physics Lesson Fluids 2',
+                        'X-Subject': 'physics'
+                    },
+                    body: JSON.stringify({
+                        model: 'deepseek/deepseek-r1',
+                        messages: [{ role: "system", content: SYSTEM_PROMPT }, ...aiHistory]
+                    })
+                });
+
+                if (!response.ok) throw new Error(`Server Error (${response.status})`);
+
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let buffer = '';
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+
+                    buffer += decoder.decode(value, { stream: true });
+                    const lines = buffer.split('\n');
+                    buffer = lines.pop();
+
+                    for (const line of lines) {
+                        const cleanLine = line.trim();
+                        if (!cleanLine || !cleanLine.startsWith('data: ')) continue;
+                        const jsonStr = cleanLine.replace('data: ', '').trim();
+                        if (jsonStr === '[DONE]') continue;
+                        try {
+                            const parsed = JSON.parse(jsonStr);
+                            const content = parsed.choices?.[0]?.delta?.content || '';
+                            if (content) {
+                                fullResponse += content;
+                                targetElement.innerHTML = fullResponse.replace(/\n/g, '<br>');
+                                targetElement.closest('.overflow-y-auto')?.scrollTo(0, targetElement.closest('.overflow-y-auto').scrollHeight);
+                            }
+                        } catch (e) { }
+                    }
                 }
-            }, 10);
+
+                aiHistory.push({ role: "assistant", content: fullResponse });
+                localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(aiHistory));
+                // 🧮 Render MathJax
+                if (window.MathJax) MathJax.typesetPromise([targetElement]);
+            } catch (error) {
+                targetElement.innerHTML += `<br><span class="text-red-400">❌ ${error.message}</span>`;
+            }
         }
 
         async function sendAI() {
@@ -1097,58 +1157,17 @@
             const box = document.getElementById('aiChatBox');
             box.innerHTML += `<div class="flex gap-3 flex-row-reverse mb-4 animate-fade-in"><div class="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center shrink-0">👤</div><div class="bg-indigo-600 text-white p-3 rounded-2xl rounded-tl-sm text-sm">${txt}</div></div>`;
             inp.value = '';
-            box.scrollTop = box.scrollHeight;
 
-            const loadingId = 'load-' + Date.now();
-            box.innerHTML += `<div id="${loadingId}" class="flex gap-3 mb-4 animate-fade-in">
+            const resId = 'res-' + Date.now();
+            box.innerHTML += `<div class="flex gap-3 mb-4 animate-fade-in">
                 <div class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center shrink-0">🧪</div>
-                <div class="bg-slate-800 p-3 rounded-2xl flex gap-1 items-center border border-slate-700">
-                    <div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>
-                </div>
+                <div class="bg-slate-800 text-slate-200 p-3 rounded-2xl rounded-tr-sm text-sm border border-slate-700 leading-relaxed" id="${resId}">⏳</div>
             </div>`;
             box.scrollTop = box.scrollHeight;
 
-            aiHistory.push({ role: "user", content: txt });
-            localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(aiHistory));
-
-            try {
-                const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
-                        'Content-Type': 'application/json',
-                        'HTTP-Referer': window.location.href,
-                        'X-Title': 'Physics Lesson'
-                    },
-                    body: JSON.stringify({ model: 'deepseek/deepseek-r1', messages: [{ role: "system", content: SYSTEM_PROMPT }, ...aiHistory] })
-                });
-
-                if (!res.ok) {
-                    const errText = await res.text();
-                    throw new Error(`Server Error (${res.status}): ${errText}`);
-                }
-                const data = await res.json();
-                if (data.error) throw new Error(data.error.message);
-
-                const reply = data.choices?.[0]?.message?.content || "عذراً يا دكتور، حصل خطأ. حاول من جديد.";
-                document.getElementById(loadingId).remove();
-
-                const resId = 'r-' + Date.now();
-                box.innerHTML += `<div class="flex gap-3 mb-4 animate-fade-in">
-                    <div class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center shrink-0">🧪</div>
-                    <div class="bg-slate-800 text-slate-200 p-3 rounded-2xl rounded-tr-sm text-sm border border-slate-700 leading-relaxed" id="${resId}"></div>
-                </div>`;
-
-                aiHistory.push({ role: "assistant", content: reply });
-                localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(aiHistory));
-                typeText(document.getElementById(resId), reply);
-
-            } catch (e) {
-                console.error(e);
-                const errorMsg = e.message.includes('fetch') ? 'مشكلة في الانترنت' : e.message;
-                const loadEl = document.getElementById(loadingId);
-                if (loadEl) loadEl.innerHTML = `<div class="text-red-400 text-xs p-2 bg-red-900/20 rounded">❌ خطأ: ${errorMsg}</div>`;
-            }
+            const targetElement = document.getElementById(resId);
+            targetElement.innerHTML = '';
+            await streamAIResponse(txt, targetElement);
         }
 
         document.addEventListener('DOMContentLoaded', () => {
