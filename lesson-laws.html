@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ملخص قوانين الفيزياء | بنك القوانين</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <style>
+        * {
+            font-family: 'Cairo', sans-serif;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #312e81 100%);
+            color: white;
+            min-height: 100vh;
+        }
+
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+        }
+
+        .formula-card {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            border-radius: 16px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .formula-card:hover {
+            border-color: rgba(99, 102, 241, 0.5);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px -10px rgba(99, 102, 241, 0.3);
+        }
+
+        .symbol-key {
+            font-size: 0.9rem;
+            color: #94a3b8;
+            margin-top: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 0.5rem;
+        }
+
+        .symbol-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .symbol {
+            font-family: 'Times New Roman', serif;
+            font-style: italic;
+            color: #fbbf24;
+            font-weight: bold;
+            width: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body class="pb-20">
+
+    <!-- Navigation -->
+    <a href="index.html"
+        class="fixed top-4 left-4 z-50 bg-slate-800/80 backdrop-blur text-white px-4 py-2 rounded-full border border-white/10 hover:bg-slate-700 transition flex items-center gap-2 shadow-lg">
+        <span>🏠</span> <span class="hidden md:inline text-sm font-bold">الرئيسية</span>
+    </a>
+
+    <!-- Header -->
+    <header
+        class="fixed top-0 w-full z-30 bg-slate-900/95 backdrop-blur border-b border-slate-800 h-16 flex items-center px-6 justify-between shadow-lg">
+        <div class="flex items-center gap-2">
+            <span class="text-2xl">⚖️</span>
+            <h1 class="font-bold text-lg md:text-xl text-white">بنك قوانين الفيزياء</h1>
+        </div>
+        <div class="text-sm font-mono text-indigo-400 bg-indigo-900/20 px-3 py-1 rounded border border-indigo-500/30">
+            الصف الثاني الثانوي
+        </div>
+    </header>
+
+    <main class="pt-24 px-4 md:px-8 max-w-6xl mx-auto">
+
+        <!-- Intro -->
+        <section class="mb-12 text-center">
+            <h2
+                class="text-4xl font-black mb-4 bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-cyan-400">
+                المجمع الشامل للقوانين
+            </h2>
+            <p class="text-slate-300 max-w-2xl mx-auto text-lg">
+                هنا كل القوانين اللي هتحتاجها في المنهج، مكتوبة بدقة مع شرح لكل رمز.
+                اعتبر الصفحة دي المرجع بتاعك قبل أي امتحان! 🚀
+            </p>
+        </section>
+
+        <!-- Formula Triangles (Visual Aid) -->
+        <section class="mb-12">
+            <div class="flex items-center gap-3 mb-6">
+                <span class="text-3xl">🔺</span>
+                <h3 class="text-2xl font-bold text-white">مثلثات القوانين (للحفظ السريع)</h3>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                <!-- 1. Density -->
+                <div class="glass-panel p-4 flex flex-col items-center">
+                    <h4 class="text-indigo-300 font-bold mb-2 text-sm">الكثافة</h4>
+                    <svg viewBox="0 0 100 100" class="w-full text-white overflow-visible">
+                        <path d="M50 5 L95 95 L5 95 Z" fill="none" stroke="#6366f1" stroke-width="3" />
+                        <line x1="5" y1="65" x2="95" y2="65" stroke="#6366f1" stroke-width="2" />
+                        <line x1="50" y1="65" x2="50" y2="95" stroke="#6366f1" stroke-width="2" />
+                        <text x="50" y="50" text-anchor="middle" fill="#fbbf24" font-weight="bold"
+                            font-size="20">m</text>
+                        <text x="25" y="85" text-anchor="middle" fill="#fff" font-weight="bold" font-size="20">ρ</text>
+                        <text x="50" y="85" text-anchor="middle" fill="#94a3b8" font-size="15">×</text>
+                        <text x="75" y="85" text-anchor="middle" fill="#fff" font-weight="bold" font-size="20">V</text>
+                    </svg>
+                </div>
+
+                <!-- 2. Pressure -->
+                <div class="glass-panel p-4 flex flex-col items-center">
+                    <h4 class="text-indigo-300 font-bold mb-2 text-sm">الضغط</h4>
+                    <svg viewBox="0 0 100 100" class="w-full text-white overflow-visible">
+                        <path d="M50 5 L95 95 L5 95 Z" fill="none" stroke="#6366f1" stroke-width="3" />
+                        <line x1="5" y1="65" x2="95" y2="65" stroke="#6366f1" stroke-width="2" />
+                        <line x1="50" y1="65" x2="50" y2="95" stroke="#6366f1" stroke-width="2" />
+                        <text x="50" y="50" text-anchor="middle" fill="#fbbf24" font-weight="bold"
+                            font-size="20">F</text>
+                        <text x="25" y="85" text-anchor="middle" fill="#fff" font-weight="bold" font-size="20">P</text>
+                        <text x="50" y="85" text-anchor="middle" fill="#94a3b8" font-size="15">×</text>
+                        <text x="75" y="85" text-anchor="middle" fill="#fff" font-weight="bold" font-size="20">A</text>
+                    </svg>
+                </div>
+
+                <!-- 3. Weight -->
+                <div class="glass-panel p-4 flex flex-col items-center">
+                    <h4 class="text-indigo-300 font-bold mb-2 text-sm">الوزن</h4>
+                    <svg viewBox="0 0 100 100" class="w-full text-white overflow-visible">
+                        <path d="M50 5 L95 95 L5 95 Z" fill="none" stroke="#6366f1" stroke-width="3" />
+                        <line x1="5" y1="65" x2="95" y2="65" stroke="#6366f1" stroke-width="2" />
+                        <line x1="50" y1="65" x2="50" y2="95" stroke="#6366f1" stroke-width="2" />
+                        <text x="50" y="50" text-anchor="middle" fill="#fbbf24" font-weight="bold"
+                            font-size="20">Fg</text>
+                        <text x="25" y="85" text-anchor="middle" fill="#fff" font-weight="bold" font-size="20">m</text>
+                        <text x="50" y="85" text-anchor="middle" fill="#94a3b8" font-size="15">×</text>
+                        <text x="75" y="85" text-anchor="middle" fill="#fff" font-weight="bold" font-size="20">g</text>
+                    </svg>
+                </div>
+
+                <!-- 4. Rel Density -->
+                <div class="glass-panel p-4 flex flex-col items-center">
+                    <h4 class="text-indigo-300 font-bold mb-2 text-sm">الكثافة النسبية</h4>
+                    <svg viewBox="0 0 100 100" class="w-full text-white overflow-visible">
+                        <path d="M50 5 L95 95 L5 95 Z" fill="none" stroke="#6366f1" stroke-width="3" />
+                        <line x1="5" y1="65" x2="95" y2="65" stroke="#6366f1" stroke-width="2" />
+                        <line x1="50" y1="65" x2="50" y2="95" stroke="#6366f1" stroke-width="2" />
+                        <text x="50" y="50" text-anchor="middle" fill="#fbbf24" font-weight="bold"
+                            font-size="20">ρₘ</text>
+                        <text x="25" y="85" text-anchor="middle" fill="#fff" font-weight="bold" font-size="16">ρᵣ</text>
+                        <text x="50" y="85" text-anchor="middle" fill="#94a3b8" font-size="15">×</text>
+                        <text x="75" y="85" text-anchor="middle" fill="#fff" font-weight="bold" font-size="16">ρw</text>
+                    </svg>
+                </div>
+
+                <!-- 5. Pascal -->
+                <div class="glass-panel p-4 flex flex-col items-center">
+                    <h4 class="text-indigo-300 font-bold mb-2 text-sm">باسكال</h4>
+                    <svg viewBox="0 0 100 100" class="w-full text-white overflow-visible">
+                        <path d="M50 5 L95 95 L5 95 Z" fill="none" stroke="#6366f1" stroke-width="3" />
+                        <line x1="5" y1="65" x2="95" y2="65" stroke="#6366f1" stroke-width="2" />
+                        <line x1="50" y1="65" x2="50" y2="95" stroke="#6366f1" stroke-width="2" />
+                        <text x="50" y="50" text-anchor="middle" fill="#fbbf24" font-weight="bold"
+                            font-size="20">F</text>
+                        <text x="25" y="85" text-anchor="middle" fill="#fff" font-weight="bold" font-size="20">η</text>
+                        <text x="50" y="85" text-anchor="middle" fill="#94a3b8" font-size="15">×</text>
+                        <text x="75" y="85" text-anchor="middle" fill="#fff" font-weight="bold" font-size="20">f</text>
+                    </svg>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Density & Pressure -->
+        <section class="mb-12">
+            <div class="flex items-center gap-3 mb-6">
+                <span class="text-3xl">🌊</span>
+                <h3 class="text-2xl font-bold text-white">الكثافة والضغط</h3>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+                <!-- Density -->
+                <div class="formula-card">
+                    <h4 class="text-xl font-bold text-indigo-300 mb-4 text-center">الكثافة</h4>
+                    <div class="text-3xl text-center py-4 text-white" dir="ltr">
+                        \[ \rho = \frac{m}{V} \]
+                    </div>
+                    <div class="symbol-key">
+                        <div class="symbol-item"><span class="symbol">ρ</span> : الكثافة (kg/m³)</div>
+                        <div class="symbol-item"><span class="symbol">m</span> : الكتلة (kg)</div>
+                        <div class="symbol-item"><span class="symbol">V</span> : الحجم (m³)</div>
+                    </div>
+                </div>
+
+                <!-- Pressure -->
+                <div class="formula-card">
+                    <h4 class="text-xl font-bold text-indigo-300 mb-4 text-center">الضغط</h4>
+                    <div class="text-3xl text-center py-4 text-white" dir="ltr">
+                        \[ P = \frac{F}{A} \]
+                    </div>
+                    <div class="symbol-key">
+                        <div class="symbol-item"><span class="symbol">P</span> : الضغط (Pascal/Nm⁻²)</div>
+                        <div class="symbol-item"><span class="symbol">F</span> : القوة العمودية (Newton)</div>
+                        <div class="symbol-item"><span class="symbol">A</span> : المساحة (m²)</div>
+                    </div>
+                </div>
+
+                <!-- Liquid Pressure -->
+                <div class="formula-card">
+                    <h4 class="text-xl font-bold text-indigo-300 mb-4 text-center">ضغط سائل</h4>
+                    <div class="text-3xl text-center py-4 text-white" dir="ltr">
+                        \[ P = \rho g h \]
+                    </div>
+                    <div class="symbol-key">
+                        <div class="symbol-item"><span class="symbol">P</span> : ضغط السائل</div>
+                        <div class="symbol-item"><span class="symbol">ρ</span> : كثافة السائل</div>
+                        <div class="symbol-item"><span class="symbol">h</span> : عمق النقطة</div>
+                        <div class="symbol-item"><span class="symbol">g</span> : عجلة الجاذبية</div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Applications (U-Tube, Pascal) -->
+        <section class="mb-12">
+            <div class="flex items-center gap-3 mb-6">
+                <span class="text-3xl">🏗️</span>
+                <h3 class="text-2xl font-bold text-white">تطبيقات الضغط</h3>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+                <!-- U-Tube -->
+                <div class="formula-card">
+                    <h4 class="text-xl font-bold text-teal-300 mb-4 text-center">الأنبوبة ذات الشعبتين</h4>
+                    <div class="text-2xl text-center py-4 text-white" dir="ltr">
+                        \[ \rho_1 h_1 = \rho_2 h_2 \]
+                    </div>
+                    <p class="text-center text-xs text-slate-400 mb-2">عند السطح الفاصل في حالة الاتزان</p>
+                    <div class="symbol-key">
+                        <div class="symbol-item"><span class="symbol">ρ₁</span> : كثافة السائل الأول</div>
+                        <div class="symbol-item"><span class="symbol">h₁</span> : ارتفاع السائل الأول</div>
+                        <div class="symbol-item"><span class="symbol">ρ₂</span> : كثافة السائل الثاني</div>
+                        <div class="symbol-item"><span class="symbol">h₂</span> : ارتفاع السائل الثاني</div>
+                    </div>
+                </div>
+
+                <!-- Pascal's Principle -->
+                <div class="formula-card col-span-1 md:col-span-2">
+                    <h4 class="text-xl font-bold text-teal-300 mb-4 text-center">المكبس الهيدروليكي (مبدأ باسكال)</h4>
+                    <div class="text-3xl text-center py-4 text-white" dir="ltr">
+                        \[ \eta = \frac{F}{f} = \frac{A}{a} = \frac{y_1}{y_2} \]
+                    </div>
+                    <div class="symbol-key grid grid-cols-2 gap-x-4">
+                        <div class="symbol-item"><span class="symbol">η</span> : الفائدة الآلية</div>
+                        <div class="symbol-item"><span class="symbol">F, A</span> : قوة ومساحة المكبس الكبير</div>
+                        <div class="symbol-item"><span class="symbol">f, a</span> : قوة ومساحة المكبس الصغير</div>
+                        <div class="symbol-item"><span class="symbol">y₁, y₂</span> : المسافة التي يتحركها المكابس</div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Gas Laws -->
+        <section class="mb-12">
+            <div class="flex items-center gap-3 mb-6">
+                <span class="text-3xl">💨</span>
+                <h3 class="text-2xl font-bold text-white">قوانين الغازات</h3>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                <!-- Boyle -->
+                <div class="formula-card border-yellow-500/30">
+                    <h4 class="text-xl font-bold text-yellow-500 mb-2 text-center">قانون بويل</h4>
+                    <p class="text-center text-xs text-slate-400 mb-2">عند ثبوت درجة الحرارة \(T\)</p>
+                    <div class="text-3xl text-center py-4 text-white" dir="ltr">
+                        \[ P_1 V_1 = P_2 V_2 \]
+                    </div>
+                    <div class="symbol-key">
+                        <div class="symbol-item"><span class="symbol">P₁, V₁</span> : الضغط والحجم في الحالة الأولى
+                        </div>
+                        <div class="symbol-item"><span class="symbol">P₂, V₂</span> : الضغط والحجم في الحالة الثانية
+                        </div>
+                        <div class="symbol-item text-green-400 text-xs mt-1">علاقة عكسية بين الضغط والحجم</div>
+                    </div>
+                </div>
+
+                <!-- Charles -->
+                <div class="formula-card border-red-500/30">
+                    <h4 class="text-xl font-bold text-red-400 mb-2 text-center">قانون شارل</h4>
+                    <p class="text-center text-xs text-slate-400 mb-2">عند ثبوت الضغط \(P\)</p>
+                    <div class="text-3xl text-center py-4 text-white" dir="ltr">
+                        \[ \frac{V_1}{T_1} = \frac{V_2}{T_2} \]
+                    </div>
+                    <div class="symbol-key">
+                        <div class="symbol-item"><span class="symbol">V</span> : حجم الغاز</div>
+                        <div class="symbol-item"><span class="symbol">T</span> : درجة الحرارة (الكلفن Kelvin)</div>
+                        <div class="symbol-item text-red-400 text-xs mt-1">لازم الحرارة تكون بالكلفن! K = °C + 273</div>
+                    </div>
+                </div>
+
+                <!-- Pressure law -->
+                <div class="formula-card border-blue-500/30">
+                    <h4 class="text-xl font-bold text-blue-400 mb-2 text-center">قانون الضغط (جولي)</h4>
+                    <p class="text-center text-xs text-slate-400 mb-2">عند ثبوت الحجم \(V\)</p>
+                    <div class="text-3xl text-center py-4 text-white" dir="ltr">
+                        \[ \frac{P_1}{T_1} = \frac{P_2}{T_2} \]
+                    </div>
+                    <div class="symbol-key">
+                        <div class="symbol-item"><span class="symbol">P</span> : ضغط الغاز</div>
+                        <div class="symbol-item"><span class="symbol">T</span> : درجة الحرارة (الكلفن)</div>
+                    </div>
+                </div>
+
+                <!-- General Law -->
+                <div class="formula-card border-white/30 bg-slate-800">
+                    <h4 class="text-xl font-bold text-white mb-2 text-center">القانون العام للغازات</h4>
+                    <p class="text-center text-xs text-slate-400 mb-2">يربط المتغيرات الثلاثة</p>
+                    <div class="text-3xl text-center py-4 text-white" dir="ltr">
+                        \[ \frac{P_1 V_1}{T_1} = \frac{P_2 V_2}{T_2} \]
+                    </div>
+                    <div class="symbol-key">
+                        <div class="symbol-item text-center w-full justify-center">يستخدم عندما تتغير الـ P والـ V والـ
+                            T معاً</div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- New Section: Flow & Viscosity & Barometer (User Requested) -->
+        <section class="mb-12">
+            <div class="flex items-center gap-3 mb-6">
+                <span class="text-3xl">🍯</span>
+                <h3 class="text-2xl font-bold text-white">الموائع المتحركة والخواص</h3>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+                <!-- Continuity Equation -->
+                <div class="formula-card">
+                    <h4 class="text-xl font-bold text-pink-400 mb-4 text-center">معادلة الاستمرار (السريان)</h4>
+                    <div class="text-2xl text-center py-4 text-white" dir="ltr">
+                        \[ A_1 v_1 = A_2 v_2 \]
+                    </div>
+                    <p class="text-center text-xs text-slate-400 mb-2">سرعة السريان عكسي مع المساحة</p>
+                    <div class="symbol-key">
+                        <div class="symbol-item"><span class="symbol">A</span> : مساحة المقطع (m²)</div>
+                        <div class="symbol-item"><span class="symbol">v</span> : سرعة السريان (m/s)</div>
+                    </div>
+                </div>
+
+                <!-- Flow Rates -->
+                <div class="formula-card">
+                    <h4 class="text-xl font-bold text-pink-400 mb-4 text-center">معدل السريان</h4>
+                    <div class="text-xl text-center py-4 text-white space-y-2" dir="ltr">
+                        \[ Q_v = A v = \frac{Vol}{t} \]
+                        \[ Q_m = \rho Q_v = \frac{m}{t} \]
+                    </div>
+                    <div class="symbol-key">
+                        <div class="symbol-item"><span class="symbol">Qv</span> : معدل حجمي (m³/s)</div>
+                        <div class="symbol-item"><span class="symbol">Qm</span> : معدل كتلي (kg/s)</div>
+                    </div>
+                </div>
+
+                <!-- Viscosity -->
+                <div class="formula-card">
+                    <h4 class="text-xl font-bold text-orange-400 mb-4 text-center">اللزوجة</h4>
+                    <div class="text-2xl text-center py-4 text-white" dir="ltr">
+                        \[ F = \eta_{vs} A \frac{v}{d} \]
+                    </div>
+                    <div class="symbol-key">
+                        <div class="symbol-item"><span class="symbol">F</span> : القوة المماسية</div>
+                        <div class="symbol-item"><span class="symbol">η</span> : معامل اللزوجة</div>
+                        <div class="symbol-item"><span class="symbol">d</span> : سمك الطبقة السائلة</div>
+                    </div>
+                </div>
+
+                <!-- Barometer -->
+                <div class="formula-card border-cyan-500/30">
+                    <h4 class="text-xl font-bold text-cyan-400 mb-4 text-center">البارومتر الزئبقي</h4>
+                    <div class="text-2xl text-center py-4 text-white" dir="ltr">
+                        \[ P_a = \rho_{Hg} g h \]
+                    </div>
+                    <p class="text-center text-xs text-slate-400 mb-2">لقياس الضغط الجوي</p>
+                    <div class="symbol-key">
+                        <div class="symbol-item"><span class="symbol">Pa</span> : الضغط الجوي (≈ 1.013×10⁵ Pa)</div>
+                        <div class="symbol-item"><span class="symbol">h</span> : ارتفاع الزئبق (0.76m)</div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Graphs & Pro Tips -->
+        <section class="mb-12 grid md:grid-cols-2 gap-8">
+
+            <!-- Graphs -->
+            <div class="glass-panel p-6">
+                <h3 class="text-xl font-bold text-yellow-400 mb-6 flex items-center gap-2">📊 أهم الرسوم البيانية</h3>
+                <div class="grid grid-cols-2 gap-4">
+                    <!-- Direct -->
+                    <div class="text-center">
+                        <svg viewBox="0 0 100 100"
+                            class="w-full h-24 stroke-white fill-none bg-slate-800/50 rounded mb-2 pt-2 pr-2">
+                            <line x1="10" y1="90" x2="10" y2="10" stroke="#94a3b8" stroke-width="1" /> <!-- Y axis -->
+                            <line x1="10" y1="90" x2="90" y2="90" stroke="#94a3b8" stroke-width="1" /> <!-- X axis -->
+                            <line x1="10" y1="90" x2="80" y2="20" stroke="#4ade80" stroke-width="2" /> <!-- Plot -->
+                        </svg>
+                        <span class="text-xs text-green-400 font-bold">طردية</span>
+                        <p class="text-[10px] text-slate-400">الميل = ص / س</p>
+                    </div>
+                    <!-- Inverse -->
+                    <div class="text-center">
+                        <svg viewBox="0 0 100 100"
+                            class="w-full h-24 stroke-white fill-none bg-slate-800/50 rounded mb-2 pt-2 pr-2">
+                            <line x1="10" y1="90" x2="10" y2="10" stroke="#94a3b8" stroke-width="1" /> <!-- Y axis -->
+                            <line x1="10" y1="90" x2="90" y2="90" stroke="#94a3b8" stroke-width="1" /> <!-- X axis -->
+                            <path d="M15 15 Q 20 80 85 85" stroke="#f87171" stroke-width="2" fill="none" />
+                            <!-- Plot (Inverse logic visual) -->
+                        </svg>
+                        <span class="text-xs text-red-400 font-bold">عكسية</span>
+                        <p class="text-[10px] text-slate-400">X يزيد -> Y يقل</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pro Tips (Tricks) -->
+            <div class="glass-panel p-6 border-yellow-500/20">
+                <h3 class="text-xl font-bold text-yellow-400 mb-6 flex items-center gap-2">💡 تريكات الفهلوة</h3>
+                <ul class="space-y-4 text-sm text-slate-300">
+                    <li class="flex gap-3">
+                        <span class="bg-yellow-500/20 text-yellow-400 font-bold p-1 rounded h-fit">1</span>
+                        <div>
+                            <strong class="text-white block mb-1">خليط مادتين (حجم ثابت):</strong>
+                            \[ \rho_{mix} = \frac{\rho_1 V_1 + \rho_2 V_2}{V_1 + V_2} \]
+                        </div>
+                    </li>
+                    <li class="flex gap-3">
+                        <span class="bg-yellow-500/20 text-yellow-400 font-bold p-1 rounded h-fit">2</span>
+                        <div>
+                            <strong class="text-white block mb-1">خليط مادتين (كتلة ثابتة):</strong>
+                            \[ \frac{1}{\rho_{mix}} = \frac{x_1}{\rho_1} + \frac{x_2}{\rho_2} \]
+                            <span class="text-[10px] text-slate-500">(حيث x نسبة الكتلة)</span>
+                        </div>
+                    </li>
+                    <li class="flex gap-3">
+                        <span class="bg-yellow-500/20 text-yellow-400 font-bold p-1 rounded h-fit">3</span>
+                        <div>
+                            <strong class="text-white block mb-1">الأنبوبة المائلة:</strong>
+                            لو الأنبوبة مايلة، خد الارتفاع الرأسي <span class="text-yellow-400 text-xs">\( h = L
+                                \sin(\theta) \)</span>.
+                        </div>
+                    </li>
+                </ul>
+            </div>
+
+        </section>
+
+        <!-- Unit Conversions & Prefixes -->
+        <section class="mb-12">
+            <div class="flex items-center gap-3 mb-6">
+                <span class="text-3xl">🔄</span>
+                <h3 class="text-2xl font-bold text-white">التحويلات والبادئات القياسية</h3>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-6">
+
+                <!-- 1. Standard Prefixes -->
+                <div class="glass-panel p-0 overflow-hidden">
+                    <div class="bg-indigo-900/40 p-3 text-center border-b border-indigo-500/30">
+                        <h4 class="font-bold text-indigo-300">البادئات</h4>
+                    </div>
+                    <table class="w-full text-center">
+                        <thead class="bg-slate-800 text-slate-400 text-[10px] uppercase">
+                            <tr>
+                                <th class="p-2">الاسم</th>
+                                <th class="p-2">الرمز</th>
+                                <th class="p-2">القيمة (×)</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-700 text-sm">
+                            <!-- Big -->
+                            <tr class="hover:bg-slate-800/50">
+                                <td class="p-2 text-red-300">جيجا</td>
+                                <td class="p-2 font-mono">G</td>
+                                <td class="p-2 font-mono text-yellow-400">\(10^9\)</td>
+                            </tr>
+                            <tr class="hover:bg-slate-800/50">
+                                <td class="p-2 text-red-300">ميجا</td>
+                                <td class="p-2 font-mono">M</td>
+                                <td class="p-2 font-mono text-yellow-400">\(10^6\)</td>
+                            </tr>
+                            <tr class="hover:bg-slate-800/50">
+                                <td class="p-2 text-red-300">كيلو</td>
+                                <td class="p-2 font-mono">k</td>
+                                <td class="p-2 font-mono text-yellow-400">\(10^3\)</td>
+                            </tr>
+                            <!-- Small -->
+                            <tr class="bg-slate-800/20">
+                                <td class="p-2">سنتي</td>
+                                <td class="p-2 font-mono">c</td>
+                                <td class="p-2 font-mono text-cyan-400">\(10^{-2}\)</td>
+                            </tr>
+                            <tr class="hover:bg-slate-800/50">
+                                <td class="p-2">مللي</td>
+                                <td class="p-2 font-mono">m</td>
+                                <td class="p-2 font-mono text-cyan-400">\(10^{-3}\)</td>
+                            </tr>
+                            <tr class="hover:bg-slate-800/50">
+                                <td class="p-2">ميكرو</td>
+                                <td class="p-2 font-mono">μ</td>
+                                <td class="p-2 font-mono text-cyan-400">\(10^{-6}\)</td>
+                            </tr>
+                            <tr class="hover:bg-slate-800/50">
+                                <td class="p-2">نانو</td>
+                                <td class="p-2 font-mono">n</td>
+                                <td class="p-2 font-mono text-cyan-400">\(10^{-9}\)</td>
+                            </tr>
+                            <tr class="hover:bg-slate-800/50">
+                                <td class="p-2">أنجستروم</td>
+                                <td class="p-2 font-mono">Å</td>
+                                <td class="p-2 font-mono text-cyan-400 pb-1">\(10^{-10}\)</td>
+                            </tr>
+                            <tr class="hover:bg-slate-800/50">
+                                <td class="p-2">بيكو</td>
+                                <td class="p-2 font-mono">p</td>
+                                <td class="p-2 font-mono text-cyan-400">\(10^{-12}\)</td>
+                            </tr>
+                            <tr class="hover:bg-slate-800/50">
+                                <td class="p-2">فيمتو</td>
+                                <td class="p-2 font-mono">f</td>
+                                <td class="p-2 font-mono text-cyan-400">\(10^{-15}\)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- 2. Common Conversions & Rule -->
+                <div class="flex flex-col gap-4">
+
+                    <!-- General Rule -->
+                    <div class="glass-panel p-4 border-yellow-500/30 bg-yellow-900/10">
+                        <h4 class="text-yellow-400 font-bold mb-2 text-center text-sm">⚠️ قاعدة التحويل الذهبية</h4>
+                        <div class="text-center text-white text-lg font-bold mb-2" dir="ltr">
+                            المعامل = \( 10^{(\text{من} - \text{إلى})} \)
+                        </div>
+                        <p class="text-center text-xs text-slate-400">اطرح الأس اللي رايح له من الأس اللي جاي منه</p>
+                    </div>
+
+                    <!-- Common Table -->
+                    <div class="glass-panel p-0 overflow-hidden flex-1">
+                        <div class="bg-indigo-900/40 p-3 text-center border-b border-indigo-500/30">
+                            <h4 class="font-bold text-indigo-300">تحويلات شائعة</h4>
+                        </div>
+                        <table class="w-full text-right">
+                            <tbody class="divide-y divide-slate-700 text-sm">
+                                <tr class="hover:bg-slate-800/50">
+                                    <td class="p-3 font-bold text-slate-300">المساحة</td>
+                                    <td class="p-3 text-left font-mono text-yellow-400">\(cm^2 \to m^2 \times 10^{-4}\)
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-slate-800/50">
+                                    <td class="p-3 font-bold text-slate-300">الحجم</td>
+                                    <td class="p-3 text-left font-mono text-yellow-400">\(L \to m^3 \times 10^{-3}\)
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-slate-800/50">
+                                    <td class="p-3 font-bold text-slate-300">الضغط</td>
+                                    <td class="p-3 text-left font-mono text-yellow-400">\(bar \to Pa \times 10^5\)</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+        <td class="p-4">Pascal (Pa)</td>
+        <td class="p-4 text-left text-yellow-400 font-mono">\(10^{5}\)</td>
+        </tr>
+        <tr class="hover:bg-slate-800/50">
+            <td class="p-4 font-bold text-indigo-300">أنجستروم</td>
+            <td class="p-4">Å</td>
+            <td class="p-4">m</td>
+            <td class="p-4 text-left text-yellow-400 font-mono">\(10^{-10}\)</td>
+        </tr>
+        </tbody>
+        </table>
+        </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="text-center py-8 border-t border-slate-700 text-slate-500">
+            <p>© منصة الفيزياء 2024</p>
+            <a href="index.html"
+                class="inline-block mt-4 px-6 py-2 bg-slate-800 rounded-full hover:bg-slate-700 transition">العودة
+                للرئيسية</a>
+        </footer>
+
+    </main>
+
+    <!-- AI Chat Sidebar -->
+    <div id="newAiSidebar"
+        class="fixed top-0 left-0 h-full w-full md:w-[350px] bg-slate-900/95 backdrop-blur-xl border-r border-slate-700 transform -translate-x-full transition-transform duration-300 z-[60] shadow-2xl flex flex-col">
+        <div class="p-4 border-b border-slate-700 flex items-center justify-between bg-slate-900">
+            <div class="flex items-center gap-2">
+                <div class="w-3 h-3 rounded-full bg-green-500 animate-pulse"></div>
+                <h3 class="font-bold text-white">مساعد نيوتن 🍎</h3>
+            </div>
+            <button onclick="toggleNewAI()" class="text-slate-400 hover:text-white transition">✕</button>
+        </div>
+        <div id="newAiChatBox" class="flex-1 overflow-y-auto p-4 space-y-4">
+            <div class="flex gap-3">
+                <div
+                    class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center shrink-0">
+                    🍎</div>
+                <div class="bg-slate-800 text-slate-200 p-3 rounded-2xl rounded-tr-sm text-sm border border-slate-700">
+                    أهلاً يا هندسة! 👋<br>أنا هنا عشان أساعدك تفهم أي قانون أو تحل أي مسألة عليه.
+                </div>
+            </div>
+        </div>
+        <div class="p-4 border-t border-slate-700 bg-slate-900">
+            <div class="flex gap-2">
+                <input type="text" id="newAiInput" placeholder="اسأل نيوتن..."
+                    class="flex-1 bg-slate-800 border border-slate-600 rounded-xl px-4 py-3 text-sm text-white focus:border-indigo-500 outline-none transition">
+                <button onclick="sendNewAI()"
+                    class="bg-indigo-600 hover:bg-indigo-500 text-white p-3 rounded-xl transition shadow-lg shadow-indigo-500/20">🚀</button>
+                <button onclick="clearChat()"
+                    class="bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white p-3 rounded-xl transition"
+                    title="مسح المحادثة">🗑️</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toggle Button -->
+    <button onclick="toggleNewAI()"
+        class="fixed bottom-6 left-6 z-50 bg-indigo-600 text-white p-4 rounded-full shadow-2xl hover:bg-indigo-500 transition border-2 border-white/20">
+        <span class="text-2xl">🍎</span>
+    </button>
+
+    <script>
+        const NEW_OPENROUTER_KEY = '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';
+        const PAGE_CONTENT = document.body.innerText.substring(0, 15000).replace(/\s+/g, ' ');
+        const NEWTON_PROMPT = `أنت "نيوتن 🍎"، مساعد فيزياء ذكي.
+        
+🎯 تعليمات:
+1. لو الطالب سلم (أهلا/سلام)، رد بترحيب بسيط في سطر واحد فقط.
+2. اشرح خطوات الحل بترقيم واضح وبالمصري البسيط.
+3. انت عارف كل قوانين الفيزياء اللي في الصفحة دي، وممكن تشرح أي رمز منهم.
+4. استخدم MathJax لكتابة القوانين لو احتجت (بين علامات الدولار).`;
+
+        let aiHistory = [];
+        const CHAT_STORAGE_KEY = 'chat_history_phys_laws';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const saved = localStorage.getItem(CHAT_STORAGE_KEY);
+            if (saved) {
+                try {
+                    aiHistory = JSON.parse(saved);
+                    const box = document.getElementById('newAiChatBox');
+                    aiHistory.forEach(msg => {
+                        if (msg.role === 'user') {
+                            box.innerHTML += `<div class="flex gap-3 flex-row-reverse"><div class="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center shrink-0">👤</div><div class="bg-indigo-600 text-white p-3 rounded-2xl rounded-tl-sm text-sm">${msg.content}</div></div>`;
+                        } else if (msg.role === 'assistant') {
+                            box.innerHTML += `<div class="flex gap-3"><div class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center shrink-0">🍎</div><div class="bg-slate-800 text-slate-200 p-3 rounded-2xl rounded-tr-sm text-sm border border-slate-700 leading-relaxed">${msg.content}</div></div>`;
+                        }
+                    });
+                    box.scrollTop = box.scrollHeight;
+                } catch (e) { console.error('Error loading chat', e); }
+            }
+        });
+
+        function toggleNewAI() {
+            const sb = document.getElementById('newAiSidebar');
+            sb.classList.toggle('-translate-x-full');
+        }
+
+        function clearChat() {
+            localStorage.removeItem(CHAT_STORAGE_KEY);
+            aiHistory = [];
+            const box = document.getElementById('newAiChatBox');
+            box.innerHTML = `
+                <div class="flex gap-3">
+                    <div class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center shrink-0">🍎</div>
+                    <div class="bg-slate-800 text-slate-200 p-3 rounded-2xl rounded-tr-sm text-sm border border-slate-700">
+                        أهلاً يا هندسة! 👋<br>أنا هنا عشان أساعدك تفهم أي قانون أو تحل أي مسألة عليه.
+                    </div>
+                </div>
+            `;
+        }
+
+        function typeText(el, text, speed = 15) {
+            let i = 0;
+            const fmt = text.replace(/\*\*(.*?)\*\*/g, '<b class="text-yellow-400">$1</b>').replace(/\n/g, '<br>');
+            function t() { if (i < text.length) { el.innerHTML = fmt.substring(0, ++i); setTimeout(t, speed); } else { el.innerHTML = fmt; } }
+            t();
+        }
+
+        async function sendNewAI() {
+            const inp = document.getElementById('newAiInput');
+            const txt = inp.value.trim();
+            if (!txt) return;
+
+            const box = document.getElementById('newAiChatBox');
+            box.innerHTML += `<div class="flex gap-3 flex-row-reverse"><div class="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center shrink-0">👤</div><div class="bg-indigo-600 text-white p-3 rounded-2xl rounded-tl-sm text-sm">${txt}</div></div>`;
+            inp.value = '';
+            box.scrollTop = box.scrollHeight;
+
+            const loadingId = 'load-' + Date.now();
+            box.innerHTML += `<div id="${loadingId}" class="flex gap-3"><div class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center shrink-0">🍎</div><div class="bg-slate-800 text-slate-200 p-3 rounded-2xl rounded-tr-sm text-sm border border-slate-700"><span class="animate-pulse">جاري التفكير... 🧠</span></div></div>`;
+            box.scrollTop = box.scrollHeight;
+
+            aiHistory.push({ role: "user", content: txt });
+            localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(aiHistory));
+
+            try {
+                const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${NEW_OPENROUTER_KEY}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        model: 'deepseek/deepseek-r1',
+                        messages: [{ role: "system", content: NEWTON_PROMPT }, ...aiHistory]
+                    })
+                });
+                const data = await res.json();
+                const reply = data.choices?.[0]?.message?.content || "معلش، في مشكلة في الشبكة حالياً 🔌";
+
+                document.getElementById(loadingId).remove();
+
+                aiHistory.push({ role: "assistant", content: reply });
+                localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(aiHistory));
+
+                const m = document.createElement('div');
+                m.className = 'flex gap-3 animate-fade-in';
+                m.innerHTML = `<div class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center shrink-0">🍎</div><div class="bg-slate-800 text-slate-200 p-3 rounded-2xl rounded-tr-sm text-sm border border-slate-700 leading-relaxed" id="r-${loadingId}"></div>`;
+                box.appendChild(m);
+                typeText(document.getElementById('r-' + loadingId), reply);
+                box.scrollTop = box.scrollHeight;
+
+            } catch (e) {
+                document.getElementById(loadingId).innerHTML = "خطأ في الاتصال بالسيرفر! 🔌";
+            }
+        }
+
+        document.getElementById('newAiInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendNewAI();
+        });
+    </script>
+</body>
+
+</html>
