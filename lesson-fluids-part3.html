@@ -89,6 +89,51 @@
             border-right-color: #3b82f6;
         }
 
+        .typing-dot {
+            width: 6px;
+            height: 6px;
+            background: #94a3b8;
+            border-radius: 50%;
+            animation: bounce 1.4s infinite ease-in-out both;
+        }
+
+        .typing-dot:nth-child(1) {
+            animation-delay: -0.32s;
+        }
+
+        .typing-dot:nth-child(2) {
+            animation-delay: -0.16s;
+        }
+
+        @keyframes bounce {
+
+            0%,
+            80%,
+            100% {
+                transform: scale(0);
+            }
+
+            40% {
+                transform: scale(1.0);
+            }
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 0.3s ease-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
         .canvas-wrapper {
             position: relative;
             background: #1e293b;
@@ -486,8 +531,8 @@
 
         function initSim() {
             const container = canvas.parentElement;
+            if (!container) return;
             canvas.width = container.clientWidth;
-            canvas.height = container.clientHeight;
             canvas.height = container.clientHeight;
             // Init car position to resting state
             const pipeY = canvas.height - 100;
@@ -509,14 +554,10 @@
             const p2W = 120; // 3x width ~ 9x area visually
 
             // Physics movement
-            // Input range 0-100 represents max stroke distance for P1
             const maxStroke1 = 150;
             const stroke1 = (inputForce / 100) * maxStroke1;
-
-            // Stroke 2 is inversely proportional to Area
             const stroke2 = stroke1 / AREA_RATIO;
 
-            // Current positions (Base levels)
             const p1Base = pipeY - 50;
             const p2Base = pipeY - 50;
 
@@ -526,11 +567,8 @@
             // 1. Draw Hydraulic Fluid (Oil)
             ctx.fillStyle = '#b45309'; // Dark Oil
             ctx.beginPath();
-            // Left cylinder
             ctx.fillRect(p1X - p1W / 2, p1Y, p1W, (pipeY - p1Y) + 20);
-            // Right cylinder
-            ctx.fillRect(p2X - p2W / 2, pipeY - 20, p2W, (p2Y - (pipeY - 20)) + 200); // Fill below piston
-            // Connecting Pipe
+            ctx.fillRect(p2X - p2W / 2, pipeY - 20, p2W, (p2Y - (pipeY - 20)) + 200);
             ctx.fillRect(p1X, pipeY, p2X - p1X, 20);
 
             // 2. Draw Cylinders (Walls)
@@ -538,89 +576,63 @@
             ctx.lineWidth = 6;
             ctx.lineCap = 'round';
             ctx.beginPath();
-
-            // Left Cylinder
-            ctx.moveTo(p1X - p1W / 2, p1Base - maxStroke1); // Top
+            ctx.moveTo(p1X - p1W / 2, p1Base - maxStroke1);
             ctx.lineTo(p1X - p1W / 2, pipeY);
             ctx.lineTo(p1X + p1W / 2, pipeY);
             ctx.lineTo(p1X + p1W / 2, p1Base - maxStroke1);
-
-            // Right Cylinder
-            ctx.moveTo(p2X - p2W / 2, p2Base - 100); // Top
+            ctx.moveTo(p2X - p2W / 2, p2Base - 100);
             ctx.lineTo(p2X - p2W / 2, pipeY);
             ctx.lineTo(p2X + p2W / 2, pipeY);
             ctx.lineTo(p2X + p2W / 2, p2Base - 100);
-
-            // Pipe
             ctx.stroke();
 
             // 3. Draw Pistons
-            // Piston 1
             ctx.fillStyle = '#cbd5e1';
             ctx.fillRect(p1X - p1W / 2 + 2, p1Y - 10, p1W - 4, 10);
-            // Rod 1
             ctx.fillStyle = '#64748b';
             ctx.fillRect(p1X - 5, p1Y - 100, 10, 90);
-            // Handle (User pushes here)
             ctx.fillStyle = '#ef4444';
             ctx.beginPath();
             ctx.roundRect(p1X - 20, p1Y - 110, 40, 10, 5);
             ctx.fill();
-
-            // Piston 2
             ctx.fillStyle = '#cbd5e1';
             ctx.fillRect(p2X - p2W / 2 + 2, p2Y, p2W - 4, 15);
-            // Rod 2
             ctx.fillStyle = '#64748b';
-            ctx.fillRect(p2X - 10, p2Y - 10, 20, 10); // Short connector
+            ctx.fillRect(p2X - 10, p2Y - 10, 20, 10);
 
-            // 4. Draw Car (The Load)
-            // 4. Draw Car (The Load) with Suspension
+            // 4. Draw Car
             drawCar(ctx, p2X, carBodyY);
 
             // 5. Arrows
             if (inputForce > 0) {
-                // Down Arrow (F1)
                 drawArrow(ctx, p1X, p1Y - 130, p1X, p1Y - 110, '#ef4444', `F1`);
-                // Up Arrow (F2)
                 drawArrow(ctx, p2X + 80, p2Y + 50, p2X + 80, p2Y, '#22c55e', `F2 = 10×F1`);
             }
 
-            // DOM Updates
-            // Assume Max Input Force = 100N
             const f1 = inputForce;
             const f2 = f1 * AREA_RATIO;
-            document.getElementById('f2Val').innerText = f2 + " N";
+            const f2El = document.getElementById('f2Val');
+            if (f2El) f2El.innerText = f2 + " N";
         }
 
         function drawCar(ctx, x, y) {
-            const w = 140;
-            const h = 60;
-            const bottom = y;
-
             ctx.save();
-            ctx.translate(x, bottom);
-
-            // Wheels
+            ctx.translate(x, y);
             ctx.fillStyle = '#1e293b';
             ctx.beginPath();
             ctx.arc(-40, -10, 15, 0, Math.PI * 2);
             ctx.arc(40, -10, 15, 0, Math.PI * 2);
             ctx.fill();
-
-            // Body
-            ctx.fillStyle = '#3b82f6'; // Blue Car
+            ctx.fillStyle = '#3b82f6';
             ctx.beginPath();
             ctx.moveTo(-70, -10);
             ctx.lineTo(70, -10);
             ctx.lineTo(70, -30);
-            ctx.lineTo(40, -60); // Roof
+            ctx.lineTo(40, -60);
             ctx.lineTo(-40, -60);
             ctx.lineTo(-70, -30);
             ctx.closePath();
             ctx.fill();
-
-            // Windows
             ctx.fillStyle = '#bfdbfe';
             ctx.beginPath();
             ctx.moveTo(-35, -55);
@@ -629,7 +641,6 @@
             ctx.lineTo(-55, -35);
             ctx.closePath();
             ctx.fill();
-
             ctx.restore();
         }
 
@@ -640,59 +651,40 @@
             ctx.strokeStyle = color;
             ctx.lineWidth = 3;
             ctx.stroke();
-
-            // Text
             ctx.fillStyle = color;
             ctx.font = 'bold 12px Mono';
             ctx.fillText(text, x1 + 10, (y1 + y2) / 2);
         }
 
-        // UPGRADE: Suspension Physics Logic
         let carBodyY = 0;
         let carVel = 0;
         let isSimRunning = false;
+        let lastForce = -1;
 
         function updatePhysics() {
-            // 1. Calculate Piston Target Y
             const maxStroke1 = 150;
             const pipeY = canvas.height - 100;
             const p2Base = pipeY - 50;
-
             const stroke1 = (inputForce / 100) * maxStroke1;
             const stroke2 = stroke1 / AREA_RATIO;
-            const pistonTopY = p2Base - stroke2; // Where the piston head is
-
-            // 2. Spring Physics for Car Body
-            // Target: Rest on top of piston (e.g., -5px offset)
-            const targetY = pistonTopY - 5;
+            const targetY = (p2Base - stroke2) - 5;
 
             if (Math.abs(targetY - carBodyY) < 0.1 && Math.abs(carVel) < 0.1 && inputForce == lastForce) {
-                // Settle
                 carBodyY = targetY;
                 drawSim();
-                isSimRunning = false; // Stop loop to save battery
+                isSimRunning = false;
                 return;
             }
 
-            const k = 0.1;
-            const damp = 0.85; // Bouncy but settles
-
-            const diff = targetY - carBodyY;
-            carVel += diff * k;
-            carVel *= damp;
+            carVel += (targetY - carBodyY) * 0.1;
+            carVel *= 0.85;
             carBodyY += carVel;
-
             drawSim();
-
             if (isSimRunning) requestAnimationFrame(updatePhysics);
         }
 
-        // Track input changes to wake up physics
-        let lastForce = -1;
-
-        slider.addEventListener('input', (e) => {
+        slider?.addEventListener('input', (e) => {
             inputForce = parseInt(e.target.value);
-
             if (!isSimRunning) {
                 isSimRunning = true;
                 updatePhysics();
@@ -700,16 +692,16 @@
             lastForce = inputForce;
         });
 
-        // --- Quiz ---
         const questions = [
             { q: "قاعدة باسكال تنطبق فقط على...", opts: ["السوائل", "الغازات", "الجوامد", "الفراغ"], ans: 0, exp: "لأن السوائل غير قابلة للانضغاط، فالضغط بينتقل بتمامه." },
             { q: "في المكبس الهيدروليكي، الفائدة الآلية (η) دائماً...", opts: ["أقل من 1", "تساوي 1", "أكبر من 1", "صفر"], ans: 2, exp: "لأن مساحة المكبس الكبير أكبر من الصغير، فهدف الآلة هو تكبير القوة." },
             { q: "الشغل المبذول عند المكبس الصغير ....... الشغل الناتج عند الكبير (في المكبس المثالي).", opts: ["أكبر من", "يساوي", "أقل من", "ضعف"], ans: 1, exp: "الطاقة لا تفنى. إحنا بنكسب قوة بس بنخسر مسافة، فحاصل الضرب (الشغل) ثابت." },
-            { q: "إذا كانت مساحة المكبس الكبير ضعف الصغير، فإن القوة الناتجة تكون...", opts: ["الضعف", "النصف", "4 أمثال", "الربع"], ans: 0, exp: "القوة تتناسب طردياً مع المساحة ($F_2 = F_1 \times \eta$)." }
+            { q: "إذا كانت مساحة المكبس الكبير ضعف الصغير، فإن القوة الناتجة تكون...", opts: ["الضعف", "النصف", "4 أمثال", "الربع"], ans: 0, exp: "القوة تتناسب طردياً مع المساحة ($F_2 = F_1 \\times \\eta$)." }
         ];
 
         function renderQuiz() {
             const area = document.getElementById('quizArea');
+            if (!area) return;
             area.innerHTML = questions.map((q, i) => `
                 <div class="bg-slate-800 p-4 rounded-xl border border-slate-700">
                     <p class="font-bold mb-3 text-white">${i + 1}. ${q.q}</p>
@@ -727,6 +719,7 @@
             const q = questions[qIdx];
             const feed = document.getElementById(`feed-${qIdx}`);
             const parent = btn.parentElement;
+            if (!feed || !parent) return;
             Array.from(parent.children).forEach(b => b.disabled = true);
 
             if (optIdx === q.ans) {
@@ -747,161 +740,172 @@
         window.onresize = initSim;
     </script>
 
-    <!-- Float Home Button -->
-    <a href="index.html"
-        class="fixed top-4 left-4 z-50 bg-slate-800/80 backdrop-blur text-white px-4 py-2 rounded-full border border-white/10 hover:bg-slate-700 transition flex items-center gap-2 shadow-lg">
-        <span>🏠</span> <span class="hidden md:inline text-sm font-bold">الرئيسية</span>
-    </a>
-
-    <!-- AI Chat Sidebar Injection -->
-    <div id="ai-sidebar-container">
-        <button onclick="toggleNewAI()"
+    <!-- AI Sidebar -->
+    <div id="aiSidebarContainer">
+        <button onclick="toggleAI()"
             class="fixed bottom-6 left-6 z-50 bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-4 rounded-full shadow-2xl hover:scale-110 transition-transform flex items-center gap-2 border-2 border-white/20">
-            <span class="text-2xl">🍎</span>
-            <span class="font-bold hidden md:inline">اسأل نيوتن</span>
+            <span class="text-2xl">🧪</span><span class="font-bold hidden md:inline">اسأل دالتون</span>
         </button>
-        <div id="newAiSidebar"
+        <div id="aiSidebar"
             class="fixed top-0 left-0 h-full w-full md:w-[350px] bg-slate-900/95 backdrop-blur-xl border-r border-slate-700 transform -translate-x-full transition-transform duration-300 z-[60] shadow-2xl flex flex-col">
             <div class="p-4 border-b border-slate-700 flex items-center justify-between bg-slate-900">
                 <div class="flex items-center gap-2">
-                    <span class="text-2xl">🍎</span>
+                    <span class="text-2xl">🧪</span>
                     <div>
-                        <h3 class="font-bold text-white">مساعد نيوتن</h3>
+                        <h3 class="font-bold text-white">دالتون 🧪</h3>
                         <div class="flex items-center gap-1 text-[10px] text-green-400">
                             <span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span> متصل
                         </div>
                     </div>
                 </div>
-                <button onclick="toggleNewAI()" class="text-slate-400 hover:text-white transition">✕</button>
+                <button onclick="toggleAI()" class="text-slate-400 hover:text-white transition">✕</button>
             </div>
-            <div id="newAiChatBox" class="flex-1 overflow-y-auto p-4 space-y-4">
+            <div id="aiChatBox" class="flex-1 overflow-y-auto p-4 space-y-4">
                 <div class="flex gap-3">
                     <div
                         class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center shrink-0">
-                        🍎</div>
-                    <div class="p-4 border-t border-slate-700 bg-slate-900">
-                        <div class="flex gap-2">
-                            <input type="text" id="newAiInput" placeholder="اسأل نيوتن..."
-                                class="flex-1 bg-slate-800 border border-slate-600 rounded-xl px-4 py-3 text-sm text-white focus:border-indigo-500 outline-none transition">
-                            <button onclick="sendNewAI()"
-                                class="bg-indigo-600 hover:bg-indigo-500 text-white p-3 rounded-xl transition shadow-lg shadow-indigo-500/20">🚀</button>
-                            <button onclick="clearChat()"
-                                class="bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white p-3 rounded-xl transition"
-                                title="مسح المحادثة">🗑️</button>
-                        </div>
+                        🧪</div>
+                    <div
+                        class="bg-slate-800 text-slate-200 p-3 rounded-2xl rounded-tr-sm text-sm border border-slate-700 leading-relaxed">
+                        أهلاً يا دكتور! 👋 أنا دالتون، معاك هنا عشان نبسط قوانين السوائل والضغط سوا. اسأل اللي واقف
+                        معاك.
                     </div>
                 </div>
             </div>
-            <script>
-                const NEW_OPENROUTER_KEY = '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';
-                const PAGE_CONTENT = document.body.innerText.substring(0, 15000).replace(/\s+/g, ' ');
-                const NEWTON_PROMPT = `أنت "نيوتن 🍎"، مساعد فيزياء ذكي.
-        
-🎯 تعليمات:
-1. لو الطالب سلم (أهلا/سلام)، رد بترحيب بسيط في سطر واحد فقط.
-2. اشرح خطوات الحل بترقيم واضح وبالمصري البسيط.
-3. انت عارف كل كلمة في الدرس ده. دي محتويات الدرس الحالية: 
-${PAGE_CONTENT}
-
-4. المنهج: الموائع، البارومتر، باسكال، الغازات.`;
-
-                let aiHistory = [];
-                const CHAT_STORAGE_KEY = 'chat_history_phys_fluids3';
-
-                document.addEventListener('DOMContentLoaded', () => {
-                    const saved = localStorage.getItem(CHAT_STORAGE_KEY);
-                    if (saved) {
-                        try {
-                            aiHistory = JSON.parse(saved);
-                            const box = document.getElementById('newAiChatBox');
-                            aiHistory.forEach(msg => {
-                                if (msg.role === 'user') {
-                                    box.innerHTML += `<div class="flex gap-3 flex-row-reverse"><div class="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center shrink-0">👤</div><div class="bg-indigo-600 text-white p-3 rounded-2xl rounded-tl-sm text-sm">${msg.content}</div></div>`;
-                                } else if (msg.role === 'assistant') {
-                                    box.innerHTML += `<div class="flex gap-3"><div class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center shrink-0">🍎</div><div class="bg-slate-800 text-slate-200 p-3 rounded-2xl rounded-tr-sm text-sm border border-slate-700 leading-relaxed">${msg.content}</div></div>`;
-                                }
-                            });
-                            box.scrollTop = box.scrollHeight;
-                        } catch (e) { console.error('Error loading chat', e); }
-                    }
-                });
-
-                function toggleNewAI() {
-                    const sb = document.getElementById('newAiSidebar');
-                    sb.classList.toggle('-translate-x-full');
-                }
-
-                function clearChat() {
-                    localStorage.removeItem(CHAT_STORAGE_KEY);
-                    aiHistory = [];
-                    const box = document.getElementById('newAiChatBox');
-                    box.innerHTML = `
-                <div class="flex gap-3">
-                    <div class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center shrink-0">🍎</div>
-                    <div class="bg-slate-800 text-slate-200 p-3 rounded-2xl rounded-tr-sm text-sm border border-slate-700">
-                        أهلاً يا بطل! 👋<br>معاك نيوتن.. واقف معاك في أي مسألة أو قانون مش فاهمه.
-                    </div>
+            <div class="p-4 border-t border-slate-700 bg-slate-900">
+                <div class="flex gap-2">
+                    <input type="text" id="aiInput" placeholder="اسأل دالتون..."
+                        class="flex-1 bg-slate-800 border border-slate-600 rounded-xl px-4 py-3 text-sm text-white focus:border-indigo-500 outline-none transition">
+                    <button onclick="sendAI()"
+                        class="bg-indigo-600 hover:bg-indigo-500 text-white p-3 rounded-xl transition shadow-lg shadow-indigo-500/20">🧪</button>
+                    <button onclick="clearChat()"
+                        class="bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white p-3 rounded-xl transition"
+                        title="مسح">🗑️</button>
                 </div>
-            `;
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const OPENROUTER_API_KEY = 'sk-or-v1-' + 'beac3d30dcdb22761e6bb4f342edf6079' + '2f9649bdaedd66620871dd9d72e7fa2';
+        const SYSTEM_PROMPT = `أنت "دالتون 🧪"، المساعد الذكي لمادة الفيزياء في "منصة مصطفى هاني حجاج". 
+        اشرح ببساطة وبالمصري. ركز على تطبيقات الضغط وقاعدة باسكال والمكبس الهيدروليكي. أجب بأسلوب مشجع واستخدم "يا دكتور". استخدم MathJax لو متاح للتنسيق.`;
+
+        let aiHistory = [];
+        const CHAT_STORAGE_KEY = 'chat_history_phys_f3';
+
+        function toggleAI() { document.getElementById('aiSidebar').classList.toggle('-translate-x-full'); }
+        function askAI(q) { toggleAI(); document.getElementById('aiInput').value = q; document.getElementById('aiInput').focus(); }
+
+        function clearChat() {
+            if (!confirm('هل تريد مسح المحادثة؟')) return;
+            localStorage.removeItem(CHAT_STORAGE_KEY);
+            aiHistory = [];
+            document.getElementById('aiChatBox').innerHTML = `
+                <div class="flex gap-3">
+                    <div class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center shrink-0">🧪</div>
+                    <div class="bg-slate-800 text-slate-200 p-3 rounded-2xl rounded-tr-sm text-sm border border-slate-700 leading-relaxed">
+                        أهلاً يا دكتور! 👋 أنا دالتون، معاك هنا عشان نبسط قوانين السوائل والضغط سوا. اسأل اللي واقف معاك.
+                    </div>
+                </div>`;
+        }
+
+        function typeText(element, text) {
+            let i = 0;
+            element.innerHTML = '';
+            const fmt = text.replace(/\*\*(.*?)\*\*/g, '<b class="text-yellow-400">$1</b>').replace(/\n/g, '<br>');
+            const interval = setInterval(() => {
+                if (i < fmt.length) {
+                    element.innerHTML += fmt.charAt(i);
+                    i++;
+                    const box = document.getElementById('aiChatBox');
+                    if (box) box.scrollTop = box.scrollHeight;
+                } else {
+                    clearInterval(interval);
+                    if (window.MathJax) MathJax.typeset();
                 }
+            }, 10);
+        }
 
-                function typeText(el, text, speed = 15) {
-                    let i = 0;
-                    const fmt = text.replace(/\*\*(.*?)\*\*/g, '<b class="text-yellow-400">$1</b>').replace(/\n/g, '<br>');
-                    function t() { if (i < text.length) { el.innerHTML = fmt.substring(0, ++i); setTimeout(t, speed); } else { el.innerHTML = fmt; } }
-                    t();
-                }
+        async function sendAI() {
+            const inp = document.getElementById('aiInput');
+            const txt = inp.value.trim();
+            if (!txt) return;
 
-                async function sendNewAI() {
-                    const inp = document.getElementById('newAiInput');
-                    const txt = inp.value.trim();
-                    if (!txt) return;
+            const box = document.getElementById('aiChatBox');
+            box.innerHTML += `<div class="flex gap-3 flex-row-reverse mb-4 animate-fade-in"><div class="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center shrink-0">👤</div><div class="bg-indigo-600 text-white p-3 rounded-2xl rounded-tl-sm text-sm">${txt}</div></div>`;
+            inp.value = '';
+            box.scrollTop = box.scrollHeight;
 
-                    const box = document.getElementById('newAiChatBox');
-                    box.innerHTML += `<div class="flex gap-3 flex-row-reverse"><div class="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center shrink-0">👤</div><div class="bg-indigo-600 text-white p-3 rounded-2xl rounded-tl-sm text-sm">${txt}</div></div>`;
-                    inp.value = '';
-                    box.scrollTop = box.scrollHeight;
+            const loadingId = 'load-' + Date.now();
+            box.innerHTML += `<div id="${loadingId}" class="flex gap-3 mb-4 animate-fade-in">
+                <div class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center shrink-0">🧪</div>
+                <div class="bg-slate-800 p-3 rounded-2xl flex gap-1 items-center border border-slate-700">
+                    <div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>
+                </div>
+            </div>`;
+            box.scrollTop = box.scrollHeight;
 
-                    const loadingId = 'load-' + Date.now();
-                    box.innerHTML += `<div id="${loadingId}" class="flex gap-3"><div class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center shrink-0">🍎</div><div class="bg-slate-800 text-slate-200 p-3 rounded-2xl rounded-tr-sm text-sm border border-slate-700"><span class="animate-pulse">جاري التفكير... 🧠</span></div></div>`;
-                    box.scrollTop = box.scrollHeight;
+            aiHistory.push({ role: "user", content: txt });
+            localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(aiHistory));
 
-                    aiHistory.push({ role: "user", content: txt });
-                    localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(aiHistory));
-
-                    try {
-                        const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-                            method: 'POST',
-                            headers: { 'Authorization': `Bearer ${NEW_OPENROUTER_KEY}`, 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                                model: 'deepseek/deepseek-r1',
-                                messages: [{ role: "system", content: NEWTON_PROMPT }, ...aiHistory]
-                            })
-                        });
-                        const data = await res.json();
-                        const reply = data.choices?.[0]?.message?.content || "معلش، في مشكلة في الشبكة حالياً 🔌";
-
-                        document.getElementById(loadingId).remove();
-
-                        aiHistory.push({ role: "assistant", content: reply });
-                        localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(aiHistory));
-
-                        const m = document.createElement('div');
-                        m.className = 'flex gap-3 animate-fade-in';
-                        m.innerHTML = `<div class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center shrink-0">🍎</div><div class="bg-slate-800 text-slate-200 p-3 rounded-2xl rounded-tr-sm text-sm border border-slate-700 leading-relaxed" id="r-${loadingId}"></div>`;
-                        box.appendChild(m);
-                        typeText(document.getElementById('r-' + loadingId), reply);
-                        box.scrollTop = box.scrollHeight;
-
-                    } catch (e) {
-                        document.getElementById(loadingId).innerHTML = "خطأ في الاتصال بالسيرفر! 🔌";
-                    }
-                }
-
-                document.getElementById('newAiInput').addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter') sendNewAI();
+            try {
+                const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
+                        'Content-Type': 'application/json',
+                        'HTTP-Referer': window.location.href,
+                        'X-Title': 'Physics Lesson'
+                    },
+                    body: JSON.stringify({ model: 'deepseek/deepseek-r1', messages: [{ role: "system", content: SYSTEM_PROMPT }, ...aiHistory] })
                 });
-            </script>
+
+                if (!res.ok) throw new Error(`Server Error (${res.status})`);
+                const data = await res.json();
+                if (data.error) throw new Error(data.error.message);
+
+                const reply = data.choices?.[0]?.message?.content || "عذراً يا دكتور، حصل خطأ. حاول من جديد.";
+                document.getElementById(loadingId).remove();
+
+                const resId = 'r-' + Date.now();
+                box.innerHTML += `<div class="flex gap-3 mb-4 animate-fade-in">
+                    <div class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center shrink-0">🧪</div>
+                    <div class="bg-slate-800 text-slate-200 p-3 rounded-2xl rounded-tr-sm text-sm border border-slate-700 leading-relaxed" id="${resId}"></div>
+                </div>`;
+
+                aiHistory.push({ role: "assistant", content: reply });
+                localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(aiHistory));
+                typeText(document.getElementById(resId), reply);
+
+            } catch (e) {
+                console.error(e);
+                const errorMsg = e.message.includes('fetch') ? 'مشكلة في الانترنت' : e.message;
+                const loadEl = document.getElementById(loadingId);
+                if (loadEl) loadEl.innerHTML = `<div class="text-red-400 text-xs p-2 bg-red-900/20 rounded">❌ خطأ: ${errorMsg}</div>`;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const saved = localStorage.getItem(CHAT_STORAGE_KEY);
+            if (saved) {
+                try {
+                    aiHistory = JSON.parse(saved);
+                    const box = document.getElementById('aiChatBox');
+                    aiHistory.forEach(msg => {
+                        if (msg.role === 'user') {
+                            box.innerHTML += `<div class="flex gap-3 flex-row-reverse mb-4 animate-fade-in"><div class="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center shrink-0">👤</div><div class="bg-indigo-600 text-white p-3 rounded-2xl rounded-tl-sm text-sm">${msg.content}</div></div>`;
+                        } else if (msg.role === 'assistant') {
+                            box.innerHTML += `<div class="flex gap-3 mb-4 animate-fade-in"><div class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center shrink-0">🧪</div><div class="bg-slate-800 text-slate-200 p-3 rounded-2xl rounded-tr-sm text-sm border border-slate-700 leading-relaxed">${msg.content}</div></div>`;
+                        }
+                    });
+                    box.scrollTop = box.scrollHeight;
+                } catch (e) { }
+            }
+        });
+
+        document.getElementById('aiInput')?.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendAI(); });
+    </script>
 </body>
 
 </html>
