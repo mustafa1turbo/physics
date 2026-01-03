@@ -526,18 +526,23 @@
             particleContainer.appendChild(p);
         }
 
-        // 🛡️ Security: Key split into parts to bypass GitHub's automated revocation scanners
-        const _part1 = 'sk-or-v1-';
-        const _part2 = 'beac3d30dcdb22761e6bb4f342edf6079';
-        const _part3 = '2f9649bdaedd66620871dd9d72e7fa2';
-        const OPENROUTER_API_KEY = _part1 + _part2 + _part3;
-        const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
-        const SYSTEM_PROMPT = `أنت "نيوتن 🍎"، المساعد الذكي في "منصة الفيزياء التعليمية" لمصطفى هاني حجاج. 
-مهمتك مساعدة طلاب تانية ثانوي في المنهج الموجود في المنصة حالياً:
-1. الموائع الساكنة (الكثافة، الضغط عند نقطة في باطن سائل، الضغط الجوي، الأنبوبة ذات الشعبتين، البارومتر، المانومتر، قاعدة باسكال، المكبس الهيدروليكي).
-2. قوانين الغازات (خصائص الغازات، قانون بويل، قانون شارل، قانون الضغط، القانون العام للغازات).
-
-أجب بأسلوب مصري مبسط جداً ومشجع. استخدم جمل زي "يا بطل". لا تتحدث عن مواضيع خارج هذا المنهج (زي الكهرباء أو الحركة) إلا لو الطالب سأل عنها كمعلومات عامة، بس ركز إنك هنا عشان الموائع والغازات.`;
+        // 🛡️ Security: API Key is now handled by Cloudflare Worker
+        const OPENROUTER_API_URL = 'https://long-union-760genius-proxy.moustafahanyhagagg.workers.dev';
+        const SYSTEM_PROMPT = `أنت "نيوتن 🍎"، المساعد الذكي في "منصة الفيزياء التعليمية" لمصطفى هاني حجاج.
+        
+🛑 تعليمات صارمة:
+1. **الترحيب فقط:** "أهلاً يا دكتور! جاهز للفيزياء؟ 🍎". **بدون شرح**.
+2. **⚠️ الطالب بيذاكر للامتحان:** "إيه المهم؟" = المهم في الامتحان.
+   - الامتحان: الأنبوبة ذات الشعبتين، حساب ارتفاع المبنى، المكبس.
+   - الفخاخ: "الأنبوبة المايلة h ثابت"، "المساحة لا تؤثر".
+3. **📝 المعادلات زي الكشكول (MathJax):**
+   ❌ ممنوع: P = rho * g * h أو R^2 = F1^2
+   ✅ صح: $P = \\rho g h$ أو $R^2 = F_1^2 + F_2^2$
+   - الكسور: $\\frac{F_2}{F_1} = \\frac{A_2}{A_1}$ مش F2/F1
+   - الجذور: $\\sqrt{x}$ مش sqrt(x)
+   - الأسس: $x^2$ أو $10^5$ مش x^2 أو 10^5
+   - الحروف اليونانية: $\\rho, \\theta, \\Delta$ مش rho, theta
+4. **أسلوب:** مصري، "يا بطل"، خطوات واضحة.`;
         let conversationHistory = [];
 
         // Typing
@@ -585,18 +590,18 @@
         window.closeLesson = function () { modal.classList.remove('active'); }
         window.selectLesson = function (id) { openLesson(id); }
 
-        // Chat
-        async function getAIResponse(userMessage) {
+        // Chat - 🚀 Streaming Version for Real-time Response
+        async function streamAIResponse(userMessage, targetElement) {
             conversationHistory.push({ role: "user", content: userMessage });
+            let fullResponse = '';
 
             try {
                 const response = await fetch(OPENROUTER_API_URL, {
                     method: 'POST',
                     headers: {
-                        'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
                         'Content-Type': 'application/json',
-                        'HTTP-Referer': window.location.href,
-                        'X-Title': 'Physics Platform'
+                        'X-Title': 'Physics Platform',
+                        'X-Subject': 'physics'
                     },
                     body: JSON.stringify({
                         model: 'deepseek/deepseek-r1',
@@ -604,21 +609,53 @@
                     })
                 });
 
-                if (!response.ok) {
-                    const errText = await response.text();
-                    throw new Error(`Server Error (${response.status})`);
+                if (!response.ok) throw new Error(`Server Error (${response.status})`);
+
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let buffer = '';
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+
+                    buffer += decoder.decode(value, { stream: true });
+                    const lines = buffer.split('\n');
+                    buffer = lines.pop(); // Keep the partial line in the buffer
+
+                    for (const line of lines) {
+                        const cleanLine = line.trim();
+                        if (!cleanLine || !cleanLine.startsWith('data: ')) continue;
+
+                        const jsonStr = cleanLine.replace('data: ', '').trim();
+                        if (jsonStr === '[DONE]') continue;
+
+                        try {
+                            const parsed = JSON.parse(jsonStr);
+                            const content = parsed.choices?.[0]?.delta?.content || '';
+                            if (content) {
+                                fullResponse += content;
+                                targetElement.innerHTML = fullResponse.replace(/\n/g, '<br>');
+                                targetElement.closest('.overflow-y-auto')?.scrollTo(0, targetElement.closest('.overflow-y-auto').scrollHeight);
+                            }
+                        } catch (e) { /* skip partial/invalid JSON */ }
+                    }
                 }
 
-                const data = await response.json();
-                if (data.error) throw new Error(data.error.message || "Unknown API Error");
-
-                const botReply = data.choices?.[0]?.message?.content || "عذراً، لم يصل رد مفهوم. حاول مرة أخرى.";
-                conversationHistory.push({ role: "assistant", content: botReply });
-                return botReply;
+                conversationHistory.push({ role: "assistant", content: fullResponse });
+                return fullResponse;
             } catch (error) {
                 console.error(error);
-                return error.message.includes('Failed to fetch') ? "مشكلة في الانترنت 🔌" : `عذراً هندسة حصل خطأ: ${error.message}`;
+                const errMsg = error.message.includes('fetch') ? "مشكلة في الانترنت 🔌" : `خطأ: ${error.message}`;
+                targetElement.innerHTML = errMsg;
+                return errMsg;
             }
+        }
+
+        // Fallback
+        async function getAIResponse(userMessage) {
+            conversationHistory.push({ role: "user", content: userMessage });
+            return "جاري التحميل...";
         }
 
         function typeText(element, text) {
@@ -667,12 +704,16 @@
         };
 
         async function handleSend(inputId) {
+            console.log('📤 handleSend called for:', inputId);
             const input = document.getElementById(inputId);
             const text = input.value.trim();
-            if (!text) return;
+            if (!text) {
+                console.log('❌ Input is empty');
+                return;
+            }
 
             const allBoxes = ['chatBox', 'modalChatBox'];
-            const typingId = 'typing-' + Date.now();
+            const msgId = 'res-' + Date.now();
 
             allBoxes.forEach(id => {
                 const box = document.getElementById(id);
@@ -682,42 +723,50 @@
                         <div class="bg-gradient-to-l from-indigo-600 to-purple-600 text-white p-3 rounded-2xl rounded-tl-sm message-bubble text-sm">${text}</div>
                     </div>`;
 
-                    // Thinking Indicator
-                    box.innerHTML += `<div id="${typingId}-${id}" class="flex gap-3 animate-float-message">
+                    box.innerHTML += `<div class="flex gap-3 animate-float-message">
                         <div class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center shrink-0">🍎</div>
-                        <div class="bg-slate-800 p-4 rounded-2xl rounded-tr-sm flex gap-1 items-center">
-                            <div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>
-                        </div>
+                        <div class="bg-slate-800 text-slate-200 p-3 rounded-2xl rounded-tr-sm message-bubble text-sm leading-relaxed border border-slate-700" id="${msgId}-${id}">⏳ جاري التفكير...</div>
                     </div>`;
                     box.scrollTop = box.scrollHeight;
                 }
             });
 
             input.value = '';
-            const reply = await getAIResponse(text);
 
-            allBoxes.forEach(id => {
-                const typingIndicator = document.getElementById(`${typingId}-${id}`);
-                if (typingIndicator) typingIndicator.remove();
+            const targetBox = document.getElementById(`${msgId}-chatBox`) || document.getElementById(`${msgId}-modalChatBox`);
+            if (targetBox) {
+                targetBox.innerHTML = '';
+                await streamAIResponse(text, targetBox);
 
-                const box = document.getElementById(id);
-                if (box) {
-                    const msgId = 'res-' + Date.now() + '-' + id;
-                    box.innerHTML += `<div class="flex gap-3 animate-float-message">
-                        <div class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center shrink-0">🍎</div>
-                        <div class="bg-slate-800 text-slate-200 p-3 rounded-2xl rounded-tr-sm message-bubble text-sm leading-relaxed border border-slate-700" id="${msgId}"></div>
-                    </div>`;
-                    typeText(document.getElementById(msgId), reply);
-                }
-            });
+                allBoxes.forEach(id => {
+                    const otherTarget = document.getElementById(`${msgId}-${id}`);
+                    if (otherTarget && otherTarget !== targetBox) {
+                        otherTarget.innerHTML = targetBox.innerHTML;
+                    }
+                });
+            }
         }
 
         ['chatInput', 'modalChatInput'].forEach(id => {
             const btn = id === 'chatInput' ? 'sendBtn' : 'modalSendBtn';
-            document.getElementById(btn).addEventListener('click', () => handleSend(id));
-            document.getElementById(id).addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') handleSend(id);
-            });
+            const btnEl = document.getElementById(btn);
+            const inputEl = document.getElementById(id);
+
+            if (btnEl) {
+                btnEl.addEventListener('click', () => {
+                    console.log('🖱️ Button clicked:', btn);
+                    handleSend(id);
+                });
+            }
+
+            if (inputEl) {
+                inputEl.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        console.log('⌨️ Enter pressed in:', id);
+                        handleSend(id);
+                    }
+                });
+            }
         });
     </script>
 </body>
