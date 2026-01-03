@@ -240,6 +240,36 @@
             border-top-left-radius: 4px;
             border: 1px dashed #f87171;
         }
+
+        /* AI Chat Sidebar */
+        .ai-sidebar {
+            position: fixed;
+            top: 80px;
+            left: 20px;
+            width: 300px;
+            height: calc(100vh - 100px);
+            z-index: 40;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s ease;
+        }
+
+        @media (max-width: 1024px) {
+            .ai-sidebar {
+                transform: translateX(-110%);
+                background: #1e293b;
+                left: 0;
+                top: 0;
+                height: 100vh;
+                width: 100%;
+                z-index: 60;
+                padding-top: 80px;
+            }
+
+            .ai-sidebar.active {
+                transform: translateX(0);
+            }
+        }
     </style>
 </head>
 
@@ -285,8 +315,10 @@
         <div onclick="scrollToSection('quiz')" class="nav-item">📝 التحدي النهائي</div>
     </nav>
 
+
+
     <!-- Main Content -->
-    <main class="lg:mr-[280px] pt-24 px-4 md:px-8 max-w-5xl mx-auto">
+    <main class="lg:mr-[280px] pt-24 px-4 md:px-8 max-w-5xl mx-auto transition-all duration-300" id="mainContent">
 
         <!-- Intro Section -->
         <section id="intro" class="mb-16 scroll-mt-24">
@@ -1150,30 +1182,18 @@
         </section>
 
         <!-- Summary Section (The Zaytouna) -->
+        <!-- Link to Laws Summary (In place of duplicate laws) -->
         <section id="summary" class="mb-20 scroll-mt-24">
             <h2 class="text-3xl font-bold mb-6 border-r-4 border-indigo-500 pr-4">خلاصة القوانين (الزتونة) 🍋</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-
-                <!-- Pressure -->
-                <div class="glass-panel p-4 border-t-4 border-blue-500">
-                    <h4 class="text-blue-400 font-bold mb-2">ضغط سائل</h4>
-                    <div class="bg-slate-900 rounded p-2 text-center font-mono text-sm ltr">P = ρgh</div>
-                    <p class="text-center text-xs mt-1 text-slate-400">عند نقطة في باطنه</p>
-                </div>
-
-                <!-- Pascal -->
-                <div class="glass-panel p-4 border-t-4 border-green-500">
-                    <h4 class="text-green-400 font-bold mb-2">المكبس الهيدروليكي</h4>
-                    <div class="bg-slate-900 rounded p-2 text-center font-mono text-sm ltr">F₂/F₁ = A₂/A₁ = η</div>
-                    <p class="text-center text-xs mt-1 text-slate-400">الفائدة الآلية η</p>
-                </div>
-
-                <!-- Manometer -->
-                <div class="glass-panel p-4 border-t-4 border-red-500">
-                    <h4 class="text-red-400 font-bold mb-2">المانومتر</h4>
-                    <div class="bg-slate-900 rounded p-2 text-center font-mono text-sm ltr">P_gas = Pₐ ± h</div>
-                    <p class="text-center text-xs mt-1 text-slate-400">+ لو أكبر، - لو أقل</p>
-                </div>
+            <div class="glass-panel text-center p-8">
+                <span class="text-6xl mb-4 block">⚖️</span>
+                <h3 class="text-2xl font-bold text-white mb-4">عايز ملخص القوانين كلها في مكان واحد؟</h3>
+                <p class="text-slate-300 mb-6">جمعنالك كل قوانين المنهج (كثافة، ضغط، غازات) في صفحة واحدة مع شرح كل رمز.
+                </p>
+                <a href="lesson-laws.html"
+                    class="inline-block bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold py-3 px-8 rounded-full shadow-lg hover:shadow-indigo-500/30 transition transform hover:-translate-y-1">
+                    🚀 روح لملخص القوانين
+                </a>
             </div>
         </section>
 
@@ -2041,6 +2061,179 @@
             initBarometer();
             initPress();
         }
+    </script>
+
+    <!-- Float Home Button -->
+    <a href="index.html"
+        class="fixed top-4 left-4 z-50 bg-slate-800/80 backdrop-blur text-white px-4 py-2 rounded-full border border-white/10 hover:bg-slate-700 transition flex items-center gap-2 shadow-lg">
+        <span>🏠</span> <span class="hidden md:inline text-sm font-bold">الرئيسية</span>
+    </a>
+
+    <!-- AI Chat Sidebar Injection -->
+    <div id="ai-sidebar-container">
+        <!-- Float Button -->
+        <button onclick="toggleNewAI()"
+            class="fixed bottom-6 left-6 z-50 bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-4 rounded-full shadow-2xl hover:scale-110 transition-transform flex items-center gap-2 border-2 border-white/20">
+            <span class="text-2xl">🍎</span>
+            <span class="font-bold hidden md:inline">اسأل نيوتن</span>
+        </button>
+
+        <!-- Sidebar -->
+        <div id="newAiSidebar"
+            class="fixed top-0 left-0 h-full w-full md:w-[350px] bg-slate-900/95 backdrop-blur-xl border-r border-slate-700 transform -translate-x-full transition-transform duration-300 z-[60] shadow-2xl flex flex-col">
+            <!-- Header -->
+            <div class="p-4 border-b border-slate-700 flex items-center justify-between bg-slate-900">
+                <div class="flex items-center gap-2">
+                    <span class="text-2xl">🍎</span>
+                    <div>
+                        <h3 class="font-bold text-white">مساعد نيوتن</h3>
+                        <div class="flex items-center gap-1 text-[10px] text-green-400">
+                            <span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span> متصل
+                        </div>
+                    </div>
+                </div>
+                <button onclick="toggleNewAI()" class="text-slate-400 hover:text-white transition">✕</button>
+            </div>
+
+            <!-- Chat Area -->
+            <div id="newAiChatBox" class="flex-1 overflow-y-auto p-4 space-y-4">
+                <div class="flex gap-3">
+                    <div
+                        class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center shrink-0">
+                        🍎</div>
+                    <div
+                        class="bg-slate-800 text-slate-200 p-3 rounded-2xl rounded-tr-sm text-sm border border-slate-700">
+                        أهلاً يا بطل! 👋<br>معاك نيوتن.. واقف معاك في أي مسألة أو قانون مش فاهمه.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Input -->
+            <div class="p-4 border-t border-slate-700 bg-slate-900">
+                <div class="flex gap-2">
+                    <input type="text" id="newAiInput" placeholder="اسأل نيوتن..."
+                        class="flex-1 bg-slate-800 border border-slate-600 rounded-xl px-4 py-3 text-sm text-white focus:border-indigo-500 outline-none transition">
+                    <button onclick="sendNewAI()"
+                        class="bg-indigo-600 hover:bg-indigo-500 text-white p-3 rounded-xl transition shadow-lg shadow-indigo-500/20">🚀</button>
+                    <button onclick="clearChat()"
+                        class="bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white p-3 rounded-xl transition"
+                        title="مسح المحادثة">🗑️</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // AI Logic
+        const NEW_OPENROUTER_KEY = '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';
+        const PAGE_CONTENT = document.body.innerText.substring(0, 15000).replace(/\s+/g, ' ');
+        const NEWTON_SYSTEM_PROMPT = `أنت "نيوتن 🍎"، مساعد فيزياء ذكي لطلاب ثانية ثانوي.
+        
+🎯 تعليمات مهمة:
+1. لو الطالب قال "أهلا" أو "سلام"، رد بترحيب بسيط جداً (سطر واحد) ومتقولش أي شرح غير لما يسأل.
+2. اشرح بالمصري البسيط وخطوات مرقمة.
+3. انت عارف كل كلمة في الدرس ده. دي محتويات الدرس الحالية: 
+${PAGE_CONTENT}
+
+4. المنهج: الموائع، البارومتر، باسكال، الغازات.`;
+
+        let aiHistory = [];
+        const CHAT_STORAGE_KEY = 'chat_history_phys_fluids1';
+
+        // Load History
+        document.addEventListener('DOMContentLoaded', () => {
+            const saved = localStorage.getItem(CHAT_STORAGE_KEY);
+            if (saved) {
+                try {
+                    aiHistory = JSON.parse(saved);
+                    const box = document.getElementById('newAiChatBox');
+                    aiHistory.forEach(msg => {
+                        if (msg.role === 'user') {
+                            box.innerHTML += `<div class="flex gap-3 flex-row-reverse"><div class="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center shrink-0">👤</div><div class="bg-indigo-600 text-white p-3 rounded-2xl rounded-tl-sm text-sm">${msg.content}</div></div>`;
+                        } else if (msg.role === 'assistant') {
+                            box.innerHTML += `<div class="flex gap-3"><div class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center shrink-0">🍎</div><div class="bg-slate-800 text-slate-200 p-3 rounded-2xl rounded-tr-sm text-sm border border-slate-700 leading-relaxed">${msg.content}</div></div>`;
+                        }
+                    });
+                    box.scrollTop = box.scrollHeight;
+                } catch (e) { console.error('Error loading chat', e); }
+            }
+        });
+
+        function toggleNewAI() {
+            const sb = document.getElementById('newAiSidebar');
+            sb.classList.toggle('-translate-x-full');
+        }
+
+        function clearChat() {
+            localStorage.removeItem(CHAT_STORAGE_KEY);
+            aiHistory = [];
+            const box = document.getElementById('newAiChatBox');
+            box.innerHTML = `
+                <div class="flex gap-3">
+                    <div class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center shrink-0">🍎</div>
+                    <div class="bg-slate-800 text-slate-200 p-3 rounded-2xl rounded-tr-sm text-sm border border-slate-700">
+                        أهلاً يا بطل! 👋<br>معاك نيوتن.. واقف معاك في أي مسألة أو قانون مش فاهمه.
+                    </div>
+                </div>
+            `;
+        }
+
+        function typeText(el, text, speed = 15) {
+            let i = 0;
+            const fmt = text.replace(/\*\*(.*?)\*\*/g, '<b class="text-yellow-400">$1</b>').replace(/\n/g, '<br>');
+            function t() { if (i < text.length) { el.innerHTML = fmt.substring(0, ++i); setTimeout(t, speed); } else { el.innerHTML = fmt; } }
+            t();
+        }
+
+        async function sendNewAI() {
+            const inp = document.getElementById('newAiInput');
+            const txt = inp.value.trim();
+            if (!txt) return;
+
+            const box = document.getElementById('newAiChatBox');
+            box.innerHTML += `<div class="flex gap-3 flex-row-reverse"><div class="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center shrink-0">👤</div><div class="bg-indigo-600 text-white p-3 rounded-2xl rounded-tl-sm text-sm">${txt}</div></div>`;
+            inp.value = '';
+            box.scrollTop = box.scrollHeight;
+
+            const loadingId = 'load-' + Date.now();
+            box.innerHTML += `<div id="${loadingId}" class="flex gap-3"><div class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center shrink-0">🍎</div><div class="bg-slate-800 text-slate-200 p-3 rounded-2xl rounded-tr-sm text-sm border border-slate-700"><span class="animate-pulse">جاري التفكير... 🧠</span></div></div>`;
+            box.scrollTop = box.scrollHeight;
+
+            aiHistory.push({ role: "user", content: txt });
+            localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(aiHistory));
+
+            try {
+                const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${NEW_OPENROUTER_KEY}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        model: 'deepseek/deepseek-r1',
+                        messages: [{ role: "system", content: NEWTON_SYSTEM_PROMPT }, ...aiHistory]
+                    })
+                });
+                const data = await res.json();
+                const reply = data.choices?.[0]?.message?.content || "معلش، في مشكلة في الشبكة حالياً 🔌";
+
+                document.getElementById(loadingId).remove();
+
+                aiHistory.push({ role: "assistant", content: reply });
+                localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(aiHistory));
+
+                const m = document.createElement('div');
+                m.className = 'flex gap-3 animate-fade-in';
+                m.innerHTML = `<div class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center shrink-0">🍎</div><div class="bg-slate-800 text-slate-200 p-3 rounded-2xl rounded-tr-sm text-sm border border-slate-700 leading-relaxed" id="r-${loadingId}"></div>`;
+                box.appendChild(m);
+                typeText(document.getElementById('r-' + loadingId), reply);
+                box.scrollTop = box.scrollHeight;
+
+            } catch (e) {
+                document.getElementById(loadingId).innerHTML = "خطأ في الاتصال بالسيرفر! 🔌";
+            }
+        }
+
+        document.getElementById('newAiInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendNewAI();
+        });
     </script>
 </body>
 
