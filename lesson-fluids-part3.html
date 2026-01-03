@@ -746,6 +746,162 @@
         };
         window.onresize = initSim;
     </script>
+
+    <!-- Float Home Button -->
+    <a href="index.html"
+        class="fixed top-4 left-4 z-50 bg-slate-800/80 backdrop-blur text-white px-4 py-2 rounded-full border border-white/10 hover:bg-slate-700 transition flex items-center gap-2 shadow-lg">
+        <span>🏠</span> <span class="hidden md:inline text-sm font-bold">الرئيسية</span>
+    </a>
+
+    <!-- AI Chat Sidebar Injection -->
+    <div id="ai-sidebar-container">
+        <button onclick="toggleNewAI()"
+            class="fixed bottom-6 left-6 z-50 bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-4 rounded-full shadow-2xl hover:scale-110 transition-transform flex items-center gap-2 border-2 border-white/20">
+            <span class="text-2xl">🍎</span>
+            <span class="font-bold hidden md:inline">اسأل نيوتن</span>
+        </button>
+        <div id="newAiSidebar"
+            class="fixed top-0 left-0 h-full w-full md:w-[350px] bg-slate-900/95 backdrop-blur-xl border-r border-slate-700 transform -translate-x-full transition-transform duration-300 z-[60] shadow-2xl flex flex-col">
+            <div class="p-4 border-b border-slate-700 flex items-center justify-between bg-slate-900">
+                <div class="flex items-center gap-2">
+                    <span class="text-2xl">🍎</span>
+                    <div>
+                        <h3 class="font-bold text-white">مساعد نيوتن</h3>
+                        <div class="flex items-center gap-1 text-[10px] text-green-400">
+                            <span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span> متصل
+                        </div>
+                    </div>
+                </div>
+                <button onclick="toggleNewAI()" class="text-slate-400 hover:text-white transition">✕</button>
+            </div>
+            <div id="newAiChatBox" class="flex-1 overflow-y-auto p-4 space-y-4">
+                <div class="flex gap-3">
+                    <div
+                        class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center shrink-0">
+                        🍎</div>
+                    <div class="p-4 border-t border-slate-700 bg-slate-900">
+                        <div class="flex gap-2">
+                            <input type="text" id="newAiInput" placeholder="اسأل نيوتن..."
+                                class="flex-1 bg-slate-800 border border-slate-600 rounded-xl px-4 py-3 text-sm text-white focus:border-indigo-500 outline-none transition">
+                            <button onclick="sendNewAI()"
+                                class="bg-indigo-600 hover:bg-indigo-500 text-white p-3 rounded-xl transition shadow-lg shadow-indigo-500/20">🚀</button>
+                            <button onclick="clearChat()"
+                                class="bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white p-3 rounded-xl transition"
+                                title="مسح المحادثة">🗑️</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <script>
+                const NEW_OPENROUTER_KEY = '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';
+                const PAGE_CONTENT = document.body.innerText.substring(0, 15000).replace(/\s+/g, ' ');
+                const NEWTON_PROMPT = `أنت "نيوتن 🍎"، مساعد فيزياء ذكي.
+        
+🎯 تعليمات:
+1. لو الطالب سلم (أهلا/سلام)، رد بترحيب بسيط في سطر واحد فقط.
+2. اشرح خطوات الحل بترقيم واضح وبالمصري البسيط.
+3. انت عارف كل كلمة في الدرس ده. دي محتويات الدرس الحالية: 
+${PAGE_CONTENT}
+
+4. المنهج: الموائع، البارومتر، باسكال، الغازات.`;
+
+                let aiHistory = [];
+                const CHAT_STORAGE_KEY = 'chat_history_phys_fluids3';
+
+                document.addEventListener('DOMContentLoaded', () => {
+                    const saved = localStorage.getItem(CHAT_STORAGE_KEY);
+                    if (saved) {
+                        try {
+                            aiHistory = JSON.parse(saved);
+                            const box = document.getElementById('newAiChatBox');
+                            aiHistory.forEach(msg => {
+                                if (msg.role === 'user') {
+                                    box.innerHTML += `<div class="flex gap-3 flex-row-reverse"><div class="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center shrink-0">👤</div><div class="bg-indigo-600 text-white p-3 rounded-2xl rounded-tl-sm text-sm">${msg.content}</div></div>`;
+                                } else if (msg.role === 'assistant') {
+                                    box.innerHTML += `<div class="flex gap-3"><div class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center shrink-0">🍎</div><div class="bg-slate-800 text-slate-200 p-3 rounded-2xl rounded-tr-sm text-sm border border-slate-700 leading-relaxed">${msg.content}</div></div>`;
+                                }
+                            });
+                            box.scrollTop = box.scrollHeight;
+                        } catch (e) { console.error('Error loading chat', e); }
+                    }
+                });
+
+                function toggleNewAI() {
+                    const sb = document.getElementById('newAiSidebar');
+                    sb.classList.toggle('-translate-x-full');
+                }
+
+                function clearChat() {
+                    localStorage.removeItem(CHAT_STORAGE_KEY);
+                    aiHistory = [];
+                    const box = document.getElementById('newAiChatBox');
+                    box.innerHTML = `
+                <div class="flex gap-3">
+                    <div class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center shrink-0">🍎</div>
+                    <div class="bg-slate-800 text-slate-200 p-3 rounded-2xl rounded-tr-sm text-sm border border-slate-700">
+                        أهلاً يا بطل! 👋<br>معاك نيوتن.. واقف معاك في أي مسألة أو قانون مش فاهمه.
+                    </div>
+                </div>
+            `;
+                }
+
+                function typeText(el, text, speed = 15) {
+                    let i = 0;
+                    const fmt = text.replace(/\*\*(.*?)\*\*/g, '<b class="text-yellow-400">$1</b>').replace(/\n/g, '<br>');
+                    function t() { if (i < text.length) { el.innerHTML = fmt.substring(0, ++i); setTimeout(t, speed); } else { el.innerHTML = fmt; } }
+                    t();
+                }
+
+                async function sendNewAI() {
+                    const inp = document.getElementById('newAiInput');
+                    const txt = inp.value.trim();
+                    if (!txt) return;
+
+                    const box = document.getElementById('newAiChatBox');
+                    box.innerHTML += `<div class="flex gap-3 flex-row-reverse"><div class="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center shrink-0">👤</div><div class="bg-indigo-600 text-white p-3 rounded-2xl rounded-tl-sm text-sm">${txt}</div></div>`;
+                    inp.value = '';
+                    box.scrollTop = box.scrollHeight;
+
+                    const loadingId = 'load-' + Date.now();
+                    box.innerHTML += `<div id="${loadingId}" class="flex gap-3"><div class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center shrink-0">🍎</div><div class="bg-slate-800 text-slate-200 p-3 rounded-2xl rounded-tr-sm text-sm border border-slate-700"><span class="animate-pulse">جاري التفكير... 🧠</span></div></div>`;
+                    box.scrollTop = box.scrollHeight;
+
+                    aiHistory.push({ role: "user", content: txt });
+                    localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(aiHistory));
+
+                    try {
+                        const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+                            method: 'POST',
+                            headers: { 'Authorization': `Bearer ${NEW_OPENROUTER_KEY}`, 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                model: 'deepseek/deepseek-r1',
+                                messages: [{ role: "system", content: NEWTON_PROMPT }, ...aiHistory]
+                            })
+                        });
+                        const data = await res.json();
+                        const reply = data.choices?.[0]?.message?.content || "معلش، في مشكلة في الشبكة حالياً 🔌";
+
+                        document.getElementById(loadingId).remove();
+
+                        aiHistory.push({ role: "assistant", content: reply });
+                        localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(aiHistory));
+
+                        const m = document.createElement('div');
+                        m.className = 'flex gap-3 animate-fade-in';
+                        m.innerHTML = `<div class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center shrink-0">🍎</div><div class="bg-slate-800 text-slate-200 p-3 rounded-2xl rounded-tr-sm text-sm border border-slate-700 leading-relaxed" id="r-${loadingId}"></div>`;
+                        box.appendChild(m);
+                        typeText(document.getElementById('r-' + loadingId), reply);
+                        box.scrollTop = box.scrollHeight;
+
+                    } catch (e) {
+                        document.getElementById(loadingId).innerHTML = "خطأ في الاتصال بالسيرفر! 🔌";
+                    }
+                }
+
+                document.getElementById('newAiInput').addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') sendNewAI();
+                });
+            </script>
 </body>
 
 </html>
