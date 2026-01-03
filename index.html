@@ -110,12 +110,121 @@
             backdrop-filter: blur(4px);
         }
 
-        /* Particles Background */
         .particle {
             position: absolute;
             background: rgba(255, 255, 255, 0.1);
             border-radius: 50%;
             pointer-events: none;
+        }
+
+        /* Non-bouncing message animation */
+        @keyframes msg-fade {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-float-message {
+            animation: msg-fade 0.3s ease-out forwards;
+        }
+
+        /* Chat Specifics */
+        .chat-container {
+            height: 400px;
+            overflow-y: auto;
+        }
+
+        .message-bubble {
+            max-width: 85%;
+            word-wrap: break-word;
+        }
+
+        .typing-dot {
+            width: 6px;
+            height: 6px;
+            background: #94a3b8;
+            border-radius: 50%;
+            animation: bounce 1.4s infinite ease-in-out both;
+        }
+
+        .typing-dot:nth-child(1) {
+            animation-delay: -0.32s;
+        }
+
+        .typing-dot:nth-child(2) {
+            animation-delay: -0.16s;
+        }
+
+        @keyframes bounce {
+
+            0%,
+            80%,
+            100% {
+                transform: scale(0);
+            }
+
+            40% {
+                transform: scale(1);
+            }
+        }
+
+        .cursor-blink {
+            display: inline-block;
+            width: 3px;
+            height: 1em;
+            background: #fff;
+            margin-right: 4px;
+            animation: blink 1s infinite;
+            vertical-align: middle;
+        }
+
+        @keyframes blink {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0;
+            }
+        }
+
+        /* Lesson Modal */
+        .lesson-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 5000;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(10px);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .lesson-modal.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .modal-animate {
+            animation: modalUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes modalUp {
+            from {
+                transform: translateY(50px) scale(0.95);
+            }
+
+            to {
+                transform: translateY(0) scale(1);
+            }
         }
     </style>
 </head>
@@ -125,13 +234,62 @@
     <!-- Decorative particles -->
     <div id="particles" class="fixed inset-0 pointer-events-none z-0 overflow-hidden"></div>
 
+    <!-- Lesson Modal -->
+    <div class="lesson-modal items-center justify-center p-4" id="lessonModal">
+        <div
+            class="modal-content w-full max-w-7xl h-[90vh] bg-slate-900 border border-slate-700 rounded-2xl flex flex-col md:flex-row overflow-hidden shadow-2xl modal-animate relative">
+            <button
+                class="absolute top-4 left-4 z-50 w-10 h-10 bg-slate-800 text-white rounded-full flex items-center justify-center hover:bg-red-500 transition shadow-lg"
+                onclick="closeLesson()">✕</button>
+
+            <!-- Left: Content (Visible by default on mobile) -->
+            <div id="modalContentPanel"
+                class="w-full md:w-2/3 p-8 overflow-y-auto border-l border-slate-800 bg-slate-900/50 relative">
+                <h2 class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-indigo-500 mb-6"
+                    id="modalTitle">عنوان الدرس</h2>
+                <div class="prose prose-invert max-w-none text-slate-300 leading-loose" id="modalBody">
+                    <!-- Content injected here -->
+                </div>
+                <!-- Mobile Floating Button -->
+                <button
+                    class="md:hidden fixed bottom-6 left-6 bg-indigo-600 text-white px-6 py-3 rounded-full shadow-2xl flex items-center gap-2 animate-bounce z-40"
+                    onclick="showMobileChat()">
+                    <span>💬</span> اسأل نيوتن
+                </button>
+            </div>
+
+            <!-- Right: AI Chat (Hidden on mobile by default) -->
+            <div id="modalChatPanel"
+                class="w-full md:w-1/3 flex-col bg-slate-950/50 border-r border-slate-800/30 hidden md:flex h-full">
+                <div class="p-4 border-b border-slate-800 bg-slate-900/80 flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <span class="text-xl">🍎</span>
+                        <span class="font-bold text-slate-200">المساعد الذكي</span>
+                    </div>
+                    <!-- Back Button for Mobile -->
+                    <button class="md:hidden text-sm text-slate-400 hover:text-white" onclick="showMobileContent()">
+                        ⬅️ شرح الدرس
+                    </button>
+                </div>
+                <div class="flex-1 p-4 overflow-y-auto space-y-4" id="modalChatBox"></div>
+                <div class="p-4 border-t border-slate-800 bg-slate-900/80">
+                    <div class="flex gap-2">
+                        <input type="text" id="modalChatInput"
+                            class="flex-1 bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 transition text-white"
+                            placeholder="اسأل نيوتن...">
+                        <button id="modalSendBtn"
+                            class="bg-indigo-600 hover:bg-indigo-500 text-white p-3 rounded-xl transition shadow-lg shadow-indigo-500/20">🍎</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Header -->
     <header
         class="fixed top-0 w-full z-50 bg-slate-900/80 backdrop-blur-md border-b border-white/5 transition-all duration-300"
         id="mainHeader">
         <div class="max-w-7xl mx-auto px-4 md:px-8 h-20 flex items-center justify-between">
-
-            <!-- Logo area -->
             <div class="flex items-center gap-3">
                 <div
                     class="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center text-xl shadow-lg animate-float">
@@ -146,74 +304,48 @@
                     <p class="text-xs text-slate-400 font-medium">مع م/ مصطفى هاني</p>
                 </div>
             </div>
-
-            <!-- Grade Badge -->
             <div class="hidden md:flex items-center gap-2 bg-slate-800/50 px-4 py-2 rounded-full border border-white/5">
                 <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
                 <span class="text-sm text-slate-300">الصف الثاني الثانوي</span>
             </div>
-
-            <!-- Mobile Menu Button -->
-            <button class="md:hidden p-2 text-slate-300 hover:text-white">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                    stroke="currentColor" class="w-8 h-8">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                        d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
-                </svg>
-            </button>
+            <button class="md:hidden p-2 text-slate-300 hover:text-white">☰</button>
         </div>
     </header>
 
     <!-- Hero Section -->
     <section class="relative pt-32 pb-20 px-4 overflow-hidden">
-
-        <!-- Gradient Circle behind -->
         <div
             class="absolute top-20 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-indigo-600/20 rounded-full blur-3xl -z-10 animate-pulse-glow">
         </div>
 
         <div class="max-w-5xl mx-auto text-center relative z-10">
-
-            <!-- Avatar -->
             <div class="relative inline-block mb-8 group">
                 <div class="hero-avatar-ring p-1">
                     <div
                         class="w-24 h-24 md:w-32 md:h-32 bg-slate-800 rounded-full overflow-hidden border-4 border-slate-900 shadow-2xl relative">
-                        <!-- Use an emoji representation for now, or placeholder image -->
                         <div
                             class="w-full h-full flex items-center justify-center text-6xl bg-gradient-to-b from-slate-700 to-slate-900">
-                            👨‍🏫
-                        </div>
+                            👨‍🏫</div>
                     </div>
                 </div>
-                <!-- Speech Bubble -->
                 <div
                     class="absolute -top-4 -right-16 md:-right-24 bg-white text-slate-900 px-4 py-2 rounded-2xl rounded-bl-none shadow-xl transform rotate-3 animate-float opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100">
                     <p class="font-bold text-sm">أبو حجاج هنا! 🚀</p>
                 </div>
             </div>
 
-            <!-- Creator Name Badge -->
             <div class="mb-6">
                 <div class="inline-block relative">
                     <div
                         class="px-8 py-3 bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 rounded-2xl shadow-2xl transform hover:scale-105 transition-transform">
-                        <p class="text-white text-lg md:text-xl font-black tracking-wide">
-                            ✨ مصطفى هاني حجاج ✨
-                        </p>
-                    </div>
-                    <div
-                        class="absolute -top-2 -right-2 w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center shadow-lg animate-bounce">
-                        <span class="text-xs">👑</span>
+                        <p class="text-white text-lg md:text-xl font-black tracking-wide">✨ مصطفى هاني حجاج ✨</p>
                     </div>
                 </div>
-                <p class="text-slate-400 text-sm mt-2">صانع المحتوى ومؤسس المنصة</p>
             </div>
 
-            <h1 class="text-4xl md:text-6xl font-black mb-6 leading-tight">
-                <span
-                    class="bg-clip-text text-transparent bg-gradient-to-r from-white via-indigo-200 to-indigo-400">الفيزياء..
-                    لعبتك الصغيرة</span>
+            <h1 class="text-4xl md:text-6xl font-black mb-6 leading-tight min-h-[1.2em]">
+                <span class="bg-clip-text text-transparent bg-gradient-to-r from-white via-indigo-200 to-indigo-400"
+                    id="typing-text"></span><span class="cursor-blink"></span>
             </h1>
 
             <p class="text-lg md:text-xl text-slate-300 max-w-2xl mx-auto mb-10 leading-relaxed">
@@ -221,7 +353,6 @@
                 <br> <span class="text-yellow-400 font-bold">افهم.. طبق.. استمتع!</span> 😎
             </p>
 
-            <!-- Stats -->
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto mb-12">
                 <div class="glass-card p-4 rounded-2xl">
                     <div class="text-2xl font-bold text-indigo-400 font-mono">4+</div>
@@ -229,32 +360,59 @@
                 </div>
                 <div class="glass-card p-4 rounded-2xl">
                     <div class="text-2xl font-bold text-pink-400 font-mono">50+</div>
-                    <div class="text-xs text-slate-400">سؤال و لغز</div>
+                    <div class="text-xs text-slate-400">سؤال ولغز</div>
                 </div>
                 <div class="glass-card p-4 rounded-2xl">
                     <div class="text-2xl font-bold text-green-400 font-mono">100%</div>
-                    <div class="text-xs text-slate-400">مجاني بالكامل</div>
+                    <div class="text-xs text-slate-400">مجاني</div>
                 </div>
                 <div class="glass-card p-4 rounded-2xl">
-                    <div class="text-2xl font-bold text-yellow-400 font-mono">∞</div>
-                    <div class="text-xs text-slate-400">شغف لا ينتهي</div>
+                    <div class="text-2xl font-bold text-yellow-400 font-mono">AI</div>
+                    <div class="text-xs text-slate-400">مساعد نيوتن</div>
                 </div>
             </div>
 
-            <a href="#lessons"
-                class="inline-flex items-center gap-2 btn-primary px-8 py-4 rounded-full font-bold text-lg shadow-lg group">
-                <span>ابدأ المذاكرة الآن</span>
-                <span class="group-hover:translate-y-1 transition-transform">👇</span>
-            </a>
-
+            <!-- AI Terminal -->
+            <div
+                class="glass-card max-w-3xl mx-auto rounded-2xl overflow-hidden border border-slate-700 shadow-2xl text-right">
+                <div class="bg-slate-900/80 p-3 flex items-center justify-between border-b border-slate-700">
+                    <div class="flex gap-2">
+                        <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                        <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                        <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                    </div>
+                    <div class="text-xs text-green-400 font-mono flex items-center gap-2">
+                        <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                        نيوتن 🍎 - متصل
+                    </div>
+                </div>
+                <div class="h-64 bg-slate-950/80 p-4 overflow-y-auto space-y-4 text-sm" id="chatBox">
+                    <div class="flex gap-3">
+                        <div
+                            class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center shrink-0">
+                            🍎</div>
+                        <div class="bg-slate-800 text-slate-200 p-3 rounded-2xl rounded-tr-sm">
+                            أهلاً يا فيزيائي! ⚛️<br>
+                            أنا <b>نيوتن</b>. جاهز أساعدك تفهم أي قانون أو تحل أي مسألة.
+                        </div>
+                    </div>
+                </div>
+                <div class="p-4 bg-slate-900/50 border-t border-slate-700 flex gap-3">
+                    <input type="text" id="chatInput"
+                        class="flex-1 bg-slate-800/50 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-indigo-500 transition placeholder-slate-500"
+                        placeholder="اسأل نيوتن عن الجاذبية...">
+                    <button id="sendBtn"
+                        class="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white px-6 py-2 rounded-xl font-bold transition shadow-lg shadow-indigo-500/20 flex items-center gap-2">
+                        <span>إرسال</span> 🍎
+                    </button>
+                </div>
+            </div>
         </div>
     </section>
 
     <!-- Lessons Section -->
     <section id="lessons" class="py-20 px-4 relative">
         <div class="max-w-6xl mx-auto">
-
-            <!-- Section Header -->
             <div class="flex items-center justify-between mb-12 border-b border-slate-700 pb-4">
                 <h2 class="text-3xl font-bold flex items-center gap-3">
                     <span class="text-4xl">📚</span> المقرر الدراسي
@@ -262,7 +420,6 @@
                 <div class="text-sm text-slate-400 bg-slate-800 px-3 py-1 rounded-lg">الترم الثاني</div>
             </div>
 
-            <!-- Unit 1: Fluids -->
             <div class="mb-16">
                 <h3 class="text-xl md:text-2xl font-bold mb-6 text-blue-300 flex items-center gap-2">
                     <span
@@ -271,230 +428,92 @@
                 </h3>
 
                 <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-
-                    <!-- الفصل الخامس: تطبيقات الضغط (Merged Lesson) -->
-                    <a href="lesson-fluids-part1.html"
-                        class="glass-card rounded-2xl overflow-hidden group relative block lg:col-span-2">
-                        <div class="absolute top-0 right-0 p-3 z-10">
-                            <span
+                    <!-- Lesson 1 -->
+                    <div onclick="window.location.href='lesson-fluids-part1.html'"
+                        class="glass-card rounded-2xl overflow-hidden group cursor-pointer relative lg:col-span-2">
+                        <div class="absolute top-0 right-0 p-3 z-10"><span
                                 class="bg-green-500/90 text-white text-[10px] font-bold px-2 py-1 rounded shadow-lg">متاح
-                                الآن</span>
-                        </div>
-                        <div class="absolute top-0 left-0 p-3 z-10">
-                            <span
-                                class="bg-indigo-600 text-white text-[10px] font-bold px-2 py-1 rounded shadow-lg">الفصل
-                                الخامس</span>
-                        </div>
+                                الآن</span></div>
                         <div
                             class="h-40 bg-gradient-to-br from-blue-600 via-indigo-600 to-violet-600 flex items-center justify-center relative overflow-hidden">
                             <div class="flex gap-4">
+                                <span class="text-5xl transform group-hover:scale-110 transition duration-300">🌊</span>
                                 <span
-                                    class="text-5xl transform group-hover:scale-110 transition-transform duration-300">🌊</span>
-                                <span
-                                    class="text-5xl transform group-hover:scale-110 transition-transform duration-300">🌡️</span>
-                                <span
-                                    class="text-5xl transform group-hover:scale-110 transition-transform duration-300">🚗</span>
+                                    class="text-5xl transform group-hover:scale-110 transition duration-300">🌡️</span>
                             </div>
-                            <div class="absolute inset-0 bg-black/10 group-hover:bg-transparent transition"></div>
                         </div>
                         <div class="p-6">
-                            <h4 class="text-xl font-bold mb-3 group-hover:text-blue-400 transition">
-                                الفصل 5: خواص الموائع الساكنة (شامل)
+                            <h4 class="text-xl font-bold mb-3 group-hover:text-blue-400 transition">خواص الموائع الساكنة
                             </h4>
-                            <p class="text-sm text-slate-400 mb-4">
-                                شرح تفصيلي + 4 محاكيات تفاعلية + مسائل المستويات العليا (البارومتر والمكبس).
+                            <p class="text-sm text-slate-400 mb-4">الضغط الهيدروستاتيكي، الأواني المستطرقة، والبارومتر.
                             </p>
-                            <div class="flex flex-wrap gap-2 mb-4">
-                                <span class="text-xs bg-blue-900/50 text-blue-300 px-2 py-1 rounded-full">الأواني
-                                    المستطرقة</span>
-                                <span
-                                    class="text-xs bg-indigo-900/50 text-indigo-300 px-2 py-1 rounded-full">البارومتر</span>
-                                <span class="text-xs bg-violet-900/50 text-violet-300 px-2 py-1 rounded-full">المكبس
-                                    الهيدروليكي</span>
-                            </div>
-                            <div
-                                class="flex items-center justify-between text-xs text-slate-500 border-t border-slate-700 pt-3">
-                                <span class="flex items-center gap-1">⏱️ 60+ دقيقة</span>
-                                <span
-                                    class="flex items-center gap-1 font-bold text-indigo-400 group-hover:translate-x-[-4px] transition">ابدأ
-                                    الدرس ⬅️</span>
-                            </div>
-                        </div>
-                    </a>
-
-                    <!-- Coming Soon: Other Chapters -->
-                    <div class="glass-card rounded-2xl overflow-hidden relative opacity-60">
-                        <div
-                            class="absolute inset-0 z-20 flex flex-col items-center justify-center text-center p-4 bg-slate-900/80">
-                            <div
-                                class="w-12 h-12 bg-slate-800 rounded-full flex items-center justify-center mb-2 border border-slate-600">
-                                🔒
-                            </div>
-                            <h5 class="font-bold text-slate-400">الفصول السابقة</h5>
-                            <p class="text-xs text-slate-500 mt-1">الفصل 1-4 (قريباً)</p>
-                        </div>
-                        <div class="h-32 bg-gradient-to-br from-slate-700 to-slate-800"></div>
-                        <div class="p-5">
-                            <h4 class="text-lg font-bold mb-2 text-slate-500">فصول أخرى</h4>
+                            <div class="text-xs text-indigo-400 font-bold">اضغط للمذاكرة ⬅️</div>
                         </div>
                     </div>
 
-                </div>
-            </div>
+                    <!-- Gases 1 -->
+                    <div onclick="window.location.href='lesson-gases-part1.html'"
+                        class="glass-card rounded-2xl overflow-hidden group cursor-pointer relative border-yellow-500/30">
+                        <div class="h-32 bg-gradient-to-br from-red-600 to-orange-500 flex items-center justify-center">
+                            <span class="text-5xl transform group-hover:scale-110 transition duration-300">💨</span>
+                        </div>
+                        <div class="p-5">
+                            <h4 class="text-lg font-bold mb-2 group-hover:text-red-400 transition">قوانين الغازات</h4>
+                            <p class="text-sm text-slate-400 mb-4">بويل، شارل، وجولي.</p>
+                            <div class="text-xs text-red-400 font-bold">اضغط للمذاكرة ⬅️</div>
+                        </div>
+                    </div>
 
-            <!-- Unit 2: Heat & Gases -->
-            <div>
-                <h3 class="text-xl md:text-2xl font-bold mb-6 text-red-300 flex items-center gap-2">
-                    <span class="text-2xl bg-red-500/20 w-10 h-10 flex items-center justify-center rounded-lg">🔥</span>
-                    الباب الثاني: الحرارة والغازات
-                </h3>
-
-                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-
-                    <!-- Gases 1 Card -->
-                    <a href="lesson-gases-part1.html"
-                        class="glass-card rounded-2xl overflow-hidden group relative block border-yellow-500/30">
-                        <div class="absolute top-2 left-2 z-10">
-                            <span class="badge-new text-white text-[10px] font-bold px-2 py-1 rounded shadow-lg">جديد
-                                🔥</span>
+                    <!-- Laws Summary (Cheat Sheet) -->
+                    <div onclick="window.location.href='lesson-laws.html'"
+                        class="glass-card rounded-2xl overflow-hidden group cursor-pointer relative border-purple-500/30 lg:col-span-3">
+                        <div class="absolute top-2 left-2 z-10"><span
+                                class="badge-new text-white text-[10px] bold px-2 py-1 rounded shadow">جديد 🔥</span>
                         </div>
                         <div
-                            class="h-32 bg-gradient-to-br from-red-600 to-orange-500 flex items-center justify-center relative overflow-hidden">
+                            class="h-32 bg-gradient-to-r from-slate-800 to-slate-900 border-b border-indigo-500/30 flex items-center justify-center relative overflow-hidden">
+                            <div class="absolute inset-0 bg-indigo-500/10 blur-xl"></div>
                             <span
-                                class="text-5xl transform group-hover:scale-110 transition-transform duration-300">💨</span>
-                            <!-- Animated Particles -->
-                            <div class="absolute w-2 h-2 bg-white/50 rounded-full top-1/4 left-1/4 animate-bounce">
-                            </div>
-                            <div class="absolute w-1 h-1 bg-white/30 rounded-full bottom-1/4 right-1/4 animate-ping">
-                            </div>
+                                class="text-5xl transform group-hover:scale-110 transition duration-300 relative z-10">⚖️</span>
                         </div>
-                        <div class="p-5">
-                            <h4 class="text-lg font-bold mb-2 group-hover:text-red-400 transition">الحرارة وقوانين
-                                الغازات</h4>
-                            <p class="text-sm text-slate-400 mb-4 line-clamp-2">بويل، شارل، وجولي. الجزيئات بتعمل إيه
-                                لما تسخن؟</p>
-                            <div
-                                class="flex items-center justify-between text-xs text-slate-500 border-t border-slate-700 pt-3">
-                                <span class="flex items-center gap-1">⏱️ 40 دقيقة</span>
-                                <span
-                                    class="flex items-center gap-1 font-bold text-red-400 group-hover:translate-x-[-4px] transition">ابدأ
-                                    التحدي ⬅️</span>
+                        <div class="p-5 flex items-center justify-between">
+                            <div>
+                                <h4 class="text-xl font-bold mb-1 group-hover:text-purple-400 transition">بنك القوانين
+                                    الشامل</h4>
+                                <p class="text-sm text-slate-400">ملخص كل قوانين المنهج في صفحة واحدة (الزتونة 🍋).</p>
                             </div>
-                        </div>
-                    </a>
-
-                    <!-- Coming Soon Card 1 -->
-                    <div class="glass-card rounded-2xl overflow-hidden relative">
-                        <div
-                            class="locked-overlay absolute inset-0 z-20 flex flex-col items-center justify-center text-center p-4">
-                            <div
-                                class="w-12 h-12 bg-slate-800 rounded-full flex items-center justify-center mb-2 border border-slate-600">
-                                🔒
-                            </div>
-                            <h5 class="font-bold text-slate-300">قريباً جداً</h5>
-                            <button disabled
-                                class="mt-2 px-4 py-1 bg-slate-700/50 text-slate-500 text-xs rounded-full border border-slate-600 cursor-not-allowed">
-                                جاري التجهيز...
-                            </button>
-                        </div>
-                        <!-- Blurred Content -->
-                        <div class="h-32 bg-slate-800 opacity-50 flex items-center justify-center">
-                            <span class="text-4xl grayscale">🧪</span>
-                        </div>
-                        <div class="p-5 opacity-50">
-                            <h4 class="text-lg font-bold mb-2">قانون الغاز المثالي</h4>
-                            <p class="text-sm text-slate-400 mb-4">استنتاج القانون العام.. وحل مسائل المستويات العليا.
-                            </p>
-                            <div class="h-4 bg-slate-700 rounded w-1/2"></div>
+                            <div class="bg-purple-600/20 text-purple-300 p-3 rounded-full">⬅️</div>
                         </div>
                     </div>
-
-                    <!-- Coming Soon Card 2 -->
-                    <div class="glass-card rounded-2xl overflow-hidden relative">
-                        <div
-                            class="locked-overlay absolute inset-0 z-20 flex flex-col items-center justify-center text-center p-4">
-                            <div
-                                class="w-12 h-12 bg-slate-800 rounded-full flex items-center justify-center mb-2 border border-slate-600">
-                                🔒
-                            </div>
-                            <h5 class="font-bold text-slate-300">قريباً جداً</h5>
-                            <button disabled
-                                class="mt-2 px-4 py-1 bg-slate-700/50 text-slate-500 text-xs rounded-full border border-slate-600 cursor-not-allowed">
-                                جاري التجهيز...
-                            </button>
-                        </div>
-                        <!-- Blurred Content -->
-                        <div class="h-32 bg-slate-800 opacity-50 flex items-center justify-center">
-                            <span class="text-4xl grayscale">📉</span>
-                        </div>
-                        <div class="p-5 opacity-50">
-                            <h4 class="text-lg font-bold mb-2">مراجعة عامة</h4>
-                            <p class="text-sm text-slate-400 mb-4">حل امتحانات السنوات السابقة وبنك الأسئلة.</p>
-                            <div class="h-4 bg-slate-700 rounded w-1/2"></div>
-                        </div>
-                    </div>
-
                 </div>
             </div>
-
         </div>
     </section>
 
     <!-- Footer -->
     <footer class="bg-slate-900 border-t border-slate-800 py-12 mt-12 relative overflow-hidden">
-        <!-- Floating decoration in footer -->
         <div class="absolute -top-20 -left-20 w-40 h-40 bg-indigo-500/10 rounded-full blur-2xl"></div>
-        <div class="absolute -bottom-20 -right-20 w-40 h-40 bg-pink-500/10 rounded-full blur-2xl"></div>
-
         <div class="max-w-7xl mx-auto px-4 text-center">
-
             <div class="flex items-center justify-center gap-3 mb-6">
                 <span class="text-2xl">⚛️</span>
                 <span class="font-bold text-xl text-slate-200">منصة الفيزياء</span>
             </div>
-
-            <p class="text-slate-500 max-w-sm mx-auto mb-8 text-sm leading-relaxed">
-                مبادرة تعليمية لتبسيط الفيزياء للمرحلة الثانوية.
-                <br>
-                هدفنا إنك "تفهم" مش بس تحفظ، وتستمتع وأنت بتذاكر.
-            </p>
-
-            <div class="flex justify-center gap-4 mb-8">
-                <!-- Social Placeholders -->
-                <a href="#"
-                    class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-slate-400 hover:bg-indigo-600 hover:text-white transition">F</a>
-                <a href="#"
-                    class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-slate-400 hover:bg-pink-600 hover:text-white transition">Y</a>
-                <a href="#"
-                    class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-slate-400 hover:bg-blue-500 hover:text-white transition">T</a>
-            </div>
-
-            <div class="text-xs text-slate-600 font-mono">
-                &copy; 2024 Physics Platform. All rights reserved. <br>
-                Made with ❤️ & ☕ by Mostafa Hany
-            </div>
+            <p class="text-slate-500 max-w-sm mx-auto mb-8 text-sm">افهم.. طبق.. استمتع!</p>
+            <div class="text-xs text-slate-600 font-mono">&copy; 2024 Physics Platform. All rights reserved.</div>
         </div>
     </footer>
 
-    <!-- Simple JS for Scroll Effects & Particles -->
+    <!-- Logic -->
     <script>
-        // Header Blur Effect styling on scroll
+        // Scroll & Particles
         window.addEventListener('scroll', () => {
             const header = document.getElementById('mainHeader');
-            if (window.scrollY > 50) {
-                header.classList.add('bg-slate-900/95', 'shadow-lg');
-                header.classList.remove('bg-slate-900/80');
-            } else {
-                header.classList.remove('bg-slate-900/95', 'shadow-lg');
-                header.classList.add('bg-slate-900/80');
-            }
+            if (window.scrollY > 50) header.classList.add('bg-slate-900/95', 'shadow-lg');
+            else header.classList.remove('bg-slate-900/95', 'shadow-lg');
         });
 
-        // Simple Particle System
         const particleContainer = document.getElementById('particles');
-        const particleCount = 30;
-
-        for (let i = 0; i < particleCount; i++) {
+        for (let i = 0; i < 30; i++) {
             const p = document.createElement('div');
             p.className = 'particle';
             const size = Math.random() * 5 + 2;
@@ -503,14 +522,159 @@
             p.style.left = Math.random() * 100 + 'vw';
             p.style.top = Math.random() * 100 + 'vh';
             p.style.opacity = Math.random() * 0.5 + 0.1;
-
-            // Random floating animation
-            const duration = Math.random() * 20 + 10 + 's';
-            const delay = Math.random() * 5 + 's';
-            p.style.animation = `float ${duration} ease-in-out infinite ${delay}`;
-
+            p.style.animation = `float ${Math.random() * 20 + 10}s ease-in-out infinite ${Math.random() * 5}s`;
             particleContainer.appendChild(p);
         }
+
+        // AI Placeholder Key
+        const OPENROUTER_API_KEY = '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';
+        const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
+        const SYSTEM_PROMPT = `أنت "نيوتن 🍎"، مساعد ذكي لطلاب تانية ثانوي فيزياء. اشرح بأسلوب مصري مبسط.`;
+        let conversationHistory = [];
+
+        // Typing
+        const textToType = "الفيزياء.. لعبتك الصغيرة ⚛️";
+        const typingElement = document.getElementById('typing-text');
+        let charIndex = 0;
+        function typeWriter() {
+            if (charIndex < textToType.length) {
+                typingElement.textContent += textToType.charAt(charIndex);
+                charIndex++;
+                setTimeout(typeWriter, 80);
+            }
+        }
+        window.addEventListener('load', typeWriter);
+
+        // ========== Lesson Data ==========
+        // ========== Lesson Data ==========
+        // External links are used now. This data is kept empty/safe.
+        const lessonsData = {
+            'fluids': {
+                title: 'الموائع الساكنة 🌊',
+                content: `<div class="p-8 text-center">جاري الانتقال للدرس...</div>`
+            },
+            'gases': {
+                title: 'قوانين الغازات 💨',
+                content: `<div class="p-8 text-center">جاري الانتقال للدرس...</div>`
+            }
+        };
+
+        // Modal
+        const modal = document.getElementById('lessonModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalBody = document.getElementById('modalBody');
+
+        window.openLesson = function (id) {
+            const data = lessonsData[id];
+            if (!data) return;
+            modalTitle.innerText = data.title;
+            modalBody.innerHTML = data.content;
+            modal.classList.add('active');
+            document.getElementById('modalChatBox').innerHTML = `<div
+        class='bg-slate-800 text-slate-300 p-3 rounded-xl mb-4 text-xs text-center border border-slate-700'>بدأ درس:
+        ${data.title}</div>`;
+        }
+        window.closeLesson = function () { modal.classList.remove('active'); }
+        window.selectLesson = function (id) { openLesson(id); }
+
+        // Chat
+        async function getAIResponse(userMessage) {
+            conversationHistory.push({ role: "user", content: userMessage });
+
+            if (OPENROUTER_API_KEY.includes('PLACEHOLDER')) {
+                const fakeReply = "محتاج مفتاح API عشان أشتغل يا هندسة! 🍎";
+                conversationHistory.push({ role: "assistant", content: fakeReply });
+                return fakeReply;
+            }
+
+            try {
+                const response = await fetch(OPENROUTER_API_URL, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${OPENROUTER_API_KEY}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        model: 'deepseek/deepseek-r1', messages: [{ role: "system", content: SYSTEM_PROMPT },
+                        ...conversationHistory]
+                    })
+                });
+                const data = await response.json();
+                const botReply = data.choices?.[0]?.message?.content || "Error";
+                conversationHistory.push({ role: "assistant", content: botReply });
+                return botReply;
+            } catch (error) { return "في مشكلة في الاتصال بالسيرفر."; }
+        }
+        // ========== Mobile Toggle Logic ==========
+        function showMobileChat() {
+            document.getElementById('modalContentPanel').classList.add('hidden');
+            document.getElementById('modalContentPanel').classList.remove('flex');
+            const chatPanel = document.getElementById('modalChatPanel');
+            chatPanel.classList.remove('hidden');
+            chatPanel.classList.add('flex');
+        }
+
+        function showMobileContent() {
+            const chatPanel = document.getElementById('modalChatPanel');
+            chatPanel.classList.add('hidden');
+            chatPanel.classList.remove('flex');
+            document.getElementById('modalContentPanel').classList.remove('hidden');
+        }
+
+        window.askAI = function (question) {
+            if (window.innerWidth < 768) showMobileChat();
+            const input = document.getElementById('modalChatInput');
+            input.value = question;
+            input.focus();
+        };
+
+        window.closeLesson = function () {
+            const modal = document.getElementById('lessonModal');
+            modal.classList.remove('active');
+            setTimeout(() => {
+                if (window.innerWidth < 768) showMobileContent();
+            }, 300);
+        };
+
+        async function handleSend(inputId) {
+            const
+                input = document.getElementById(inputId); const text = input.value.trim(); if (!text) return; const
+                    allBoxes = ['chatBox', 'modalChatBox']; allBoxes.forEach(id => {
+                        const box = document.getElementById(id);
+                        if (box) {
+                            box.innerHTML += `<div class="flex gap-3 flex-row-reverse animate-float-message">
+                <div class="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center shrink-0">👤</div>
+                <div
+                    class="bg-gradient-to-l from-indigo-600 to-purple-600 text-white p-3 rounded-2xl rounded-tl-sm message-bubble text-sm">
+                    ${text}</div>
+            </div>`;
+                            box.scrollTop = box.scrollHeight;
+                        }
+                    });
+            input.value = '';
+
+            const reply = await getAIResponse(text);
+
+            allBoxes.forEach(id => {
+                const box = document.getElementById(id);
+                if (box) {
+                    box.innerHTML += `<div class="flex gap-3 animate-float-message">
+                <div
+                    class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center shrink-0">
+                    🍎</div>
+                <div
+                    class="bg-slate-800 text-slate-200 p-3 rounded-2xl rounded-tr-sm message-bubble text-sm leading-relaxed border border-slate-700">
+                    ${reply}</div>
+            </div>`;
+                    box.scrollTop = box.scrollHeight;
+                }
+            });
+        }
+
+        ['chatInput', 'modalChatInput'].forEach(id => {
+            const btn = id === 'chatInput' ? 'sendBtn' : 'modalSendBtn';
+            document.getElementById(btn).addEventListener('click', () => handleSend(id));
+            document.getElementById(id).addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') handleSend(id);
+            });
+        });
     </script>
 </body>
 
