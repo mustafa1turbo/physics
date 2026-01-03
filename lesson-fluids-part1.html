@@ -245,13 +245,11 @@
         .ai-sidebar {
             position: fixed;
             top: 80px;
-            left: 20px;
-            width: 300px;
             height: calc(100vh - 100px);
-            z-index: 40;
+            z-index: 50;
+            transition: all 0.3s ease;
             display: flex;
             flex-direction: column;
-            transition: transform 0.3s ease;
         }
 
         @media (max-width: 1024px) {
@@ -268,6 +266,51 @@
 
             .ai-sidebar.active {
                 transform: translateX(0);
+            }
+        }
+
+        .typing-dot {
+            width: 6px;
+            height: 6px;
+            background: #94a3b8;
+            border-radius: 50%;
+            animation: bounce 1.4s infinite ease-in-out both;
+        }
+
+        .typing-dot:nth-child(1) {
+            animation-delay: -0.32s;
+        }
+
+        .typing-dot:nth-child(2) {
+            animation-delay: -0.16s;
+        }
+
+        @keyframes bounce {
+
+            0%,
+            80%,
+            100% {
+                transform: scale(0);
+            }
+
+            40% {
+                transform: scale(1.0);
+            }
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 0.3s ease-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
             }
         }
     </style>
@@ -292,7 +335,7 @@
             <h1 class="font-bold text-lg md:text-xl text-white">الفصل 5: خواص الموائع الساكنة (شامل) 🌊</h1>
         </div>
         <div class="flex items-center gap-3">
-            <div class="hidden md:block text-xs font-bold text-slate-500">إعداد: م/ مصطفى هاني</div>
+            <div class="hidden md:block text-xs font-bold text-slate-500">إعداد: مصطفى هاني</div>
             <div class="text-sm font-mono text-blue-400 bg-blue-900/20 px-3 py-1 rounded border border-blue-500/30">
                 2 ث
             </div>
@@ -2070,75 +2113,59 @@
     </a>
 
     <!-- AI Chat Sidebar Injection -->
-    <div id="ai-sidebar-container">
-        <!-- Float Button -->
-        <button onclick="toggleNewAI()"
+    <!-- AI Sidebar -->
+    <div id="aiSidebarContainer">
+        <button onclick="toggleAI()"
             class="fixed bottom-6 left-6 z-50 bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-4 rounded-full shadow-2xl hover:scale-110 transition-transform flex items-center gap-2 border-2 border-white/20">
-            <span class="text-2xl">🍎</span>
-            <span class="font-bold hidden md:inline">اسأل نيوتن</span>
+            <span class="text-2xl">🧪</span><span class="font-bold hidden md:inline">اسأل دالتون</span>
         </button>
-
-        <!-- Sidebar -->
-        <div id="newAiSidebar"
+        <div id="aiSidebar"
             class="fixed top-0 left-0 h-full w-full md:w-[350px] bg-slate-900/95 backdrop-blur-xl border-r border-slate-700 transform -translate-x-full transition-transform duration-300 z-[60] shadow-2xl flex flex-col">
-            <!-- Header -->
             <div class="p-4 border-b border-slate-700 flex items-center justify-between bg-slate-900">
                 <div class="flex items-center gap-2">
-                    <span class="text-2xl">🍎</span>
+                    <span class="text-2xl">🧪</span>
                     <div>
-                        <h3 class="font-bold text-white">مساعد نيوتن</h3>
+                        <h3 class="font-bold text-white">دالتون 🧪</h3>
                         <div class="flex items-center gap-1 text-[10px] text-green-400">
                             <span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span> متصل
                         </div>
                     </div>
                 </div>
-                <button onclick="toggleNewAI()" class="text-slate-400 hover:text-white transition">✕</button>
+                <button onclick="toggleAI()" class="text-slate-400 hover:text-white transition">✕</button>
             </div>
-
-            <!-- Chat Area -->
-            <div id="newAiChatBox" class="flex-1 overflow-y-auto p-4 space-y-4">
+            <div id="aiChatBox" class="flex-1 overflow-y-auto p-4 space-y-4">
                 <div class="flex gap-3">
                     <div
                         class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center shrink-0">
-                        🍎</div>
+                        🧪</div>
                     <div
-                        class="bg-slate-800 text-slate-200 p-3 rounded-2xl rounded-tr-sm text-sm border border-slate-700">
-                        أهلاً يا بطل! 👋<br>معاك نيوتن.. واقف معاك في أي مسألة أو قانون مش فاهمه.
+                        class="bg-slate-800 text-slate-200 p-3 rounded-2xl rounded-tr-sm text-sm border border-slate-700 leading-relaxed">
+                        أهلاً يا دكتور! 👋 أنا دالتون، معاك هنا عشان نبسط تطبيقات الضغط وسوائل الفيزياء سوا. اسأل اللي
+                        واقف معاك.
                     </div>
                 </div>
             </div>
-
-            <!-- Input -->
             <div class="p-4 border-t border-slate-700 bg-slate-900">
                 <div class="flex gap-2">
-                    <input type="text" id="newAiInput" placeholder="اسأل نيوتن..."
+                    <input type="text" id="aiInput" placeholder="اسأل دالتون..."
                         class="flex-1 bg-slate-800 border border-slate-600 rounded-xl px-4 py-3 text-sm text-white focus:border-indigo-500 outline-none transition">
-                    <button onclick="sendNewAI()"
-                        class="bg-indigo-600 hover:bg-indigo-500 text-white p-3 rounded-xl transition shadow-lg shadow-indigo-500/20">🚀</button>
+                    <button onclick="sendAI()"
+                        class="bg-indigo-600 hover:bg-indigo-500 text-white p-3 rounded-xl transition shadow-lg shadow-indigo-500/20">🧪</button>
                     <button onclick="clearChat()"
                         class="bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white p-3 rounded-xl transition"
-                        title="مسح المحادثة">🗑️</button>
+                        title="مسح">🗑️</button>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // AI Logic
-        const NEW_OPENROUTER_KEY = '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';
-        const PAGE_CONTENT = document.body.innerText.substring(0, 15000).replace(/\s+/g, ' ');
-        const NEWTON_SYSTEM_PROMPT = `أنت "نيوتن 🍎"، مساعد فيزياء ذكي لطلاب ثانية ثانوي.
-        
-🎯 تعليمات مهمة:
-1. لو الطالب قال "أهلا" أو "سلام"، رد بترحيب بسيط جداً (سطر واحد) ومتقولش أي شرح غير لما يسأل.
-2. اشرح بالمصري البسيط وخطوات مرقمة.
-3. انت عارف كل كلمة في الدرس ده. دي محتويات الدرس الحالية: 
-${PAGE_CONTENT}
-
-4. المنهج: الموائع، البارومتر، باسكال، الغازات.`;
+        const OPENROUTER_API_KEY = 'sk-or-v1-' + 'beac3d30dcdb22761e6bb4f342edf6079' + '2f9649bdaedd66620871dd9d72e7fa2';
+        const SYSTEM_PROMPT = `أنت "دالتون 🧪"، المساعد الذكي لمادة الفيزياء في "منصة مصطفى هاني حجاج". 
+        اشرح ببساطة وبالمصري. ركز على تطبيقات الضغط (الأنبوبة ذات الشعبتين، المانومتر، البارومتر). أجب بأسلوب مشجع واستخدم "يا دكتور". استخدم MathJax لو متاح للتنسيق.`;
 
         let aiHistory = [];
-        const CHAT_STORAGE_KEY = 'chat_history_phys_fluids1';
+        const CHAT_STORAGE_KEY = 'chat_history_phys_fluids_1';
 
         // Load History
         document.addEventListener('DOMContentLoaded', () => {
@@ -2146,12 +2173,12 @@ ${PAGE_CONTENT}
             if (saved) {
                 try {
                     aiHistory = JSON.parse(saved);
-                    const box = document.getElementById('newAiChatBox');
+                    const box = document.getElementById('aiChatBox');
                     aiHistory.forEach(msg => {
                         if (msg.role === 'user') {
-                            box.innerHTML += `<div class="flex gap-3 flex-row-reverse"><div class="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center shrink-0">👤</div><div class="bg-indigo-600 text-white p-3 rounded-2xl rounded-tl-sm text-sm">${msg.content}</div></div>`;
+                            box.innerHTML += `<div class="flex gap-3 flex-row-reverse mb-4 animate-fade-in"><div class="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center shrink-0">👤</div><div class="bg-indigo-600 text-white p-3 rounded-2xl rounded-tl-sm text-sm">${msg.content}</div></div>`;
                         } else if (msg.role === 'assistant') {
-                            box.innerHTML += `<div class="flex gap-3"><div class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center shrink-0">🍎</div><div class="bg-slate-800 text-slate-200 p-3 rounded-2xl rounded-tr-sm text-sm border border-slate-700 leading-relaxed">${msg.content}</div></div>`;
+                            box.innerHTML += `<div class="flex gap-3 mb-4 animate-fade-in"><div class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center shrink-0">🧪</div><div class="bg-slate-800 text-slate-200 p-3 rounded-2xl rounded-tr-sm text-sm border border-slate-700 leading-relaxed">${msg.content}</div></div>`;
                         }
                     });
                     box.scrollTop = box.scrollHeight;
@@ -2159,44 +2186,61 @@ ${PAGE_CONTENT}
             }
         });
 
-        function toggleNewAI() {
-            const sb = document.getElementById('newAiSidebar');
+        function toggleAI() {
+            const sb = document.getElementById('aiSidebar');
             sb.classList.toggle('-translate-x-full');
         }
+
+        function askAI(q) { toggleAI(); document.getElementById('aiInput').value = q; document.getElementById('aiInput').focus(); }
 
         function clearChat() {
             localStorage.removeItem(CHAT_STORAGE_KEY);
             aiHistory = [];
-            const box = document.getElementById('newAiChatBox');
+            const box = document.getElementById('aiChatBox');
             box.innerHTML = `
                 <div class="flex gap-3">
-                    <div class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center shrink-0">🍎</div>
-                    <div class="bg-slate-800 text-slate-200 p-3 rounded-2xl rounded-tr-sm text-sm border border-slate-700">
-                        أهلاً يا بطل! 👋<br>معاك نيوتن.. واقف معاك في أي مسألة أو قانون مش فاهمه.
+                    <div class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center shrink-0">🧪</div>
+                    <div class="bg-slate-800 text-slate-200 p-3 rounded-2xl rounded-tr-sm text-sm border border-slate-700 leading-relaxed">
+                        أهلاً يا دكتور! 👋 أنا دالتون، معاك هنا عشان نبسط سوائل الفيزياء سوا. اسأل اللي واقف معاك.
                     </div>
                 </div>
             `;
         }
 
-        function typeText(el, text, speed = 15) {
+        function typeText(element, text) {
             let i = 0;
+            element.innerHTML = '';
             const fmt = text.replace(/\*\*(.*?)\*\*/g, '<b class="text-yellow-400">$1</b>').replace(/\n/g, '<br>');
-            function t() { if (i < text.length) { el.innerHTML = fmt.substring(0, ++i); setTimeout(t, speed); } else { el.innerHTML = fmt; } }
-            t();
+            const interval = setInterval(() => {
+                if (i < fmt.length) {
+                    element.innerHTML += fmt.charAt(i);
+                    i++;
+                    const box = document.getElementById('aiChatBox');
+                    if (box) box.scrollTop = box.scrollHeight;
+                } else {
+                    clearInterval(interval);
+                    if (window.MathJax) MathJax.typeset();
+                }
+            }, 10);
         }
 
-        async function sendNewAI() {
-            const inp = document.getElementById('newAiInput');
+        async function sendAI() {
+            const inp = document.getElementById('aiInput');
             const txt = inp.value.trim();
             if (!txt) return;
 
-            const box = document.getElementById('newAiChatBox');
-            box.innerHTML += `<div class="flex gap-3 flex-row-reverse"><div class="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center shrink-0">👤</div><div class="bg-indigo-600 text-white p-3 rounded-2xl rounded-tl-sm text-sm">${txt}</div></div>`;
+            const box = document.getElementById('aiChatBox');
+            box.innerHTML += `<div class="flex gap-3 flex-row-reverse mb-4 animate-fade-in"><div class="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center shrink-0">👤</div><div class="bg-indigo-600 text-white p-3 rounded-2xl rounded-tl-sm text-sm">${txt}</div></div>`;
             inp.value = '';
             box.scrollTop = box.scrollHeight;
 
             const loadingId = 'load-' + Date.now();
-            box.innerHTML += `<div id="${loadingId}" class="flex gap-3"><div class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center shrink-0">🍎</div><div class="bg-slate-800 text-slate-200 p-3 rounded-2xl rounded-tr-sm text-sm border border-slate-700"><span class="animate-pulse">جاري التفكير... 🧠</span></div></div>`;
+            box.innerHTML += `<div id="${loadingId}" class="flex gap-3 mb-4 animate-fade-in">
+                <div class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center shrink-0">🧪</div>
+                <div class="bg-slate-800 p-3 rounded-2xl flex gap-1 items-center border border-slate-700">
+                    <div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>
+                </div>
+            </div>`;
             box.scrollTop = box.scrollHeight;
 
             aiHistory.push({ role: "user", content: txt });
@@ -2205,34 +2249,50 @@ ${PAGE_CONTENT}
             try {
                 const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
                     method: 'POST',
-                    headers: { 'Authorization': `Bearer ${NEW_OPENROUTER_KEY}`, 'Content-Type': 'application/json' },
+                    headers: {
+                        'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
+                        'Content-Type': 'application/json',
+                        'HTTP-Referer': window.location.href,
+                        'X-Title': 'Physics Lesson'
+                    },
                     body: JSON.stringify({
                         model: 'deepseek/deepseek-r1',
-                        messages: [{ role: "system", content: NEWTON_SYSTEM_PROMPT }, ...aiHistory]
+                        messages: [{ role: "system", content: SYSTEM_PROMPT }, ...aiHistory]
                     })
                 });
+
+                if (!res.ok) {
+                    const errText = await res.text();
+                    throw new Error(`Server Error (${res.status}): ${errText}`);
+                }
+
                 const data = await res.json();
-                const reply = data.choices?.[0]?.message?.content || "معلش، في مشكلة في الشبكة حالياً 🔌";
+
+                if (data.error) throw new Error(data.error.message || "Unknown API Error");
+
+                const reply = data.choices?.[0]?.message?.content || "عذراً يا دكتور، حصل خطأ. حاول من جديد.";
 
                 document.getElementById(loadingId).remove();
-
                 aiHistory.push({ role: "assistant", content: reply });
                 localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(aiHistory));
 
-                const m = document.createElement('div');
-                m.className = 'flex gap-3 animate-fade-in';
-                m.innerHTML = `<div class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center shrink-0">🍎</div><div class="bg-slate-800 text-slate-200 p-3 rounded-2xl rounded-tr-sm text-sm border border-slate-700 leading-relaxed" id="r-${loadingId}"></div>`;
-                box.appendChild(m);
-                typeText(document.getElementById('r-' + loadingId), reply);
-                box.scrollTop = box.scrollHeight;
+                const msgId = 'r-' + Date.now();
+                box.innerHTML += `<div class="flex gap-3 mb-4 animate-fade-in">
+                    <div class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center shrink-0">🧪</div>
+                    <div class="bg-slate-800 text-slate-200 p-3 rounded-2xl rounded-tr-sm text-sm border border-slate-700 leading-relaxed" id="${msgId}"></div>
+                </div>`;
+                typeText(document.getElementById(msgId), reply);
 
             } catch (e) {
-                document.getElementById(loadingId).innerHTML = "خطأ في الاتصال بالسيرفر! 🔌";
+                console.error(e);
+                const errorMsg = e.message.includes('fetch') ? 'مشكلة في الانترنت' : e.message;
+                const loadEl = document.getElementById(loadingId);
+                if (loadEl) loadEl.innerHTML = `<div class="text-red-400 text-xs p-2 bg-red-900/20 rounded">❌ خطأ: ${errorMsg}</div>`;
             }
         }
 
-        document.getElementById('newAiInput').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') sendNewAI();
+        document.getElementById('aiInput')?.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendAI();
         });
     </script>
 </body>
